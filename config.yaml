@@ -1,0 +1,60 @@
+# Configuration for Intelligent Dataset Quality Assessment & Cleaning System
+
+ollama:
+  host: "http://127.0.0.1:11434"
+  model: "qwen2.5:7b"
+  timeout_seconds: 15
+  auto_start: true
+
+thresholds:
+  auto_correct_confidence: 0.95
+  suggest_review_confidence: 0.70
+  category_similarity_threshold: 82.0
+  near_duplicate_similarity_threshold: 90.0
+  outlier_zscore_threshold: 3.0
+  outlier_iqr_multiplier: 1.5
+  isolation_forest_contamination: 0.05
+
+missing_representations:
+  - ""
+  - " "
+  - "nan"
+  - "NaN"
+  - "none"
+  - "None"
+  - "null"
+  - "NULL"
+  - "n/a"
+  - "N/A"
+  - "na"
+  - "NA"
+  - "?"
+  - "-"
+  - "unknown"
+  - "Unknown"
+  - "UNKNOWN"
+
+quality_score_weights:
+  completeness: 0.25
+  consistency: 0.20
+  validity: 0.25
+  uniqueness: 0.15
+  anomaly_quality: 0.15
+
+domain_rules:
+  age:
+    min: 0
+    max: 120
+  percentage:
+    min: 0.0
+    max: 100.0
+  salary:
+    min: 0.0
+
+cleaning_defaults:
+  missing_numeric_strategy: "median"
+  missing_categorical_strategy: "mode"
+  outlier_strategy: "flag_only"
+  remove_exact_duplicates: true
+  normalize_text_case: true
+  normalize_whitespace: true
