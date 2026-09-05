@@ -15,80 +15,95 @@ from src.profiling.quality_metrics import compute_quality_score
 from src.detection.anomaly_detector import detect_all_issues
 from src.intelligence.ollama_client import OllamaClient, RECOMMENDED_MODELS
 from src.intelligence.reasoning_engine import ReasoningEngine
+from src.intelligence.domain_inferencer import infer_dynamic_domain_rules
 from src.review.human_review import HumanReviewManager, validate_user_correction_input
 from src.cleaning.pipeline import execute_cleaning_pipeline
 from src.validation.validator import validate_cleaned_dataset
 from src.validation.before_after import compute_before_after_comparison
 from src.reporting.audit_logger import AuditLogger
 from src.reporting.report_generator import generate_html_report
-from src.evaluation.corruption_engine import DataCorruptionEngine
-from src.evaluation.detection_metrics import evaluate_detection_performance
-from src.evaluation.correction_metrics import evaluate_correction_performance
-from src.evaluation.downstream_evaluation import evaluate_downstream_ml
 
 # Configure Streamlit Page
 st.set_page_config(
     page_title="Intelligent Data Quality & Auto-Cleaning System",
-    page_icon="🛡️",
+    page_icon="📊",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# Custom CSS for polished, modern UI aesthetics
+# Custom CSS for polished, mature, corporate UI aesthetics
 st.markdown("""
 <style>
+    :root {
+        --primary-color: #0f172a;
+        --accent-color: #3b82f6;
+        --text-color: #e2e8f0;
+        --bg-panel: #1e293b;
+    }
     .main-header {
-        font-size: 2.2rem;
-        font-weight: 800;
-        background: linear-gradient(135deg, #4f46e5 0%, #06b6d4 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
+        font-size: 2.4rem;
+        font-weight: 700;
+        color: #f8fafc;
+        font-family: 'Inter', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
         margin-bottom: 0.2rem;
+        letter-spacing: -0.02em;
     }
     .sub-header {
         color: #94a3b8;
-        font-size: 1.05rem;
-        margin-bottom: 1.5rem;
+        font-size: 1.1rem;
+        font-family: 'Inter', 'Segoe UI', Roboto, sans-serif;
+        margin-bottom: 2rem;
+        border-bottom: 1px solid #334155;
+        padding-bottom: 1rem;
     }
     .metric-card {
-        background: rgba(30, 41, 59, 0.7);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 12px;
+        background: var(--bg-panel);
+        border: 1px solid #334155;
+        border-radius: 8px;
         padding: 16px;
         text-align: center;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
     }
     .badge-auto {
-        background-color: #065f46;
-        color: #34d399;
-        padding: 3px 8px;
-        border-radius: 6px;
-        font-weight: 600;
+        background-color: rgba(16, 185, 129, 0.15);
+        color: #10b981;
+        padding: 4px 10px;
+        border-radius: 4px;
+        font-weight: 500;
         font-size: 0.85rem;
+        border: 1px solid rgba(16, 185, 129, 0.3);
     }
     .badge-review {
-        background-color: #78350f;
-        color: #fbbf24;
-        padding: 3px 8px;
-        border-radius: 6px;
-        font-weight: 600;
+        background-color: rgba(245, 158, 11, 0.15);
+        color: #f59e0b;
+        padding: 4px 10px;
+        border-radius: 4px;
+        font-weight: 500;
         font-size: 0.85rem;
+        border: 1px solid rgba(245, 158, 11, 0.3);
     }
     .badge-human {
-        background-color: #881337;
-        color: #f43f5e;
-        padding: 3px 8px;
-        border-radius: 6px;
-        font-weight: 600;
+        background-color: rgba(239, 68, 68, 0.15);
+        color: #ef4444;
+        padding: 4px 10px;
+        border-radius: 4px;
+        font-weight: 500;
         font-size: 0.85rem;
+        border: 1px solid rgba(239, 68, 68, 0.3);
     }
     .stTabs [data-baseweb="tab-list"] {
-        gap: 8px;
+        gap: 24px;
+        border-bottom: 1px solid #334155;
     }
     .stTabs [data-baseweb="tab"] {
-        border-radius: 8px 8px 0px 0px;
-        padding: 10px 16px;
-        font-weight: 600;
+        padding: 10px 4px;
+        font-weight: 500;
+        font-family: 'Inter', sans-serif;
+        color: #94a3b8;
+    }
+    .stTabs [aria-selected="true"] {
+        color: #3b82f6 !important;
+        border-bottom: 2px solid #3b82f6 !important;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -120,8 +135,6 @@ if "after_issues" not in st.session_state:
     st.session_state.after_issues = None
 if "after_quality_score" not in st.session_state:
     st.session_state.after_quality_score = None
-if "eval_benchmark_results" not in st.session_state:
-    st.session_state.eval_benchmark_results = None
 
 config = load_config()
 
@@ -170,14 +183,13 @@ st.markdown('<div class="sub-header">Production-Style Tabular Profiling, Anomaly
 
 # Main Navigation Tabs
 tabs = st.tabs([
-    "📁 1. Ingestion & Preview",
-    "📊 2. Data Profiling",
-    "🔍 3. Detected Issues",
-    "🧑‍💻 4. Human Review",
-    "⚡ 5. Cleaning Pipeline",
-    "📈 6. Validation & Deltas",
-    "🧪 7. Evaluation & ML Benchmark",
-    "📥 8. Audit Trail & Export"
+    "1. Ingestion & Preview",
+    "2. Data Profiling",
+    "3. Detected Issues",
+    "4. Human Review",
+    "5. Cleaning Pipeline",
+    "6. Validation & Deltas",
+    "7. Audit Trail & Export"
 ])
 
 # -------------------------------------------------------------
@@ -185,34 +197,12 @@ tabs = st.tabs([
 # -------------------------------------------------------------
 with tabs[0]:
     st.markdown("### 📤 Upload Tabular Dataset")
-    col_u1, col_u2 = st.columns([2, 1])
-
-    with col_u1:
-        uploaded_file = st.file_uploader(
-            "Choose a CSV or Excel file",
-            type=["csv", "xlsx", "xls"],
-            help="Original raw data is preserved strictly without modification."
-        )
-
-    with col_u2:
-        st.markdown("**Or test with built-in benchmark datasets:**")
-        if st.button("🧪 Load Synthetic Dirty Customer Dataset (CSV)", use_container_width=True):
-            sample_path = os.path.join(os.path.dirname(__file__), "sample_data", "dirty_customer_dataset.csv")
-            if os.path.exists(sample_path):
-                orig_df, work_df, meta = load_dataset(sample_path)
-                st.session_state.raw_df = orig_df
-                st.session_state.working_df = work_df
-                st.session_state.dataset_meta = meta
-                # Run Initial Analysis
-                with st.spinner("Analyzing dataset schema and issues..."):
-                    st.session_state.schema_info = detect_dataset_schema(work_df)
-                    st.session_state.raw_profile = profile_dataset(work_df, st.session_state.schema_info)
-                    raw_issues = detect_all_issues(work_df)
-                    reasoning_engine = ReasoningEngine(ollama_client)
-                    st.session_state.raw_issues = reasoning_engine.enrich_issues(raw_issues, work_df, use_ollama=is_ollama_online)
-                    st.session_state.raw_quality_score = compute_quality_score(work_df, detected_issues=st.session_state.raw_issues)
-                st.success("Loaded 'dirty_customer_dataset.csv' successfully!")
-                st.rerun()
+    
+    uploaded_file = st.file_uploader(
+        "Choose a CSV or Excel file",
+        type=["csv", "xlsx", "xls"],
+        help="Original raw data is preserved strictly without modification."
+    )
 
     if uploaded_file is not None:
         try:
@@ -221,13 +211,27 @@ with tabs[0]:
             st.session_state.working_df = work_df
             st.session_state.dataset_meta = meta
             if st.session_state.raw_profile is None:
-                with st.spinner("Profiling dataset and detecting quality anomalies..."):
+                with st.status("Processing Dataset...", expanded=True) as status:
+                    st.write("Extracting logical schema and computing memory footprints...")
                     st.session_state.schema_info = detect_dataset_schema(work_df)
+                    
+                    st.write("Dynamically inferring dataset domain constraints with LLM...")
+                    st.session_state.dynamic_rules = infer_dynamic_domain_rules(work_df, st.session_state.schema_info, ollama_client)
+                    
+                    st.write("Executing statistical profiling across numerical distributions...")
                     st.session_state.raw_profile = profile_dataset(work_df, st.session_state.schema_info)
-                    raw_issues = detect_all_issues(work_df)
+                    
+                    st.write("Scanning for semantic outliers and domain boundary violations...")
+                    raw_issues = detect_all_issues(work_df, dynamic_rules=st.session_state.dynamic_rules)
+                    
+                    st.write("Initializing local LLM inference for ambiguous categorical normalization...")
                     reasoning_engine = ReasoningEngine(ollama_client)
                     st.session_state.raw_issues = reasoning_engine.enrich_issues(raw_issues, work_df, use_ollama=is_ollama_online)
+                    
+                    st.write("Computing multi-dimensional quality scores...")
                     st.session_state.raw_quality_score = compute_quality_score(work_df, detected_issues=st.session_state.raw_issues)
+                    
+                    status.update(label="Processing Complete!", state="complete", expanded=False)
                 st.success(f"Loaded '{meta['filename']}' ({meta['row_count']} rows, {meta['column_count']} cols).")
         except Exception as e:
             st.error(f"Failed to load dataset: {str(e)}")
@@ -257,7 +261,7 @@ with tabs[0]:
             })
         st.dataframe(pd.DataFrame(schema_rows), use_container_width=True)
     else:
-        st.info("👆 Please upload a CSV/XLSX file or click 'Load Synthetic Dirty Customer Dataset' to begin.")
+        st.info("👆 Please upload a CSV/XLSX file to begin.")
 
 # -------------------------------------------------------------
 # TAB 2: Profiling & Statistics
@@ -405,7 +409,8 @@ with tabs[2]:
                 "Suggested Value": str(i.get("suggested_value")),
                 "Confidence": i.get("correction_confidence"),
                 "Decision": i.get("routing_decision"),
-                "Reason": i.get("reason")
+                "Reason": i.get("reason"),
+                "AI Explanation": i.get("simple_explanation", "")
             })
 
         st.dataframe(pd.DataFrame(table_rows), use_container_width=True)
@@ -449,8 +454,11 @@ with tabs[3]:
                         st.markdown(f"**Detected Problem:** {reason}")
                         if suggested:
                             st.markdown(f"**Suggested Alternative:** `{suggested}` (Confidence: {issue.get('correction_confidence', 0.0)})")
+                        
+                        st.info(f"💡 **AI Explanation:** {issue.get('simple_explanation', 'Unavailable')}")
+                        
                         if "llm_reasoning" in issue:
-                            st.info(f"🤖 **Ollama Reasoning:** {issue['llm_reasoning']}")
+                            st.success(f"🤖 **Deep Reasoning:** {issue['llm_reasoning']}")
 
                     with c_right:
                         status = st.session_state.human_decisions.get(iid, {}).get("status")
@@ -528,7 +536,8 @@ with tabs[4]:
         st.write(f"💼 **Human Review Corrections Ready to Apply:** {human_count} items")
 
         if st.button("🚀 Execute Deterministic Cleaning Pipeline", type="primary", use_container_width=True):
-            with st.spinner("Executing cleaning transformations and compiling audit logs..."):
+            with st.status("Executing Cleaning Pipeline...", expanded=True) as status:
+                st.write("Configuring missing imputation and outlier policies...")
                 cleaning_opts = {
                     "missing_numeric_strategy": num_strat,
                     "missing_categorical_strategy": cat_strat,
@@ -539,6 +548,7 @@ with tabs[4]:
                     "impute_missing": (num_strat != "skip" or cat_strat != "skip")
                 }
                 
+                st.write("Applying deterministic transformations and generating audit logs...")
                 cleaned_df, audit_trail = execute_cleaning_pipeline(
                     st.session_state.working_df,
                     st.session_state.raw_issues,
@@ -549,11 +559,14 @@ with tabs[4]:
                 st.session_state.cleaned_df = cleaned_df
                 st.session_state.cleaning_audit = audit_trail
 
+                st.write("Validating post-cleaning dataset state and computing delta scores...")
                 # Validate Cleaned State
                 af_prof, af_issues, af_score = validate_cleaned_dataset(cleaned_df)
                 st.session_state.after_profile = af_prof
                 st.session_state.after_issues = af_issues
                 st.session_state.after_quality_score = af_score
+                
+                status.update(label="Cleaning Complete!", state="complete", expanded=False)
 
             st.success(f"✨ Cleaning Completed! Applied {len(audit_trail)} transformations.")
             st.balloons()
@@ -622,120 +635,9 @@ with tabs[5]:
         st.dataframe(pd.DataFrame(comparison["issue_type_comparison"]), use_container_width=True)
 
 # -------------------------------------------------------------
-# TAB 7: Evaluation Framework & Downstream ML
+# TAB 7: Audit Trail & Export
 # -------------------------------------------------------------
 with tabs[6]:
-    st.markdown("### 🧪 Scientific Data Corruption & ML Evaluation Framework")
-    st.markdown("Inject known, ground-truth synthetic corruptions into a clean reference dataset to scientifically benchmark detection precision, recall, F1, and restoration accuracy.")
-
-    eval_col1, eval_col2 = st.columns([1, 2])
-    with eval_col1:
-        st.markdown("**Ground-Truth Corruption Parameters**")
-        corrupt_missing = st.slider("Missing Value Rate", 0.0, 0.20, 0.05, step=0.01)
-        corrupt_dups = st.slider("Duplicate Rows", 0, 10, 3)
-        corrupt_outliers = st.slider("Numerical Outliers", 0, 10, 4)
-        corrupt_invalids = st.slider("Invalid Ages/Ranges", 0, 10, 3)
-        corrupt_dates = st.slider("Invalid Dates", 0, 10, 3)
-        corrupt_typos = st.slider("Spelling Typos", 0, 10, 4)
-
-        if st.button("🔥 Run Ground-Truth Benchmark", type="primary", use_container_width=True):
-            clean_ref_path = os.path.join(os.path.dirname(__file__), "sample_data", "clean_benchmark_dataset.csv")
-            if os.path.exists(clean_ref_path):
-                clean_ref_df = pd.read_csv(clean_ref_path)
-                corrupter = DataCorruptionEngine(seed=42)
-                
-                with st.spinner("Injecting controlled corruptions and running evaluation pipeline..."):
-                    corrupted_df, ground_truth = corrupter.inject_corruptions(
-                        clean_ref_df,
-                        missing_rate=corrupt_missing,
-                        duplicate_count=corrupt_dups,
-                        outlier_count=corrupt_outliers,
-                        invalid_numeric_count=corrupt_invalids,
-                        invalid_date_count=corrupt_dates,
-                        spelling_typo_count=corrupt_typos
-                    )
-
-                    # Detect Issues
-                    detected = detect_all_issues(corrupted_df)
-                    reasoner = ReasoningEngine(ollama_client)
-                    enriched_det = reasoner.enrich_issues(detected, corrupted_df, use_ollama=is_ollama_online)
-
-                    # Detection Metrics
-                    det_metrics = evaluate_detection_performance(ground_truth, enriched_det)
-
-                    # Clean and evaluate correction
-                    eval_cleaned, eval_audit = execute_cleaning_pipeline(corrupted_df, enriched_det)
-                    corr_metrics = evaluate_correction_performance(ground_truth, eval_cleaned, eval_audit)
-
-                    # Downstream ML
-                    ml_metrics = evaluate_downstream_ml(corrupted_df, eval_cleaned, target_column="Churn", random_seed=42)
-
-                    st.session_state.eval_benchmark_results = {
-                        "det_metrics": det_metrics,
-                        "corr_metrics": corr_metrics,
-                        "ml_metrics": ml_metrics,
-                        "total_ground_truth": len(ground_truth),
-                        "total_detected": len(enriched_det)
-                    }
-                st.success("Benchmark completed successfully!")
-
-    with eval_col2:
-        if st.session_state.eval_benchmark_results:
-            bench = st.session_state.eval_benchmark_results
-            det = bench["det_metrics"]
-            corr = bench["corr_metrics"]
-            ml = bench["ml_metrics"]
-
-            st.markdown("#### 🎯 Detection Performance Metrics")
-            o = det["overall"]
-            ep1, ep2, ep3, ep4 = st.columns(4)
-            ep1.metric("Precision", f"{o['precision'] * 100:.1f}%")
-            ep2.metric("Recall", f"{o['recall'] * 100:.1f}%")
-            ep3.metric("F1 Score", f"{o['f1_score']:.3f}")
-            ep4.metric("True Positives", f"{o['true_positives']} / {o['total_injected_errors']}")
-
-            # Breakdown by issue type
-            by_type = det.get("by_issue_type", {})
-            if by_type:
-                bt_df = pd.DataFrame([
-                    {
-                        "Issue Type": k.replace("_", " ").title(),
-                        "TP": v["true_positives"],
-                        "FP": v["false_positives"],
-                        "FN": v["false_negatives"],
-                        "Precision": f"{v['precision']*100:.1f}%",
-                        "Recall": f"{v['recall']*100:.1f}%",
-                        "F1": v["f1_score"]
-                    }
-                    for k, v in by_type.items()
-                ])
-                st.dataframe(bt_df, use_container_width=True)
-
-            st.markdown("#### 🛠️ Restoration & Correction Accuracy")
-            cp1, cp2, cp3 = st.columns(3)
-            cp1.metric("Auto-Correction Accuracy", f"{corr['automatic_correction_accuracy']}%")
-            cp2.metric("Auto-Restored Values", f"{corr['automatic_corrections_restored']} / {corr['automatic_corrections_attempted']}")
-            cp3.metric("Unresolved Issues", corr["unresolved_injected_issues"])
-
-            st.markdown("#### 🤖 Downstream Machine Learning Benchmark")
-            if "corrupted_metrics" in ml and "cleaned_metrics" in ml:
-                ml_c = ml["corrupted_metrics"]
-                ml_cl = ml["cleaned_metrics"]
-                ml_table = pd.DataFrame([
-                    {"Metric": "Accuracy", "Corrupted Dataset": f"{ml_c['accuracy']*100:.2f}%", "Cleaned Dataset": f"{ml_cl['accuracy']*100:.2f}%"},
-                    {"Metric": "F1 (Weighted)", "Corrupted Dataset": f"{ml_c['f1_weighted']:.4f}", "Cleaned Dataset": f"{ml_cl['f1_weighted']:.4f}"},
-                    {"Metric": "Precision", "Corrupted Dataset": f"{ml_c['precision_weighted']:.4f}", "Cleaned Dataset": f"{ml_cl['precision_weighted']:.4f}"},
-                    {"Metric": "Recall", "Corrupted Dataset": f"{ml_c['recall_weighted']:.4f}", "Cleaned Dataset": f"{ml_cl['recall_weighted']:.4f}"}
-                ])
-                st.dataframe(ml_table, use_container_width=True)
-                st.caption(f"ℹ️ *{ml.get('disclaimer')}*")
-        else:
-            st.info("Click 'Run Ground-Truth Benchmark' to execute the scientific evaluation.")
-
-# -------------------------------------------------------------
-# TAB 8: Audit Trail & Export
-# -------------------------------------------------------------
-with tabs[7]:
     if st.session_state.cleaned_df is None:
         st.info("Clean a dataset in Tab 5 first to export results.")
     else:

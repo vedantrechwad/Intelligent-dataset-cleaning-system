@@ -35,7 +35,7 @@ def clean_categorical_inconsistencies(
         # Determine dominant canonical for each lowercase key
         canonical_map = {}
         for low, variants in counts_by_lower.items():
-            best_variant = max(variants.keys(), key=lambda k: (variants[k], k.istitle(), k[0].isupper()))
+            best_variant = max(variants.keys(), key=lambda k: (variants[k], k.istitle(), bool(k and k[0].isupper())))
             canonical_map[low] = best_variant
 
         # Apply transformations per row

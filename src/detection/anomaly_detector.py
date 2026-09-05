@@ -9,7 +9,7 @@ from src.detection.outlier_detector import detect_numerical_outliers
 from src.detection.inconsistency_detector import detect_categorical_inconsistencies
 from src.utils.helpers import load_config, logger
 
-def detect_all_issues(df: pd.DataFrame) -> List[Dict[str, Any]]:
+def detect_all_issues(df: pd.DataFrame, dynamic_rules: Dict[str, Any] = None) -> List[Dict[str, Any]]:
     """
     Unified detection coordinator.
     Runs all specialized statistical, rule-based, and ML detectors.
@@ -41,7 +41,7 @@ def detect_all_issues(df: pd.DataFrame) -> List[Dict[str, Any]]:
 
     # 4. Range and domain rule violations (High priority validity)
     try:
-        all_raw_issues.extend(validate_domain_ranges(df))
+        all_raw_issues.extend(validate_domain_ranges(df, custom_rules=dynamic_rules))
     except Exception as e:
         logger.error(f"Error in range validation: {e}")
 

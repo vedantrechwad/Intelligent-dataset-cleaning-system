@@ -84,6 +84,46 @@ class ReasoningEngine:
                             issue.get("is_human_review_required", False)
                         )
 
+            if is_ollama_ready:
+                issue["simple_explanation"] = self.generate_issue_explanation(itype, issue.get("column"))
+            else:
+                issue["simple_explanation"] = "Ollama is offline; explanation unavailable."
+
             enriched.append(issue)
 
         return enriched
+
+    def generate_issue_explanation(self, issue_type: str, column: str) -> str:
+        """
+        Generates a very simple, beginner-friendly explanation of an issue type
+        and how correcting it improves the dataset. Uses caching to avoid redundant queries.
+        """
+        if not self.ollama.check_availability():
+            return "Explanation unavailable (Ollama offline)."
+            
+        cache_key = f"explain_{issue_type}_{column}"
+        if cache_key in self._cache:
+            return self._cache[cache_key]
+            
+        prompt = f"""You are a helpful data assistant. Keep your answer under 2 sentences.
+We found a data quality issue of type '{issue_type}' in the column '{column}'.
+Explain very simply what this issue means, and how fixing it will improve the dataset for future analysis.
+"""
+        payload = {
+            "model": self.ollama.model,
+            "prompt": prompt,
+            "stream": False,
+            "options": {"temperature": 0.3}
+        }
+        
+        try:
+            import requests
+            r = requests.post(f"{self.ollama.host}/api/generate", json=payload, timeout=self.ollama.timeout)
+            if r.status_code == 200:
+                explanation = r.json().get("response", "").strip()
+                self._cache[cache_key] = explanation
+                return explanation
+        except Exception as e:
+            logger.warning(f"Explanation query failed: {e}")
+            
+        return "Explanation unavailable."

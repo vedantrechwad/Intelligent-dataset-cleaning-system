@@ -10,7 +10,7 @@ def validate_domain_ranges(df: pd.DataFrame, custom_rules: Dict[str, Any] = None
     Strictly distinguishes between statistical outliers and impossible values.
     Values where the true value cannot safely be inferred are marked for human review.
     """
-    if custom_rules is None:
+    if not custom_rules:
         cfg = load_config()
         custom_rules = cfg.get("domain_rules", {
             "percentage": {"min": 0.0, "max": 100.0},
