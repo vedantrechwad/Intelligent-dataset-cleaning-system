@@ -44,7 +44,7 @@ def load_config(config_path: str = None) -> Dict[str, Any]:
         },
         "missing_representations": [
             "", " ", "nan", "NaN", "none", "None", "null", "NULL",
-            "n/a", "N/A", "na", "NA", "?", "-", "unknown", "Unknown", "UNKNOWN"
+            "n/a", "N/A", "na", "NA", "?", "-"
         ],
         "quality_score_weights": {
             "completeness": 0.25,

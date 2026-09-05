@@ -15,7 +15,7 @@ def test_missing_detection():
         "A": [1, np.nan, "null", "N/A", "unknown", "valid"]
     })
     issues = detect_missing_values(df)
-    assert len(issues) == 4
+    assert len(issues) == 3
     for issue in issues:
         assert issue["issue_type"] == "missing_value"
 

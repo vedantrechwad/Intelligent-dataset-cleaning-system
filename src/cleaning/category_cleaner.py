@@ -56,9 +56,11 @@ def clean_categorical_inconsistencies(
                     "column": col,
                     "original_value": raw_str,
                     "issue_type": "whitespace_inconsistency",
-                    "action": "normalized_whitespace",
+                    "action": "NORMALIZATION",
+                    "method": "whitespace_strip",
                     "corrected_value": normalized_ws,
-                    "confidence": 1.0,
+                    "detection_confidence": 1.0,
+                    "correction_confidence": 1.0,
                     "reason": "Normalized leading/trailing/multiple whitespaces"
                 })
                 raw_str = normalized_ws
@@ -71,9 +73,11 @@ def clean_categorical_inconsistencies(
                     "column": col,
                     "original_value": raw_str,
                     "issue_type": "casing_inconsistency",
-                    "action": "normalized_casing",
+                    "action": "NORMALIZATION",
+                    "method": "casing_alignment",
                     "corrected_value": canonical,
-                    "confidence": 0.98,
+                    "detection_confidence": 1.0,
+                    "correction_confidence": 0.98,
                     "reason": f"Aligned with dominant representation '{canonical}'"
                 })
 

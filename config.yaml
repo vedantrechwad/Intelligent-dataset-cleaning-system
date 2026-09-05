@@ -30,9 +30,6 @@ missing_representations:
   - "NA"
   - "?"
   - "-"
-  - "unknown"
-  - "Unknown"
-  - "UNKNOWN"
 
 quality_score_weights:
   completeness: 0.25

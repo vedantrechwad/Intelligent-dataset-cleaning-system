@@ -50,9 +50,11 @@ def clean_data_types(df: pd.DataFrame) -> Tuple[pd.DataFrame, List[Dict[str, Any
                         "column": col,
                         "original_value": str_val,
                         "issue_type": "type_inconsistency",
-                        "action": "converted_to_null",
+                        "action": "NORMALIZATION",
+                        "method": "null_token_mapping",
                         "corrected_value": None,
-                        "confidence": 0.99,
+                        "detection_confidence": 1.0,
+                        "correction_confidence": 0.99,
                         "reason": f"Value '{str_val}' safely converted to NaN"
                     })
                     continue
@@ -68,9 +70,11 @@ def clean_data_types(df: pd.DataFrame) -> Tuple[pd.DataFrame, List[Dict[str, Any
                                 "column": col,
                                 "original_value": str_val,
                                 "issue_type": "type_inconsistency",
-                                "action": "converted_to_boolean",
+                                "action": "NORMALIZATION",
+                                "method": "boolean_mapping",
                                 "corrected_value": clean_bool,
-                                "confidence": 0.99,
+                                "detection_confidence": 1.0,
+                                "correction_confidence": 0.99,
                                 "reason": f"Safely normalized '{str_val}' to {clean_bool}"
                             })
                         continue
@@ -90,9 +94,11 @@ def clean_data_types(df: pd.DataFrame) -> Tuple[pd.DataFrame, List[Dict[str, Any
                                 "column": col,
                                 "original_value": str(val),
                                 "issue_type": "type_inconsistency",
-                                "action": "converted_to_numeric",
+                                "action": "NORMALIZATION",
+                                "method": "numeric_parsing",
                                 "corrected_value": clean_num,
-                                "confidence": 0.99,
+                                "detection_confidence": 1.0,
+                                "correction_confidence": 0.99,
                                 "reason": f"Safely parsed string '{val}' as numeric {clean_num}"
                             })
                     except (ValueError, TypeError):

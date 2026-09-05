@@ -17,9 +17,11 @@ def clean_exact_duplicates(df: pd.DataFrame) -> Tuple[pd.DataFrame, List[Dict[st
             "column": "__all__",
             "original_value": "Duplicate row",
             "issue_type": "exact_duplicate",
-            "action": "removed_duplicate_row",
+            "action": "DUPLICATE_REMOVAL",
+            "method": "exact_match",
             "corrected_value": None,
-            "confidence": 1.0,
+            "detection_confidence": 1.0,
+            "correction_confidence": 1.0,
             "reason": "Exact duplicate row removed by automated cleaning engine"
         })
 

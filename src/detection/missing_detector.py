@@ -12,7 +12,7 @@ def detect_missing_values(df: pd.DataFrame, custom_missing: List[str] = None) ->
         cfg = load_config()
         custom_missing = cfg.get("missing_representations", [
             "", " ", "nan", "NaN", "none", "None", "null", "NULL",
-            "n/a", "N/A", "na", "NA", "?", "-", "unknown", "Unknown", "UNKNOWN"
+            "n/a", "N/A", "na", "NA", "?", "-"
         ])
 
     missing_issues = []

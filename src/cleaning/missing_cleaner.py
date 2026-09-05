@@ -24,7 +24,7 @@ def clean_missing_values(
 
     # Pre-clean string representations of missing values (e.g. 'N/A', 'null', whitespace)
     cfg = load_config()
-    missing_tokens = {str(m).strip().lower() for m in cfg.get("missing_representations", ["nan", "null", "n/a", "unknown"])}
+    missing_tokens = {str(m).strip().lower() for m in cfg.get("missing_representations", ["nan", "null", "n/a"])}
     
     for col in columns_to_process:
         if col not in cleaned_df.columns:
@@ -54,9 +54,11 @@ def clean_missing_values(
                         "column": col,
                         "original_value": None,
                         "issue_type": "missing_value",
-                        "action": "imputed_knn",
+                        "action": "IMPUTATION",
+                        "method": "knn",
                         "corrected_value": imp_val,
-                        "confidence": 0.90,
+                        "detection_confidence": 1.0,
+                        "correction_confidence": 0.90,
                         "reason": f"Imputed via KNNImputer (k=5)"
                     })
         except Exception as e:
@@ -87,9 +89,11 @@ def clean_missing_values(
                     "column": col,
                     "original_value": None,
                     "issue_type": "missing_value",
-                    "action": f"imputed_{numeric_strategy}",
+                    "action": "IMPUTATION",
+                    "method": numeric_strategy,
                     "corrected_value": fill_val,
-                    "confidence": 0.88,
+                    "detection_confidence": 1.0,
+                    "correction_confidence": 0.88,
                     "reason": f"Imputed with column {numeric_strategy} value ({fill_val})"
                 })
 
@@ -109,6 +113,9 @@ def clean_missing_values(
         else:
             fill_val = custom_constants.get(col, "Unknown")
 
+        if categorical_strategy == "skip":
+            continue
+
         for row_idx in cleaned_df[missing_mask].index:
             cleaned_df.at[row_idx, col] = fill_val
             logs.append({
@@ -116,9 +123,11 @@ def clean_missing_values(
                 "column": col,
                 "original_value": None,
                 "issue_type": "missing_value",
-                "action": f"imputed_{categorical_strategy}",
+                "action": "IMPUTATION",
+                "method": categorical_strategy,
                 "corrected_value": fill_val,
-                "confidence": 0.85,
+                "detection_confidence": 1.0,
+                "correction_confidence": 0.85,
                 "reason": f"Imputed with categorical {categorical_strategy} value ('{fill_val}')"
             })
 

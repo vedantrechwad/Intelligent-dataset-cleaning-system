@@ -557,7 +557,7 @@ with tabs[4]:
         
         with c_opt2:
             st.markdown("**Missing Categorical Imputation**")
-            cat_strat = st.selectbox("Strategy", ["mode", "constant", "skip"], index=0)
+            cat_strat = st.selectbox("Strategy", ["skip", "mode", "constant"], index=0)
 
         with c_opt3:
             st.markdown("**Numerical Outlier Handling**")

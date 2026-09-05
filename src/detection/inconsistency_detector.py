@@ -103,44 +103,69 @@ def detect_categorical_inconsistencies(
             
             for rare_cat in sorted_cats:
                 rare_count = canonical_counts[rare_cat][1]
-                # Compare rare categories to dominant ones
+                
+                candidates = []
                 for dom_cat in dominant_cats:
                     if rare_cat == dom_cat:
                         continue
                         
                     dom_count = canonical_counts[dom_cat][1]
-                    # Only consider if dominant category is significantly more frequent
                     if dom_count <= rare_count:
                         continue
 
-                    sim = fuzz.ratio(rare_cat, dom_cat)
-                    if sim >= similarity_threshold:
-                        # Candidate spelling typo found!
-                        # Calculate confidence: 0.50 * sim + 0.30 * freq_evidence + 0.20 * margin
-                        freq_ratio = min(1.0, (dom_count - rare_count) / max(1, dom_count))
-                        score = (0.50 * (sim / 100.0)) + (0.35 * freq_ratio) + 0.15
-                        score = round(min(0.99, score), 3)
+                    # Strict semantic boundary check (e.g. 'No' vs 'No internet service')
+                    if abs(len(rare_cat) - len(dom_cat)) > 3:
+                        continue
 
-                        canonical_target = canonical_counts[dom_cat][0]
-                        
-                        # Find all rows matching this rare category
-                        for row_idx, val in series.items():
-                            if pd.isna(val) or val is None:
-                                continue
-                            if str(val).strip().lower() == rare_cat:
-                                inconsistency_issues.append({
-                                    "row": int(row_idx),
-                                    "column": col,
-                                    "original_value": str(val),
-                                    "issue_type": "spelling_typo",
-                                    "detection_method": ["rapidfuzz_similarity", "frequency_analysis"],
-                                    "detection_confidence": score,
-                                    "correction_confidence": score,
-                                    "suggested_action": "auto_correct" if score >= 0.95 else "flag_for_review",
-                                    "suggested_value": canonical_target,
-                                    "reason": f"Value '{val}' has {sim:.0f}% similarity to dominant category '{canonical_target}' ({dom_count} vs {rare_count} occurrences)",
-                                    "is_human_review_required": score < 0.95
-                                })
-                        break
+                    sim = fuzz.ratio(rare_cat, dom_cat)
+                    
+                    is_obvious_typo = False
+                    if sim >= similarity_threshold:
+                        is_obvious_typo = True
+                    elif len(dom_cat) <= 4 and len(rare_cat) <= 4:
+                        if set(rare_cat) == set(dom_cat) and len(rare_cat) == len(dom_cat):
+                            is_obvious_typo = True # Anagram/transposition like yse -> yes
+                        else:
+                            match_chars = sum(1 for c in rare_cat if c in dom_cat)
+                            if match_chars >= len(dom_cat) - 1 and abs(len(rare_cat) - len(dom_cat)) <= 1:
+                                is_obvious_typo = True # n0 -> no
+
+                    if is_obvious_typo:
+                        candidates.append((dom_cat, dom_count, sim))
+
+                if not candidates:
+                    continue
+
+                is_ambiguous = len(candidates) > 1
+                best_dom_cat, best_dom_count, best_sim = max(candidates, key=lambda x: (x[2], x[1]))
+                
+                freq_ratio = min(1.0, (best_dom_count - rare_count) / max(1, best_dom_count))
+                score = (0.50 * (best_sim / 100.0)) + (0.35 * freq_ratio) + 0.15
+                
+                if not is_ambiguous:
+                    score = max(score, 0.96) # Boost to ensure auto-correction for unambiguous typos
+                else:
+                    score = min(score, 0.90) # Downgrade to require human review
+
+                score = round(min(0.99, score), 3)
+                canonical_target = canonical_counts[best_dom_cat][0]
+                
+                for row_idx, val in series.items():
+                    if pd.isna(val) or val is None:
+                        continue
+                    if str(val).strip().lower() == rare_cat:
+                        inconsistency_issues.append({
+                            "row": int(row_idx),
+                            "column": col,
+                            "original_value": str(val),
+                            "issue_type": "spelling_typo",
+                            "detection_method": ["rapidfuzz_similarity", "frequency_analysis"],
+                            "detection_confidence": score,
+                            "correction_confidence": score,
+                            "suggested_action": "auto_correct" if score >= 0.95 else "flag_for_review",
+                            "suggested_value": canonical_target,
+                            "reason": f"Value '{val}' matched to '{canonical_target}' (sim: {best_sim:.0f}%, ambiguous: {is_ambiguous})",
+                            "is_human_review_required": score < 0.95
+                        })
 
     return inconsistency_issues

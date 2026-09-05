@@ -49,9 +49,11 @@ def execute_cleaning_pipeline(
                     "column": col,
                     "original_value": orig_val,
                     "issue_type": action_info.get("issue_type", "user_reviewed"),
-                    "action": "user_corrected",
+                    "action": "HUMAN_REVIEW",
+                    "status": "accepted",
                     "corrected_value": corrected_val,
-                    "confidence": 1.0,
+                    "detection_confidence": 1.0,
+                    "correction_confidence": 1.0,
                     "reason": f"Applied human review correction: {action_info.get('notes', 'User verified')}"
                 })
             elif status == "rejected":
@@ -61,9 +63,11 @@ def execute_cleaning_pipeline(
                     "column": col,
                     "original_value": orig_val,
                     "issue_type": action_info.get("issue_type", "user_reviewed"),
-                    "action": "user_rejected",
+                    "action": "HUMAN_REVIEW",
+                    "status": "rejected",
                     "corrected_value": orig_val,
-                    "confidence": 1.0,
+                    "detection_confidence": 1.0,
+                    "correction_confidence": 1.0,
                     "reason": "User rejected proposed modification"
                 })
 
@@ -84,9 +88,11 @@ def execute_cleaning_pipeline(
                 "column": col,
                 "original_value": issue.get("original_value"),
                 "issue_type": "spelling_typo",
-                "action": "auto_corrected_typo",
+                "action": "CORRECTION",
+                "method": "rapidfuzz",
                 "corrected_value": target_val,
-                "confidence": issue.get("correction_confidence", 0.96),
+                "detection_confidence": issue.get("detection_confidence", 0.96),
+                "correction_confidence": issue.get("correction_confidence", 0.96),
                 "reason": issue.get("reason", "High-confidence typo correction")
             })
 

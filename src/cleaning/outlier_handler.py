@@ -23,9 +23,11 @@ def handle_outliers(
                 "column": issue.get("column"),
                 "original_value": issue.get("original_value"),
                 "issue_type": "outlier",
-                "action": "acknowledged_flagged",
+                "action": "DETECT_ONLY",
+                "method": "flag_only",
                 "corrected_value": issue.get("original_value"),
-                "confidence": issue.get("detection_confidence", 0.8),
+                "detection_confidence": issue.get("detection_confidence", 0.8),
+                "correction_confidence": 0.0,
                 "reason": "Outlier retained per 'flag_only' policy"
             })
         return cleaned_df, logs
@@ -60,9 +62,11 @@ def handle_outliers(
                         "column": col,
                         "original_value": orig_val,
                         "issue_type": "outlier",
-                        "action": "capped_winsorized",
+                        "action": "CORRECTION",
+                        "method": "cap_winsorize",
                         "corrected_value": capped_val,
-                        "confidence": 0.85,
+                        "detection_confidence": 1.0,
+                        "correction_confidence": 0.85,
                         "reason": f"Value {orig_val} capped to IQR bound ({capped_val})"
                     })
 
@@ -77,9 +81,11 @@ def handle_outliers(
                     "column": issue.get("column"),
                     "original_value": issue.get("original_value"),
                     "issue_type": "outlier",
-                    "action": "removed_outlier_row",
+                    "action": "CORRECTION",
+                    "method": "remove_row",
                     "corrected_value": None,
-                    "confidence": 0.85,
+                    "detection_confidence": 1.0,
+                    "correction_confidence": 0.85,
                     "reason": "Row removed due to extreme outlier per user policy"
                 })
 
