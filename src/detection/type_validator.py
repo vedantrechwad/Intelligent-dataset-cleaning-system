@@ -12,37 +12,85 @@ WORD_TO_NUM = {
     "eighty": 80, "ninety": 90, "hundred": 100
 }
 
+BOOLEAN_MAPPING = {
+    "yes": True, "no": False,
+    "true": True, "false": False,
+    "t": True, "f": False,
+    "1": True, "0": False,
+    "y": True, "n": False
+}
+
+NULL_TOKENS = {"n/a", "na", "null", "none", "?", "-", "undefined", "missing", ""}
+
 def detect_type_inconsistencies(df: pd.DataFrame, schema: Dict[str, Dict[str, Any]] = None) -> List[Dict[str, Any]]:
-    """
-    Detects type inconsistencies, distinguishing safely convertible representations
-    (e.g., stringified numbers "25" in numeric columns) from ambiguous values (e.g., "Thirty").
-    """
     type_issues = []
 
     for col in df.columns:
         series = df[col]
-        # Identify predominantly numeric columns
         valid_series = series.dropna()
         if len(valid_series) == 0:
             continue
 
-        # Count how many can convert to float
+        # Check for Boolean normalization candidate
+        str_series_lower = valid_series.astype(str).str.strip().str.lower()
+        is_predominantly_bool = str_series_lower.isin(BOOLEAN_MAPPING.keys()).mean() > 0.8
+        
+        # Check for Numeric candidate
         numeric_count = pd.to_numeric(valid_series, errors="coerce").notna().sum()
-        ratio = numeric_count / len(valid_series)
+        is_predominantly_numeric = (numeric_count / len(valid_series)) >= 0.70
 
-        # If 70%+ are numeric, this column is expected to be numeric
-        if ratio >= 0.70 and not pd.api.types.is_numeric_dtype(series):
-            for row_idx, val in series.items():
-                if pd.isna(val) or val is None:
+        for row_idx, val in series.items():
+            if pd.isna(val) or val is None:
+                continue
+
+            str_val = str(val).strip()
+            lower_val = str_val.lower()
+
+            # 1. Null-token normalization
+            if lower_val in NULL_TOKENS:
+                type_issues.append({
+                    "row": int(row_idx),
+                    "column": col,
+                    "original_value": str_val,
+                    "issue_type": "type_inconsistency",
+                    "detection_method": ["type_validator_null_token"],
+                    "detection_confidence": 0.99,
+                    "correction_confidence": 0.99,
+                    "suggested_action": "convert_to_null",
+                    "suggested_value": None,
+                    "reason": f"Value '{str_val}' is a known null-token and safely converts to NaN",
+                    "is_human_review_required": False
+                })
+                continue
+
+            # 2. Boolean normalization
+            if is_predominantly_bool and not pd.api.types.is_bool_dtype(series):
+                if lower_val in BOOLEAN_MAPPING:
+                    type_issues.append({
+                        "row": int(row_idx),
+                        "column": col,
+                        "original_value": str_val,
+                        "issue_type": "type_inconsistency",
+                        "detection_method": ["type_validator_boolean"],
+                        "detection_confidence": 0.99,
+                        "correction_confidence": 0.99,
+                        "suggested_action": "convert_to_boolean",
+                        "suggested_value": BOOLEAN_MAPPING[lower_val],
+                        "reason": f"Value '{str_val}' safely normalizes to boolean {BOOLEAN_MAPPING[lower_val]}",
+                        "is_human_review_required": False
+                    })
                     continue
 
-                str_val = str(val).strip()
-                if not str_val:
-                    continue
-
-                # Case A: Stringified number (e.g. "25" or "42.5") -> High confidence auto-correct
+            # 3. Numeric Formatting Normalization
+            if is_predominantly_numeric and not pd.api.types.is_numeric_dtype(series):
+                # Clean currency and commas
+                clean_str = re.sub(r'[$,€£]', '', str_val)
+                # If there are multiple commas, remove them (e.g., 1,000,000)
+                if clean_str.count(',') >= 1 and clean_str.count('.') <= 1:
+                    clean_str = clean_str.replace(',', '')
+                
                 try:
-                    num = float(str_val)
+                    num = float(clean_str)
                     clean_val = int(num) if num.is_integer() else num
                     type_issues.append({
                         "row": int(row_idx),
@@ -51,15 +99,13 @@ def detect_type_inconsistencies(df: pd.DataFrame, schema: Dict[str, Dict[str, An
                         "issue_type": "type_inconsistency",
                         "detection_method": ["type_validator_safe_numeric"],
                         "detection_confidence": 1.0,
-                        "correction_confidence": 0.99, # Safe deterministic conversion
+                        "correction_confidence": 0.99,
                         "suggested_action": "convert_type",
                         "suggested_value": clean_val,
-                        "reason": f"Value '{str_val}' is stored as string but safely converts to numeric {clean_val}",
+                        "reason": f"Value '{str_val}' safely converts to numeric {clean_val}",
                         "is_human_review_required": False
                     })
                 except ValueError:
-                    # Case B: Word-based representation (e.g. "Thirty")
-                    lower_val = str_val.lower()
                     if lower_val in WORD_TO_NUM:
                         suggested = WORD_TO_NUM[lower_val]
                         type_issues.append({
@@ -69,14 +115,13 @@ def detect_type_inconsistencies(df: pd.DataFrame, schema: Dict[str, Dict[str, An
                             "issue_type": "type_inconsistency",
                             "detection_method": ["type_validator_word_number"],
                             "detection_confidence": 0.95,
-                            "correction_confidence": 0.85, # Review recommended
+                            "correction_confidence": 0.85,
                             "suggested_action": "convert_word_to_number",
                             "suggested_value": suggested,
                             "reason": f"Text word '{str_val}' represents numeric value {suggested}. Review recommended.",
                             "is_human_review_required": True
                         })
                     else:
-                        # Case C: Ambiguous non-numeric string in numeric column
                         type_issues.append({
                             "row": int(row_idx),
                             "column": col,

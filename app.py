@@ -198,11 +198,15 @@ tabs = st.tabs([
 with tabs[0]:
     st.markdown("### 📤 Upload Tabular Dataset")
     
-    uploaded_file = st.file_uploader(
-        "Choose a CSV or Excel file",
-        type=["csv", "xlsx", "xls"],
-        help="Original raw data is preserved strictly without modification."
-    )
+    col_u1, col_u2 = st.columns([2, 1])
+    with col_u1:
+        uploaded_file = st.file_uploader(
+            "Choose a CSV or Excel file",
+            type=["csv", "xlsx", "xls"],
+            help="Original raw data is preserved strictly without modification."
+        )
+    with col_u2:
+        target_var = st.text_input("🎯 Optional Target Variable", help="Specify column to predict for data leakage checks.")
 
     if uploaded_file is not None:
         try:
@@ -211,26 +215,44 @@ with tabs[0]:
             st.session_state.working_df = work_df
             st.session_state.dataset_meta = meta
             if st.session_state.raw_profile is None:
-                with st.status("Processing Dataset...", expanded=True) as status:
-                    st.write("Extracting logical schema and computing memory footprints...")
+                with st.status("Comprehensive Validation & Processing in Progress...", expanded=True) as status:
+                    def update_progress(msg):
+                        st.write(msg)
+
+                    st.write("✔️ Extracting logical schema and computing memory footprints...")
                     st.session_state.schema_info = detect_dataset_schema(work_df)
                     
-                    st.write("Dynamically inferring dataset domain constraints with LLM...")
+                    st.write("✔️ Dynamically inferring dataset domain constraints with LLM...")
                     st.session_state.dynamic_rules = infer_dynamic_domain_rules(work_df, st.session_state.schema_info, ollama_client)
                     
-                    st.write("Executing statistical profiling across numerical distributions...")
+                    st.write("✔️ Executing statistical profiling across numerical distributions...")
                     st.session_state.raw_profile = profile_dataset(work_df, st.session_state.schema_info)
                     
-                    st.write("Scanning for semantic outliers and domain boundary violations...")
-                    raw_issues = detect_all_issues(work_df, dynamic_rules=st.session_state.dynamic_rules)
+                    target_var_cleaned = target_var.strip() if target_var else None
+                    raw_issues = detect_all_issues(work_df, dynamic_rules=st.session_state.dynamic_rules, target_variable=target_var_cleaned, progress_callback=update_progress)
                     
-                    st.write("Initializing local LLM inference for ambiguous categorical normalization...")
+                    st.write("✔️ Initializing local LLM inference for ambiguous categorical normalization...")
                     reasoning_engine = ReasoningEngine(ollama_client)
                     st.session_state.raw_issues = reasoning_engine.enrich_issues(raw_issues, work_df, use_ollama=is_ollama_online)
                     
-                    st.write("Computing multi-dimensional quality scores...")
+                    st.write("✔️ Computing multi-dimensional quality scores...")
                     st.session_state.raw_quality_score = compute_quality_score(work_df, detected_issues=st.session_state.raw_issues)
                     
+                    st.write("✔️ Generating dataset contextual summary via LLM...")
+                    if is_ollama_online:
+                        sample_json = work_df.head(3).to_json(orient='records')
+                        prompt = f"Provide a brief, 2-3 sentence verbal description of what this dataset appears to represent based on this sample:\n{sample_json}"
+                        try:
+                            import requests
+                            payload = {"model": ollama_client.model, "prompt": prompt, "stream": False, "options": {"temperature": 0.2}}
+                            r = requests.post(f"{ollama_client.host}/api/generate", json=payload, timeout=ollama_client.timeout)
+                            if r.status_code == 200:
+                                st.session_state.dataset_summary_text = r.json().get("response", "").strip()
+                        except Exception:
+                            st.session_state.dataset_summary_text = "Context summary unavailable (LLM timeout)."
+                    else:
+                        st.session_state.dataset_summary_text = "Context summary unavailable (LLM offline)."
+
                     status.update(label="Processing Complete!", state="complete", expanded=False)
                 st.success(f"Loaded '{meta['filename']}' ({meta['row_count']} rows, {meta['column_count']} cols).")
         except Exception as e:
@@ -245,6 +267,9 @@ with tabs[0]:
         m3.metric("Format", meta['format'])
         m4.metric("Memory", f"{meta['memory_usage_bytes'] / 1024:.1f} KB")
         m5.metric("Detected Issues", len(st.session_state.raw_issues) if st.session_state.raw_issues else 0)
+
+        if getattr(st.session_state, "dataset_summary_text", None):
+            st.info(f"🤖 **Dataset Context (AI Inferred):** {st.session_state.dataset_summary_text}")
 
         st.markdown("#### 🔍 Raw Dataset Preview (First 15 Rows)")
         st.dataframe(st.session_state.raw_df.head(15), use_container_width=True)

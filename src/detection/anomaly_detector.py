@@ -7,9 +7,10 @@ from src.detection.date_validator import validate_dates
 from src.detection.type_validator import detect_type_inconsistencies
 from src.detection.outlier_detector import detect_numerical_outliers
 from src.detection.inconsistency_detector import detect_categorical_inconsistencies
+from src.detection.advanced_detector import detect_advanced_anomalies
 from src.utils.helpers import load_config, logger
 
-def detect_all_issues(df: pd.DataFrame, dynamic_rules: Dict[str, Any] = None) -> List[Dict[str, Any]]:
+def detect_all_issues(df: pd.DataFrame, dynamic_rules: Dict[str, Any] = None, target_variable: str = None, progress_callback=None) -> List[Dict[str, Any]]:
     """
     Unified detection coordinator.
     Runs all specialized statistical, rule-based, and ML detectors.
@@ -21,56 +22,57 @@ def detect_all_issues(df: pd.DataFrame, dynamic_rules: Dict[str, Any] = None) ->
 
     all_raw_issues = []
 
-    # 1. Exact duplicates
+    if progress_callback: progress_callback("✔️ Checking for Exact and Near duplicate rows...")
     try:
         all_raw_issues.extend(detect_exact_duplicates(df))
-    except Exception as e:
-        logger.error(f"Error in exact duplicate detection: {e}")
-
-    # 2. Near duplicates
-    try:
         all_raw_issues.extend(detect_near_duplicates(df))
     except Exception as e:
-        logger.error(f"Error in near duplicate detection: {e}")
+        logger.error(f"Error in duplicate detection: {e}")
 
-    # 3. Missing values
+    if progress_callback: progress_callback("✔️ Checking for Missing values...")
     try:
         all_raw_issues.extend(detect_missing_values(df))
     except Exception as e:
         logger.error(f"Error in missing value detection: {e}")
 
-    # 4. Range and domain rule violations (High priority validity)
+    if progress_callback: progress_callback("✔️ Checking for Invalid numerical ranges and ages...")
     try:
         all_raw_issues.extend(validate_domain_ranges(df, custom_rules=dynamic_rules))
     except Exception as e:
         logger.error(f"Error in range validation: {e}")
 
-    # 5. Invalid and unparseable dates (High priority validity)
+    if progress_callback: progress_callback("✔️ Checking for Invalid and ambiguous dates...")
     try:
         all_raw_issues.extend(validate_dates(df))
     except Exception as e:
         logger.error(f"Error in date validation: {e}")
 
-    # 6. Type inconsistencies
+    if progress_callback: progress_callback("✔️ Checking for Boolean, null-token, and numeric formatting inconsistencies...")
     try:
         all_raw_issues.extend(detect_type_inconsistencies(df))
     except Exception as e:
         logger.error(f"Error in type validation: {e}")
 
-    # 7. Categorical inconsistencies (whitespace, casing, spelling)
+    if progress_callback: progress_callback("✔️ Checking for Whitespace, casing, and spelling inconsistencies...")
     try:
         all_raw_issues.extend(detect_categorical_inconsistencies(df))
     except Exception as e:
         logger.error(f"Error in categorical inconsistency detection: {e}")
 
-    # 8. Statistical and ML Outliers
+    if progress_callback: progress_callback("✔️ Checking for Statistical outliers and distribution anomalies...")
     try:
         all_raw_issues.extend(detect_numerical_outliers(df))
     except Exception as e:
         logger.error(f"Error in outlier detection: {e}")
 
+    if progress_callback: progress_callback("✔️ Checking for Multivariate anomalies, data leakage, class imbalance, and cross-column logic...")
+    try:
+        all_raw_issues.extend(detect_advanced_anomalies(df, target_variable))
+    except Exception as e:
+        logger.error(f"Error in advanced detection: {e}")
+
     # Deduplicate issues for the same (row, col)
-    # Precedence order: invalid_range / invalid_date / missing_value > type_inconsistency > spelling_typo > casing > whitespace > outlier
+    # Precedence order: invalid_range / invalid_date / missing_value > type_inconsistency > exact_duplicate > spelling_typo > casing > whitespace > near_duplicate > outlier
     precedence = {
         "invalid_range": 10,
         "invalid_date": 10,
@@ -81,7 +83,15 @@ def detect_all_issues(df: pd.DataFrame, dynamic_rules: Dict[str, Any] = None) ->
         "casing_inconsistency": 5,
         "whitespace_inconsistency": 4,
         "near_duplicate": 3,
-        "outlier": 2
+        "outlier": 2,
+        "multivariate_anomaly": 2,
+        "data_leakage": 2,
+        "highly_correlated": 2,
+        "constant_column": 2,
+        "high_cardinality": 2,
+        "class_imbalance": 2,
+        "rare_category": 2,
+        "cross_column_contradiction": 8
     }
 
     cell_issue_map = {}
