@@ -57,8 +57,10 @@ def profile_dataset(df: pd.DataFrame, schema: Dict[str, Dict[str, Any]] = None) 
             "is_nullable": col_missing > 0
         }
 
+        is_bool = pd.api.types.is_bool_dtype(col_series)
+        
         # Numerical statistics
-        if pd.api.types.is_numeric_dtype(col_series) or logical_type == "numeric":
+        if not is_bool and (pd.api.types.is_numeric_dtype(col_series) or logical_type == "numeric"):
             numeric_cols.append(col)
             # Safe numeric conversion for stats
             num_data = pd.to_numeric(col_series, errors="coerce").dropna()

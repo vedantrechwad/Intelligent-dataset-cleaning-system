@@ -84,11 +84,6 @@ class ReasoningEngine:
                             issue.get("is_human_review_required", False)
                         )
 
-            if is_ollama_ready:
-                issue["simple_explanation"] = self.generate_issue_explanation(itype, issue.get("column"))
-            else:
-                issue["simple_explanation"] = "Ollama is offline; explanation unavailable."
-
             enriched.append(issue)
 
         return enriched

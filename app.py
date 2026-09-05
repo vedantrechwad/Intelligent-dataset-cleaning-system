@@ -6,6 +6,7 @@ import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
+from collections import defaultdict
 
 from src.utils.helpers import load_config, NpEncoder, logger
 from src.ingestion.file_loader import load_dataset
@@ -434,8 +435,7 @@ with tabs[2]:
                 "Suggested Value": str(i.get("suggested_value")),
                 "Confidence": i.get("correction_confidence"),
                 "Decision": i.get("routing_decision"),
-                "Reason": i.get("reason"),
-                "AI Explanation": i.get("simple_explanation", "")
+                "Reason": i.get("reason")
             })
 
         st.dataframe(pd.DataFrame(table_rows), use_container_width=True)
@@ -458,74 +458,88 @@ with tabs[3]:
         if not review_issues:
             st.success("🎉 No issues require human review! All detected issues are high-confidence auto-correctable.")
         else:
-            resolved_count = len(st.session_state.human_decisions)
-            st.progress(min(1.0, resolved_count / max(1, len(review_issues))))
-            st.caption(f"Reviewed {resolved_count} of {len(review_issues)} items")
+            # Group issues by category and column
+            grouped_issues = defaultdict(list)
+            for i in review_issues:
+                grouped_issues[(i.get("issue_type"), i.get("column"))].append(i)
 
-            for idx, issue in enumerate(review_issues):
-                iid = issue.get("issue_id")
-                row = issue.get("row")
-                col = issue.get("column")
-                orig_val = issue.get("original_value")
-                itype = issue.get("issue_type")
-                suggested = issue.get("suggested_value")
-                reason = issue.get("reason")
+            resolved_groups_count = 0
+            for (itype, col), group in grouped_issues.items():
+                if all(i.get("issue_id") in st.session_state.human_decisions for i in group):
+                    resolved_groups_count += 1
 
-                with st.expander(f"📍 #{idx+1} [Row {row} | Column: {col}] - {itype.replace('_', ' ').title()}", expanded=(iid not in st.session_state.human_decisions)):
-                    c_left, c_right = st.columns([2, 1])
+            st.progress(min(1.0, resolved_groups_count / max(1, len(grouped_issues))))
+            st.caption(f"Reviewed {resolved_groups_count} of {len(grouped_issues)} issue groups")
 
-                    with c_left:
-                        st.markdown(f"**Current Raw Value:** `{orig_val}`")
-                        st.markdown(f"**Detected Problem:** {reason}")
-                        if suggested:
-                            st.markdown(f"**Suggested Alternative:** `{suggested}` (Confidence: {issue.get('correction_confidence', 0.0)})")
+            for (itype, col), group in grouped_issues.items():
+                group_id = f"{itype}_{col}"
+                resolved_in_group = [i for i in group if i.get("issue_id") in st.session_state.human_decisions]
+                is_resolved = len(resolved_in_group) == len(group)
+                
+                title = f"📍 {itype.replace('_', ' ').title()} in '{col}' ({len(group)} rows affected)"
+                if is_resolved:
+                    title = f"✅ {title}"
+                
+                with st.expander(title, expanded=(not is_resolved)):
+                    st.markdown(f"**Detected Problem:** {group[0].get('reason')}")
+                    
+                    if is_ollama_online:
+                        exp_cache_key = f"explain_{itype}_{col}"
+                        if exp_cache_key not in st.session_state:
+                            st.session_state[exp_cache_key] = reasoning_engine.generate_issue_explanation(itype, col)
+                        st.info(f"💡 **AI Explanation:** {st.session_state[exp_cache_key]}")
+                    
+                    # Sample Table
+                    st.markdown("**Affected Rows Sample:**")
+                    sample_df = pd.DataFrame([{
+                        "Row": i.get("row"), 
+                        "Original Value": str(i.get("original_value")), 
+                        "Suggested": str(i.get("suggested_value", ""))
+                    } for i in group[:10]])
+                    st.dataframe(sample_df, hide_index=True, use_container_width=True)
+
+                    if is_resolved:
+                        st.success("All items in this group have been resolved.")
+                        if st.button("Edit Group Decision", key=f"re_{group_id}"):
+                            for i in group:
+                                st.session_state.human_decisions.pop(i.get("issue_id"), None)
+                            st.rerun()
+                    else:
+                        st.markdown("**Bulk Correction (Applies to all rows above):**")
+                        user_input = st.text_input("New Value (leave blank for NaN)", value=str(group[0].get("suggested_value") or ""), key=f"inp_{group_id}")
                         
-                        st.info(f"💡 **AI Explanation:** {issue.get('simple_explanation', 'Unavailable')}")
-                        
-                        if "llm_reasoning" in issue:
-                            st.success(f"🤖 **Deep Reasoning:** {issue['llm_reasoning']}")
-
-                    with c_right:
-                        status = st.session_state.human_decisions.get(iid, {}).get("status")
-                        if status:
-                            st.success(f"Decision: **{status.upper()}** (Value: `{st.session_state.human_decisions[iid].get('corrected_value')}`)")
-                            if st.button("Edit Decision", key=f"re_{iid}"):
-                                del st.session_state.human_decisions[iid]
-                                st.rerun()
-                        else:
-                            st.markdown("**Enter Verified Correction:**")
-                            user_input = st.text_input("Corrected Value", value=str(suggested or ""), key=f"inp_{iid}")
-                            
-                            btn_c1, btn_c2 = st.columns(2)
-                            if btn_c1.button("✅ Accept", key=f"acc_{iid}", use_container_width=True):
-                                is_valid, clean_val, err = validate_user_correction_input(col, itype, user_input)
-                                if is_valid:
-                                    st.session_state.human_decisions[iid] = {
+                        btn_c1, btn_c2 = st.columns(2)
+                        if btn_c1.button("✅ Apply to All", key=f"acc_{group_id}", use_container_width=True):
+                            is_valid, clean_val, err = validate_user_correction_input(col, itype, user_input)
+                            if is_valid:
+                                for issue in group:
+                                    st.session_state.human_decisions[issue.get("issue_id")] = {
                                         "status": "accepted",
-                                        "row": row,
+                                        "row": issue.get("row"),
                                         "column": col,
-                                        "original_value": orig_val,
+                                        "original_value": issue.get("original_value"),
                                         "corrected_value": clean_val,
                                         "issue_type": itype,
-                                        "notes": "Verified by user in review queue"
+                                        "notes": "Bulk verified by user"
                                     }
-                                    st.success("Correction saved!")
-                                    st.rerun()
-                                else:
-                                    st.error(err)
-
-                            if btn_c2.button("❌ Reject / Skip", key=f"rej_{iid}", use_container_width=True):
-                                st.session_state.human_decisions[iid] = {
-                                    "status": "rejected",
-                                    "row": row,
-                                    "column": col,
-                                    "original_value": orig_val,
-                                    "corrected_value": orig_val,
-                                    "issue_type": itype,
-                                    "notes": "Rejected by user"
-                                }
-                                st.warning("Marked as rejected.")
+                                st.success(f"Applied to {len(group)} rows!")
                                 st.rerun()
+                            else:
+                                st.error(err)
+
+                        if btn_c2.button("❌ Skip All (Keep Original)", key=f"rej_{group_id}", use_container_width=True):
+                            for issue in group:
+                                st.session_state.human_decisions[issue.get("issue_id")] = {
+                                    "status": "rejected",
+                                    "row": issue.get("row"),
+                                    "column": col,
+                                    "original_value": issue.get("original_value"),
+                                    "corrected_value": issue.get("original_value"),
+                                    "issue_type": itype,
+                                    "notes": "Bulk rejected by user"
+                                }
+                            st.warning("Marked as skipped.")
+                            st.rerun()
 
 # -------------------------------------------------------------
 # TAB 5: Automated Cleaning Pipeline Execution
