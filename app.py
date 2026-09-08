@@ -274,7 +274,7 @@ with tabs[0]:
             st.info(f"🤖 **Dataset Context (AI Inferred):** {st.session_state.dataset_summary_text}")
 
         st.markdown("#### 🔍 Raw Dataset Preview (First 15 Rows)")
-        st.dataframe(st.session_state.raw_df.head(15), width="stretch")
+        st.dataframe(st.session_state.raw_df.head(15).astype(str), width="stretch")
 
         st.markdown("#### 🧬 Inferred Logical Column Schema")
         schema_rows = []
@@ -676,8 +676,8 @@ with tabs[4]:
             st.balloons()
 
         if st.session_state.cleaned_df is not None:
-            st.markdown("#### 📋 Cleaned Dataset Preview (First 15 Rows)")
-            st.dataframe(st.session_state.cleaned_df.head(15), width="stretch")
+            st.markdown("#### 🔍 Cleaned Dataset Preview (First 15 Rows)")
+            st.dataframe(st.session_state.cleaned_df.head(15).astype(str), width="stretch")
 
 # -------------------------------------------------------------
 # TAB 6: Validation & Before/After Deltas

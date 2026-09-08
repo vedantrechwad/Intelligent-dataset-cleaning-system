@@ -1,5 +1,5 @@
 import json
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List
 import requests
 from src.utils.helpers import logger
 from src.intelligence.ollama_client import OllamaClient
