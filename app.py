@@ -190,7 +190,8 @@ tabs = st.tabs([
     "4. Human Review",
     "5. Cleaning Pipeline",
     "6. Validation & Deltas",
-    "7. Audit Trail & Export"
+    "7. Audit Trail & Export",
+    "8. Dataset Q&A"
 ])
 
 # -------------------------------------------------------------
@@ -617,11 +618,11 @@ with tabs[4]:
         c_opt1, c_opt2, c_opt3 = st.columns(3)
         with c_opt1:
             st.markdown("**Missing Numerical Imputation**")
-            num_strat = st.selectbox("Strategy", ["median", "mean", "knn", "constant", "skip"], index=0)
+            num_strat = st.selectbox("Strategy", ["median", "mean", "knn", "constant", "llm", "skip"], index=0)
         
         with c_opt2:
             st.markdown("**Missing Categorical Imputation**")
-            cat_strat = st.selectbox("Strategy", ["skip", "mode", "constant"], index=0)
+            cat_strat = st.selectbox("Strategy", ["skip", "mode", "constant", "llm"], index=1)
 
         with c_opt3:
             st.markdown("**Numerical Outlier Handling**")
@@ -806,3 +807,41 @@ with tabs[6]:
         st.divider()
         st.markdown("#### 📜 Granular Audit Log Preview")
         st.json(audit_report, expanded=False)
+
+# -------------------------------------------------------------
+# TAB 8: Dataset Q&A
+# -------------------------------------------------------------
+with tabs[7]:
+    st.markdown("### 💬 Chat with your Dataset")
+    st.markdown("Use the local LLM to ask questions about your dataset's distribution, insights, or anomalies. **Powered by Ollama**.")
+
+    if not is_ollama_online:
+        st.warning("⚠️ Local LLM is offline. Please start Ollama to use this feature.")
+    elif st.session_state.raw_profile is None:
+        st.info("Please upload and profile a dataset first.")
+    else:
+        # Initialize chat history
+        if "messages" not in st.session_state:
+            st.session_state.messages = []
+
+        # Display chat messages from history
+        for message in st.session_state.messages:
+            with st.chat_message(message["role"]):
+                st.markdown(message["content"])
+
+        # React to user input
+        if prompt := st.chat_input("Ask a question about the dataset (e.g., 'Summarize the demographics')"):
+            st.chat_message("user").markdown(prompt)
+            st.session_state.messages.append({"role": "user", "content": prompt})
+
+            # Check which profile to use (use cleaned if available, else raw)
+            profile_to_use = st.session_state.after_profile if st.session_state.after_profile else st.session_state.raw_profile
+            df_to_use = st.session_state.cleaned_df if st.session_state.cleaned_df is not None else st.session_state.raw_df
+
+            with st.chat_message("assistant"):
+                with st.spinner("Thinking..."):
+                    from src.intelligence.chat_engine import chat_with_dataset
+                    response = chat_with_dataset(ollama_client, prompt, df_to_use, profile_to_use)
+                    st.markdown(response)
+            
+            st.session_state.messages.append({"role": "assistant", "content": response})

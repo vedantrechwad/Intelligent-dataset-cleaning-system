@@ -3,6 +3,8 @@ import pandas as pd
 import numpy as np
 from sklearn.impute import KNNImputer
 from src.utils.helpers import load_config, logger
+from src.intelligence.ollama_client import OllamaClient
+from src.intelligence.llm_imputer import impute_missing_value_with_llm
 
 def clean_missing_values(
     df: pd.DataFrame,
@@ -75,6 +77,52 @@ def clean_missing_values(
             if len(valid_vals) == 0:
                 continue
 
+            if numeric_strategy == "llm":
+                client = OllamaClient()
+                if not client.check_availability():
+                    numeric_strategy = "median" # Fallback
+                else:
+                    # Calculate stats for LLM
+                    col_stats = {"top_frequent_values": valid_vals.value_counts().head(10).to_dict()}
+                    for row_idx in cleaned_df[missing_mask].index:
+                        row_dict = cleaned_df.loc[row_idx].to_dict()
+                        result = impute_missing_value_with_llm(client, row_dict, col, col_stats)
+                        if result:
+                            try:
+                                fill_val = float(result["inferred_value"])
+                                cleaned_df.at[row_idx, col] = fill_val
+                                logs.append({
+                                    "row": int(row_idx),
+                                    "column": col,
+                                    "original_value": None,
+                                    "issue_type": "missing_value",
+                                    "action": "IMPUTATION",
+                                    "method": "llm",
+                                    "corrected_value": fill_val,
+                                    "detection_confidence": 1.0,
+                                    "correction_confidence": result["confidence"],
+                                    "reason": result["reason"]
+                                })
+                            except ValueError:
+                                pass # Fallback to median for this row if LLM returns non-numeric
+                        else:
+                            # Fallback per row if LLM fails
+                            fill_val = round(float(valid_vals.median()), 3)
+                            cleaned_df.at[row_idx, col] = fill_val
+                            logs.append({
+                                "row": int(row_idx),
+                                "column": col,
+                                "original_value": None,
+                                "issue_type": "missing_value",
+                                "action": "IMPUTATION",
+                                "method": "median_fallback",
+                                "corrected_value": fill_val,
+                                "detection_confidence": 1.0,
+                                "correction_confidence": 0.88,
+                                "reason": f"LLM failed, fallback to median ({fill_val})"
+                            })
+                    continue
+
             if numeric_strategy == "median":
                 fill_val = round(float(valid_vals.median()), 3)
             elif numeric_strategy == "mean":
@@ -115,6 +163,46 @@ def clean_missing_values(
 
         if categorical_strategy == "skip":
             continue
+
+        if categorical_strategy == "llm":
+            client = OllamaClient()
+            if client.check_availability():
+                col_stats = {"top_frequent_values": valid_vals.value_counts().head(10).to_dict()}
+                for row_idx in cleaned_df[missing_mask].index:
+                    row_dict = cleaned_df.loc[row_idx].to_dict()
+                    result = impute_missing_value_with_llm(client, row_dict, col, col_stats)
+                    if result:
+                        fill_val = str(result["inferred_value"])
+                        cleaned_df.at[row_idx, col] = fill_val
+                        logs.append({
+                            "row": int(row_idx),
+                            "column": col,
+                            "original_value": None,
+                            "issue_type": "missing_value",
+                            "action": "IMPUTATION",
+                            "method": "llm",
+                            "corrected_value": fill_val,
+                            "detection_confidence": 1.0,
+                            "correction_confidence": result["confidence"],
+                            "reason": result["reason"]
+                        })
+                    else:
+                        mode_vals = valid_vals.mode()
+                        fill_val = mode_vals.iloc[0] if not mode_vals.empty else "Unknown"
+                        cleaned_df.at[row_idx, col] = fill_val
+                        logs.append({
+                            "row": int(row_idx),
+                            "column": col,
+                            "original_value": None,
+                            "issue_type": "missing_value",
+                            "action": "IMPUTATION",
+                            "method": "mode_fallback",
+                            "corrected_value": fill_val,
+                            "detection_confidence": 1.0,
+                            "correction_confidence": 0.85,
+                            "reason": f"LLM failed, fallback to mode ('{fill_val}')"
+                        })
+                continue
 
         for row_idx in cleaned_df[missing_mask].index:
             cleaned_df.at[row_idx, col] = fill_val
