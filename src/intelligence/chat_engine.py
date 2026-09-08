@@ -9,7 +9,8 @@ def chat_with_dataset(
     client: OllamaClient,
     query: str,
     df: pd.DataFrame,
-    profile_stats: Dict[str, Any]
+    profile_stats: Dict[str, Any],
+    issues: Optional[List[Dict[str, Any]]] = None
 ) -> str:
     """
     Passes a user query and a summary of the dataset to Ollama to generate an answer.
@@ -22,9 +23,28 @@ def chat_with_dataset(
     for col, stats in profile_stats.get("columns", {}).items():
         ctype = stats.get("type", "unknown")
         if ctype == "numeric":
-            col_info.append(f"- {col} (Numeric): min={stats.get('min')}, max={stats.get('max')}, mean={stats.get('mean')}")
+            col_info.append(f"- {col} (Numeric): min={stats.get('min')}, max={stats.get('max')}, mean={stats.get('mean')}, std={stats.get('std')}")
         else:
             col_info.append(f"- {col} (Categorical): {stats.get('unique_count')} unique values")
+
+    # Aggregate detected issues
+    issue_summary = ""
+    if issues:
+        issue_counts = {}
+        for iss in issues:
+            itype = iss.get("issue_type", "unknown")
+            issue_counts[itype] = issue_counts.get(itype, 0) + 1
+        
+        issue_summary = "Detected Dataset Anomalies:\n"
+        for itype, count in issue_counts.items():
+            issue_summary += f"- {itype}: {count} affected rows\n"
+        
+        # Pull out a few outlier examples if requested
+        outliers = [i for i in issues if i.get("issue_type") == "outlier"]
+        if outliers:
+            issue_summary += f"\nSpecifically, {len(outliers)} outliers were mathematically detected (e.g., values like {outliers[0].get('original_value')} in '{outliers[0].get('column')}').\n"
+    else:
+        issue_summary = "No anomalies detected or issues not provided."
 
     # Limit sample rows to avoid token overflow
     sample_df = df.head(3).to_dict(orient="records")
@@ -33,6 +53,8 @@ def chat_with_dataset(
     
 Dataset Summary:
 {chr(10).join(col_info)}
+
+{issue_summary}
 
 Sample Rows (First 3):
 {json.dumps(sample_df, indent=2)}

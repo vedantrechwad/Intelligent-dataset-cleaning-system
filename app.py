@@ -841,7 +841,8 @@ with tabs[7]:
             with st.chat_message("assistant"):
                 with st.spinner("Thinking..."):
                     from src.intelligence.chat_engine import chat_with_dataset
-                    response = chat_with_dataset(ollama_client, prompt, df_to_use, profile_to_use)
+                    issues_to_use = None if st.session_state.cleaned_df is not None else st.session_state.raw_issues
+                    response = chat_with_dataset(ollama_client, prompt, df_to_use, profile_to_use, issues=issues_to_use)
                     st.markdown(response)
             
             st.session_state.messages.append({"role": "assistant", "content": response})
