@@ -95,7 +95,7 @@ def detect_near_duplicates(
                     "issue_type": "near_duplicate",
                     "detection_method": ["rapidfuzz_near_duplicate"],
                     "detection_confidence": round(sim / 100.0, 3),
-                    "correction_confidence": 0.4,
+                    "correction_confidence": 0.80,
                     "suggested_action": "flag_for_review",
                     "suggested_value": f"Row {indices[i]}",
                     "reason": f"Row {indices[j]} has {sim:.1f}% similarity to row {indices[i]}.",

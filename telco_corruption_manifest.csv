@@ -1,0 +1,581 @@
+row_index,customerID,column,original_value,corrupted_value,issue_type,expected_action
+5238,7841-FCRQD,gender,Female,Female ,leading/trailing whitespace,auto
+912,3865-YIOTT,gender,Male,Male ,leading/trailing whitespace,auto
+204,9142-KZXOP,gender,Male, Male ,leading/trailing whitespace,auto
+6074,3797-VTIDR,gender,Male, Male ,leading/trailing whitespace,auto
+2253,0336-PIKEI,gender,Male,Male ,leading/trailing whitespace,auto
+2006,0224-HJAPT,gender,Male, Male ,leading/trailing whitespace,auto
+1828,1839-UMACK,gender,Male, Male ,leading/trailing whitespace,auto
+1143,2446-ZKVAF,gender,Male,Male ,leading/trailing whitespace,auto
+6033,6595-YGXIT,gender,Male,Male ,leading/trailing whitespace,auto
+839,4625-LAMOB,gender,Male, Male,leading/trailing whitespace,auto
+5543,6646-JPPHA,gender,Female, Female ,leading/trailing whitespace,auto
+6067,1397-XKKWR,gender,Male, Male,leading/trailing whitespace,auto
+4467,0667-NSRGI,gender,Female, Female,leading/trailing whitespace,auto
+712,9661-JALZV,gender,Female,Female ,leading/trailing whitespace,auto
+4837,5134-IKDAY,gender,Female, Female ,leading/trailing whitespace,auto
+3456,0436-TWFFZ,gender,Female, Female ,leading/trailing whitespace,auto
+260,7273-TEFQD,gender,Male, Male ,leading/trailing whitespace,auto
+244,4522-AKYLR,gender,Female, Female ,leading/trailing whitespace,auto
+767,7817-OMJNA,gender,Male, Male ,leading/trailing whitespace,auto
+1791,2348-KCJLT,gender,Female, Female ,leading/trailing whitespace,auto
+1905,1022-RKXDR,gender,Female, Female ,leading/trailing whitespace,auto
+4139,7278-CKDNC,gender,Male,Male ,leading/trailing whitespace,auto
+4931,4298-OYIFC,gender,Male, Male ,leading/trailing whitespace,auto
+217,0230-WEQUW,gender,Male, Male ,leading/trailing whitespace,auto
+4597,3440-JPSCL,gender,Female, Female ,leading/trailing whitespace,auto
+1628,6267-DCFFZ,gender,Female,Female ,leading/trailing whitespace,auto
+5865,2621-UDNLU,gender,Female,Female ,leading/trailing whitespace,auto
+5323,1448-CYWKC,gender,Female,Female ,leading/trailing whitespace,auto
+5745,3580-GICBM,gender,Female, Female ,leading/trailing whitespace,auto
+4464,3018-TFTSU,gender,Male,Male ,leading/trailing whitespace,auto
+3436,0428-AXXLJ,gender,Male,Male ,leading/trailing whitespace,auto
+1805,7860-KSUGX,gender,Male, Male,leading/trailing whitespace,auto
+3679,1240-KNSEZ,gender,Male, Male ,leading/trailing whitespace,auto
+4827,9560-ARGQJ,gender,Female, Female ,leading/trailing whitespace,auto
+2278,0015-UOCOJ,gender,Female, Female ,leading/trailing whitespace,auto
+2193,6922-NCEDI,Partner,No, No,leading/trailing whitespace,auto
+542,2866-IKBTM,Partner,No, No ,leading/trailing whitespace,auto
+1728,8345-MVDYC,Partner,No, No ,leading/trailing whitespace,auto
+4646,5032-MIYKT,Partner,No, No ,leading/trailing whitespace,auto
+5881,3229-USWAR,Partner,No,No ,leading/trailing whitespace,auto
+2577,4910-GMJOT,Partner,No, No,leading/trailing whitespace,auto
+1741,0106-GHRQR,Partner,No, No ,leading/trailing whitespace,auto
+5369,9860-LISIZ,Partner,No,No ,leading/trailing whitespace,auto
+4089,4282-YMKNA,Partner,No,No ,leading/trailing whitespace,auto
+3241,3148-BLQJT,Partner,No,No ,leading/trailing whitespace,auto
+5266,2027-DNKIV,Partner,Yes, Yes ,leading/trailing whitespace,auto
+3758,8885-QSQBX,Partner,No, No ,leading/trailing whitespace,auto
+1170,9127-FHJBZ,Partner,Yes, Yes,leading/trailing whitespace,auto
+2169,6418-PIQSP,Partner,Yes, Yes ,leading/trailing whitespace,auto
+1143,2446-ZKVAF,Partner,Yes,Yes ,leading/trailing whitespace,auto
+2020,2546-KZAAT,Partner,Yes, Yes,leading/trailing whitespace,auto
+6102,9795-NREXC,Partner,Yes, Yes ,leading/trailing whitespace,auto
+4598,4929-ROART,Partner,No,No ,leading/trailing whitespace,auto
+4415,0420-TXVSG,Partner,Yes, Yes ,leading/trailing whitespace,auto
+2152,0248-IPDFW,Partner,No,No ,leading/trailing whitespace,auto
+6119,0080-EMYVY,Partner,No,No ,leading/trailing whitespace,auto
+4788,9102-OXKFY,Partner,No, No ,leading/trailing whitespace,auto
+3509,8710-YGLWG,Partner,No, No ,leading/trailing whitespace,auto
+4780,5895-QSXOD,Partner,No, No ,leading/trailing whitespace,auto
+3271,3902-FOIGH,Partner,Yes, Yes,leading/trailing whitespace,auto
+2965,1591-NFNLQ,Partner,No,No ,leading/trailing whitespace,auto
+1796,2474-LCNUE,Partner,Yes, Yes ,leading/trailing whitespace,auto
+1133,3156-QLHBO,Partner,No, No,leading/trailing whitespace,auto
+4174,3285-UCQVC,Partner,No, No ,leading/trailing whitespace,auto
+4042,5404-GGUKR,Partner,No, No ,leading/trailing whitespace,auto
+744,1635-FJFCC,Partner,No, No ,leading/trailing whitespace,auto
+6191,8495-PRWFH,Partner,No, No,leading/trailing whitespace,auto
+385,4895-TMWIR,Partner,Yes, Yes ,leading/trailing whitespace,auto
+898,4315-MURBD,Partner,No, No ,leading/trailing whitespace,auto
+1252,7617-EYGLW,Partner,No,No ,leading/trailing whitespace,auto
+4969,2303-PJYHN,Contract,Month-to-month, Month-to-month,leading/trailing whitespace,auto
+3466,9430-NKQLY,Contract,Two year, Two year ,leading/trailing whitespace,auto
+1735,2040-XBAVJ,Contract,Two year, Two year ,leading/trailing whitespace,auto
+4417,0515-YPMCW,Contract,Month-to-month,Month-to-month ,leading/trailing whitespace,auto
+6187,0224-NIJLP,Contract,Two year, Two year ,leading/trailing whitespace,auto
+5979,2675-IJRGJ,Contract,Two year,Two year ,leading/trailing whitespace,auto
+5651,4471-KXAUH,Contract,Month-to-month, Month-to-month ,leading/trailing whitespace,auto
+1647,5442-XSDCW,Contract,Month-to-month, Month-to-month,leading/trailing whitespace,auto
+5840,1534-OULXE,Contract,One year, One year ,leading/trailing whitespace,auto
+2553,9137-NOQKA,Contract,Month-to-month, Month-to-month ,leading/trailing whitespace,auto
+3268,6778-EICRF,Contract,One year, One year ,leading/trailing whitespace,auto
+5502,3755-JBMNH,Contract,Month-to-month, Month-to-month ,leading/trailing whitespace,auto
+5323,1448-CYWKC,Contract,One year, One year ,leading/trailing whitespace,auto
+3059,7503-EPSZW,Contract,Two year,Two year ,leading/trailing whitespace,auto
+3588,9643-YBLUR,Contract,Month-to-month,Month-to-month ,leading/trailing whitespace,auto
+4239,6481-LXPWL,Contract,One year, One year ,leading/trailing whitespace,auto
+3698,7346-MEDWM,Contract,Month-to-month, Month-to-month ,leading/trailing whitespace,auto
+991,8361-LBRDI,Contract,Two year,Two year ,leading/trailing whitespace,auto
+2030,3090-LETTY,Contract,Month-to-month, Month-to-month ,leading/trailing whitespace,auto
+1840,6990-YNRIO,Contract,Two year, Two year ,leading/trailing whitespace,auto
+524,8397-MVTAZ,Contract,Month-to-month, Month-to-month ,leading/trailing whitespace,auto
+2769,5577-OTWWW,Contract,Month-to-month, Month-to-month ,leading/trailing whitespace,auto
+172,6727-IOTLZ,Contract,Two year, Two year ,leading/trailing whitespace,auto
+4819,0607-DAAHE,Contract,Two year,Two year ,leading/trailing whitespace,auto
+4537,1100-DDVRV,Contract,Month-to-month,Month-to-month ,leading/trailing whitespace,auto
+1885,7217-JYHOQ,Contract,Month-to-month, Month-to-month ,leading/trailing whitespace,auto
+4820,5641-DMBFJ,Contract,Two year, Two year,leading/trailing whitespace,auto
+1804,6016-LVTJQ,Contract,Month-to-month, Month-to-month,leading/trailing whitespace,auto
+58,3957-SQXML,Contract,Two year,Two year ,leading/trailing whitespace,auto
+581,3627-FHKBK,Contract,Month-to-month, Month-to-month ,leading/trailing whitespace,auto
+5798,4548-SDBKE,Contract,Month-to-month, Month-to-month ,leading/trailing whitespace,auto
+5169,7105-BENQF,Contract,One year, One year ,leading/trailing whitespace,auto
+482,4612-SSVHJ,Contract,Month-to-month, Month-to-month ,leading/trailing whitespace,auto
+1875,9637-CDTKZ,Contract,Two year, Two year ,leading/trailing whitespace,auto
+552,2075-PUEPR,Contract,Two year,Two year ,leading/trailing whitespace,auto
+6423,0480-KYJVA,PaymentMethod,Credit card (automatic), Credit card (automatic) ,leading/trailing whitespace,auto
+6431,3266-FTKHB,PaymentMethod,Mailed check,Mailed check ,leading/trailing whitespace,auto
+3727,9057-SIHCH,PaymentMethod,Electronic check, Electronic check ,leading/trailing whitespace,auto
+2336,3211-ILJTT,PaymentMethod,Bank transfer (automatic), Bank transfer (automatic) ,leading/trailing whitespace,auto
+3465,2831-EBWRN,PaymentMethod,Electronic check,Electronic check ,leading/trailing whitespace,auto
+5706,5196-SGOAK,PaymentMethod,Electronic check,Electronic check ,leading/trailing whitespace,auto
+5984,9185-TQCVP,PaymentMethod,Electronic check, Electronic check ,leading/trailing whitespace,auto
+6417,9776-CLUJA,PaymentMethod,Electronic check,Electronic check ,leading/trailing whitespace,auto
+4552,1385-TQOZW,PaymentMethod,Credit card (automatic),Credit card (automatic) ,leading/trailing whitespace,auto
+5422,3563-SVYLG,PaymentMethod,Credit card (automatic),Credit card (automatic) ,leading/trailing whitespace,auto
+5885,0269-XFESX,PaymentMethod,Mailed check, Mailed check ,leading/trailing whitespace,auto
+3986,6242-FEGFD,PaymentMethod,Mailed check,Mailed check ,leading/trailing whitespace,auto
+1268,2408-TZMJL,PaymentMethod,Electronic check, Electronic check ,leading/trailing whitespace,auto
+1555,9651-GTSAQ,PaymentMethod,Bank transfer (automatic),Bank transfer (automatic) ,leading/trailing whitespace,auto
+2430,1821-BUCWY,PaymentMethod,Mailed check, Mailed check ,leading/trailing whitespace,auto
+1783,8380-PEFPE,PaymentMethod,Electronic check, Electronic check,leading/trailing whitespace,auto
+479,6227-HWPWX,PaymentMethod,Bank transfer (automatic), Bank transfer (automatic) ,leading/trailing whitespace,auto
+4744,6139-ZZRBQ,PaymentMethod,Bank transfer (automatic), Bank transfer (automatic) ,leading/trailing whitespace,auto
+6027,4896-CPRPF,PaymentMethod,Bank transfer (automatic), Bank transfer (automatic) ,leading/trailing whitespace,auto
+4441,4825-FUREZ,PaymentMethod,Electronic check, Electronic check,leading/trailing whitespace,auto
+499,7783-YKGDV,PaymentMethod,Bank transfer (automatic),Bank transfer (automatic) ,leading/trailing whitespace,auto
+6127,6198-PNNSZ,PaymentMethod,Bank transfer (automatic), Bank transfer (automatic) ,leading/trailing whitespace,auto
+2569,8237-ULIXL,PaymentMethod,Credit card (automatic),Credit card (automatic) ,leading/trailing whitespace,auto
+468,8896-RAZCR,PaymentMethod,Mailed check, Mailed check,leading/trailing whitespace,auto
+410,0334-GDDSO,PaymentMethod,Electronic check,Electronic check ,leading/trailing whitespace,auto
+4785,8854-CCVSQ,PaymentMethod,Electronic check,Electronic check ,leading/trailing whitespace,auto
+3905,5759-RCVCB,PaymentMethod,Credit card (automatic), Credit card (automatic),leading/trailing whitespace,auto
+4119,6016-NXBNJ,PaymentMethod,Mailed check, Mailed check ,leading/trailing whitespace,auto
+6985,6967-PEJLL,PaymentMethod,Electronic check, Electronic check ,leading/trailing whitespace,auto
+4350,1518-OMDIK,PaymentMethod,Credit card (automatic), Credit card (automatic) ,leading/trailing whitespace,auto
+1289,9968-FFVVH,PaymentMethod,Bank transfer (automatic),Bank transfer (automatic) ,leading/trailing whitespace,auto
+465,2996-XAUVF,PaymentMethod,Mailed check,Mailed check ,leading/trailing whitespace,auto
+4160,5049-MUBWG,PaymentMethod,Bank transfer (automatic), Bank transfer (automatic) ,leading/trailing whitespace,auto
+656,8100-PNJMH,PaymentMethod,Credit card (automatic),Credit card (automatic) ,leading/trailing whitespace,auto
+6974,0422-UXFAP,PaymentMethod,Electronic check, Electronic check ,leading/trailing whitespace,auto
+6931,2371-KFUOG,gender,Male,male,case inconsistency,auto
+416,4686-GEFRM,gender,Male,male,case inconsistency,auto
+756,5730-DBDSI,gender,Male,male,case inconsistency,auto
+5196,0786-IVLAW,gender,Female,female,case inconsistency,auto
+3469,9402-ORRAH,gender,Female,female,case inconsistency,auto
+6794,1047-RNXZV,gender,Male,male,case inconsistency,auto
+2266,5732-IKGQH,gender,Male,male,case inconsistency,auto
+361,5229-DTFYB,gender,Female,female,case inconsistency,auto
+29,8773-HHUOZ,gender,Female,female,case inconsistency,auto
+2732,9929-PLVPA,gender,Female,female,case inconsistency,auto
+6317,7493-TPUWZ,gender,Male,male,case inconsistency,auto
+1071,3097-NNSPB,gender,Female,female,case inconsistency,auto
+5219,3976-NLDEZ,gender,Male,male,case inconsistency,auto
+2145,1391-UBDAR,gender,Male,male,case inconsistency,auto
+1323,4565-NLZBV,gender,Female,female,case inconsistency,auto
+6072,3387-PLKUI,gender,Female,female,case inconsistency,auto
+3619,6479-VDGRK,gender,Female,female,case inconsistency,auto
+4519,0103-CSITQ,gender,Female,female,case inconsistency,auto
+5780,1722-LDZJS,gender,Male,male,case inconsistency,auto
+3503,9821-BESNZ,gender,Male,male,case inconsistency,auto
+4594,4658-HCOHW,gender,Female,female,case inconsistency,auto
+79,3887-PBQAO,gender,Female,female,case inconsistency,auto
+916,3956-CJUST,gender,Female,female,case inconsistency,auto
+616,6464-KEXXH,Partner,No,no,case inconsistency,auto
+5660,1121-QSIVB,Partner,No,no,case inconsistency,auto
+1221,3055-MJDSB,Partner,No,no,case inconsistency,auto
+4469,6893-ODYYE,Partner,No,no,case inconsistency,auto
+295,8203-XJZRC,Partner,No,no,case inconsistency,auto
+6837,6229-LSCKB,Partner,No,no,case inconsistency,auto
+3024,8735-NBLWT,Partner,No,no,case inconsistency,auto
+4771,1678-FYZOW,Partner,No,no,case inconsistency,auto
+4526,4860-IJUDE,Partner,No,no,case inconsistency,auto
+1213,6980-IMXXE,Partner,Yes,yes,case inconsistency,auto
+3520,6036-TTFYU,Partner,Yes,yes,case inconsistency,auto
+1044,3354-OADJP,Partner,No,no,case inconsistency,auto
+342,7520-HQWJU,Partner,Yes,yes,case inconsistency,auto
+2525,3133-PZNSR,Partner,Yes,yes,case inconsistency,auto
+2987,3769-MHZNV,Partner,Yes,yes,case inconsistency,auto
+6521,1092-WPIVQ,Partner,Yes,yes,case inconsistency,auto
+326,5701-YVSVF,Partner,Yes,yes,case inconsistency,auto
+2931,8059-UDZFY,Partner,No,no,case inconsistency,auto
+1720,6407-UTSLV,Partner,No,no,case inconsistency,auto
+5587,1707-HABPF,Partner,No,no,case inconsistency,auto
+2044,2550-QHZGP,Partner,No,no,case inconsistency,auto
+5463,6142-VSJQO,Partner,Yes,yes,case inconsistency,auto
+842,1038-ZAGBI,Partner,Yes,yes,case inconsistency,auto
+2897,8234-GSZYK,Dependents,No,no,case inconsistency,auto
+6390,6994-FGRHH,Dependents,Yes,yes,case inconsistency,auto
+4586,7569-NMZYQ,Dependents,Yes,yes,case inconsistency,auto
+3329,5366-OBVMR,Dependents,No,no,case inconsistency,auto
+5084,8966-OIQHG,Dependents,Yes,yes,case inconsistency,auto
+6139,3039-MJSLN,Dependents,Yes,yes,case inconsistency,auto
+1266,1251-STYSZ,Dependents,No,no,case inconsistency,auto
+1939,8267-KFGYD,Dependents,Yes,yes,case inconsistency,auto
+1331,7537-RBWEA,Dependents,No,no,case inconsistency,auto
+6552,9317-WZPGV,Dependents,No,no,case inconsistency,auto
+6641,2810-FTLEM,Dependents,No,no,case inconsistency,auto
+1450,1735-XMJVH,Dependents,Yes,yes,case inconsistency,auto
+3377,2696-RZVZW,Dependents,No,no,case inconsistency,auto
+203,7018-WBJNK,Dependents,Yes,yes,case inconsistency,auto
+1469,5394-SVGJV,Dependents,No,no,case inconsistency,auto
+6033,6595-YGXIT,Dependents,No,no,case inconsistency,auto
+2721,8225-BTJAU,Dependents,No,no,case inconsistency,auto
+6409,3653-NCRDJ,Dependents,Yes,yes,case inconsistency,auto
+3372,2883-ILGWO,Dependents,No,no,case inconsistency,auto
+6571,2188-SXWVT,Dependents,No,no,case inconsistency,auto
+5487,5519-TEEUH,Dependents,Yes,yes,case inconsistency,auto
+6021,3752-CQSJI,Dependents,Yes,yes,case inconsistency,auto
+2032,3753-TSEMP,Dependents,No,no,case inconsistency,auto
+2185,7619-ODSGN,PhoneService,Yes,yes,case inconsistency,auto
+1304,8519-IMDHU,PhoneService,Yes,yes,case inconsistency,auto
+6450,4609-KNNWG,PhoneService,Yes,yes,case inconsistency,auto
+5744,1371-WEPDS,PhoneService,Yes,yes,case inconsistency,auto
+885,4661-NJEUX,PhoneService,Yes,yes,case inconsistency,auto
+3133,3181-VTHOE,PhoneService,No,no,case inconsistency,auto
+317,2321-OMBXY,PhoneService,Yes,yes,case inconsistency,auto
+7033,9767-FFLEM,PhoneService,Yes,yes,case inconsistency,auto
+3855,7691-KGKGP,PhoneService,Yes,yes,case inconsistency,auto
+1822,4911-BANWH,PhoneService,Yes,yes,case inconsistency,auto
+1634,9995-HOTOH,PhoneService,No,no,case inconsistency,auto
+6689,8561-NMTBD,PhoneService,Yes,yes,case inconsistency,auto
+3770,5821-MMEIL,PhoneService,Yes,yes,case inconsistency,auto
+2864,1564-HJUVY,PhoneService,Yes,yes,case inconsistency,auto
+2500,0679-TDGAK,PhoneService,Yes,yes,case inconsistency,auto
+6721,6898-RBTLU,PhoneService,Yes,yes,case inconsistency,auto
+6515,7016-BPGEU,PhoneService,No,no,case inconsistency,auto
+1864,7105-MXJLL,PhoneService,Yes,yes,case inconsistency,auto
+1826,6908-VVYHM,PhoneService,Yes,yes,case inconsistency,auto
+193,9680-NIAUV,PhoneService,Yes,yes,case inconsistency,auto
+5406,9715-WZCLW,PhoneService,Yes,yes,case inconsistency,auto
+1582,5127-BZENZ,PhoneService,Yes,yes,case inconsistency,auto
+3264,6818-DJXAA,PhoneService,Yes,yes,case inconsistency,auto
+2689,8628-MFKAX,PaperlessBilling,Yes,yes,case inconsistency,auto
+2282,1587-FKLZB,PaperlessBilling,Yes,yes,case inconsistency,auto
+568,0939-YAPAF,PaperlessBilling,Yes,yes,case inconsistency,auto
+6335,7798-JVXYM,PaperlessBilling,Yes,yes,case inconsistency,auto
+2286,1465-LNTLJ,PaperlessBilling,Yes,yes,case inconsistency,auto
+2876,6746-WAUWT,PaperlessBilling,Yes,yes,case inconsistency,auto
+5255,8486-AYEQH,PaperlessBilling,Yes,yes,case inconsistency,auto
+4173,7858-GTZSP,PaperlessBilling,Yes,yes,case inconsistency,auto
+3274,2874-YXVVA,PaperlessBilling,Yes,yes,case inconsistency,auto
+5566,2302-OUZXB,PaperlessBilling,No,no,case inconsistency,auto
+6911,0508-SQWPL,PaperlessBilling,Yes,yes,case inconsistency,auto
+4392,3373-YZZYM,PaperlessBilling,No,no,case inconsistency,auto
+2712,5133-VRSAB,PaperlessBilling,No,no,case inconsistency,auto
+226,6341-JVQGF,PaperlessBilling,Yes,yes,case inconsistency,auto
+944,6353-BRMMA,PaperlessBilling,Yes,yes,case inconsistency,auto
+2139,8160-HOWOX,PaperlessBilling,Yes,yes,case inconsistency,auto
+1462,9824-QCJPK,PaperlessBilling,No,no,case inconsistency,auto
+4756,9518-IMLHK,PaperlessBilling,Yes,yes,case inconsistency,auto
+2174,1178-PZGAB,PaperlessBilling,No,no,case inconsistency,auto
+313,2799-ARNLO,PaperlessBilling,Yes,yes,case inconsistency,auto
+888,0048-LUMLS,PaperlessBilling,No,no,case inconsistency,auto
+4887,9184-GALIL,PaperlessBilling,No,no,case inconsistency,auto
+3559,5171-EPLKN,PaperlessBilling,No,no,case inconsistency,auto
+2831,2454-RPBRZ,Churn,Yes,yes,case inconsistency,auto
+5968,9033-EOXWV,Churn,Yes,yes,case inconsistency,auto
+6442,0254-WWRKD,Churn,No,no,case inconsistency,auto
+2569,8237-ULIXL,Churn,No,no,case inconsistency,auto
+3574,4634-JLRJT,Churn,No,no,case inconsistency,auto
+4966,3097-IDVPU,Churn,No,no,case inconsistency,auto
+4189,7103-ZGVNT,Churn,No,no,case inconsistency,auto
+947,9904-EHEVJ,Churn,No,no,case inconsistency,auto
+3155,4962-CHQPW,Churn,No,no,case inconsistency,auto
+4723,4274-OWWYO,Churn,Yes,yes,case inconsistency,auto
+1557,4672-FOTSD,Churn,No,no,case inconsistency,auto
+2086,2955-BJZHG,Churn,Yes,yes,case inconsistency,auto
+363,5176-LMJXE,Churn,No,no,case inconsistency,auto
+5806,7854-EKTJL,Churn,Yes,yes,case inconsistency,auto
+3572,1730-ZMAME,Churn,No,no,case inconsistency,auto
+13,0280-XJGEX,Churn,Yes,yes,case inconsistency,auto
+4259,1087-UDSIH,Churn,Yes,yes,case inconsistency,auto
+6606,6518-LGAOV,Churn,Yes,yes,case inconsistency,auto
+4410,0848-ZGQIJ,Churn,No,no,case inconsistency,auto
+5626,2458-EOMRE,Churn,No,no,case inconsistency,auto
+5893,3549-ZTMNH,Churn,No,no,case inconsistency,auto
+6078,9691-HKOVS,Churn,No,no,case inconsistency,auto
+6037,7537-CBQUZ,Churn,No,no,case inconsistency,auto
+5493,0196-VULGZ,Churn,Yes,yes,case inconsistency,auto
+1614,3813-DHBBB,Churn,No,no,case inconsistency,auto
+2983,4674-HGNUA,gender,Male,None,null-token inconsistency,auto
+3533,4318-RAJVY,gender,Female,None,null-token inconsistency,auto
+573,4710-FDUIZ,gender,Male,NA,null-token inconsistency,auto
+5441,3512-IZIKN,gender,Female,None,null-token inconsistency,auto
+2704,9640-ZSLDC,gender,Female,NA,null-token inconsistency,auto
+5104,1328-EUZHC,gender,Female,None,null-token inconsistency,auto
+2571,8216-AZUUZ,gender,Female,NULL,null-token inconsistency,auto
+5434,9921-EZKBY,gender,Male,NULL,null-token inconsistency,auto
+6946,9013-AQORL,gender,Female,NA,null-token inconsistency,auto
+1020,1452-XRSJV,gender,Female,NA,null-token inconsistency,auto
+5548,4589-IUAJB,Partner,Yes,None,null-token inconsistency,auto
+6128,3317-VLGQT,Partner,Yes,None,null-token inconsistency,auto
+1425,7077-XJMET,Partner,Yes,NULL,null-token inconsistency,auto
+5042,1561-BWHIN,Partner,Yes,NA,null-token inconsistency,auto
+4662,4018-KJYUY,Partner,No,None,null-token inconsistency,auto
+2465,1740-CSDJP,Partner,No,NA,null-token inconsistency,auto
+3326,7657-DYEPJ,Partner,No,NA,null-token inconsistency,auto
+4488,3714-JTVOV,Partner,Yes,NA,null-token inconsistency,auto
+6829,8148-WOCMK,Partner,Yes,NULL,null-token inconsistency,auto
+3,7795-CFOCW,Partner,No,NA,null-token inconsistency,auto
+6502,6103-QCKFX,Dependents,Yes,None,null-token inconsistency,auto
+6521,1092-WPIVQ,Dependents,Yes,N/A,null-token inconsistency,auto
+6028,1871-MOWRM,Dependents,No,NULL,null-token inconsistency,auto
+1390,8039-ACLPL,Dependents,Yes,None,null-token inconsistency,auto
+5397,2379-ENZGV,Dependents,No,NULL,null-token inconsistency,auto
+694,2682-KEVRP,Dependents,No,NULL,null-token inconsistency,auto
+2324,2774-LVQUS,Dependents,No,NULL,null-token inconsistency,auto
+4222,6480-YAGIY,Dependents,No,N/A,null-token inconsistency,auto
+5438,0727-IWKVK,Dependents,No,N/A,null-token inconsistency,auto
+5185,3021-VLNRJ,Dependents,Yes,NULL,null-token inconsistency,auto
+3892,3824-RHKVR,OnlineSecurity,No internet service,NA,null-token inconsistency,auto
+5007,7407-SUJIZ,OnlineSecurity,No internet service,NA,null-token inconsistency,auto
+6961,8155-IBNHG,OnlineSecurity,No,NA,null-token inconsistency,auto
+6295,7033-CLAMM,OnlineSecurity,No internet service,NULL,null-token inconsistency,auto
+596,8208-EUMTE,OnlineSecurity,Yes,NULL,null-token inconsistency,auto
+3730,6771-XWBDM,OnlineSecurity,No,N/A,null-token inconsistency,auto
+3395,6794-HKIAJ,OnlineSecurity,Yes,N/A,null-token inconsistency,auto
+5159,5928-QLDHB,OnlineSecurity,No,NA,null-token inconsistency,auto
+4715,7508-DQAKK,OnlineSecurity,Yes,NULL,null-token inconsistency,auto
+1592,8387-MOJJT,OnlineSecurity,No,NULL,null-token inconsistency,auto
+6587,7426-GSWPO,TechSupport,No,NULL,null-token inconsistency,auto
+5700,3312-ZWLGF,TechSupport,Yes,NA,null-token inconsistency,auto
+4243,9362-MWODR,TechSupport,Yes,None,null-token inconsistency,auto
+3805,8644-XLFBW,TechSupport,No,NA,null-token inconsistency,auto
+411,4163-NCJAK,TechSupport,No internet service,NA,null-token inconsistency,auto
+4566,8375-KVTHK,TechSupport,Yes,NA,null-token inconsistency,auto
+2041,3546-GHEAE,TechSupport,No internet service,NULL,null-token inconsistency,auto
+6949,3648-GZPHF,TechSupport,Yes,NA,null-token inconsistency,auto
+994,7277-KAMWT,TechSupport,No internet service,NA,null-token inconsistency,auto
+3739,5789-LDFXO,TechSupport,No internet service,None,null-token inconsistency,auto
+6158,3845-FXCYS,Contract,Month-to-month,NULL,null-token inconsistency,auto
+2025,1488-PBLJN,Contract,Two year,None,null-token inconsistency,auto
+6880,6976-BWGLQ,Contract,Two year,NA,null-token inconsistency,auto
+5223,1241-EZFMJ,Contract,Two year,N/A,null-token inconsistency,auto
+2271,0093-EXYQL,Contract,Month-to-month,None,null-token inconsistency,auto
+6273,4342-HENTK,Contract,Month-to-month,NULL,null-token inconsistency,auto
+6370,2869-ADAWR,Contract,Month-to-month,None,null-token inconsistency,auto
+4270,2167-FQSTQ,Contract,Two year,None,null-token inconsistency,auto
+3969,2920-RNCEZ,Contract,Month-to-month,None,null-token inconsistency,auto
+5134,8010-EZLOU,Contract,Month-to-month,N/A,null-token inconsistency,auto
+1133,3156-QLHBO,gender,Male,Mlae,high-confidence category spelling typo,auto
+1235,1543-LLLFT,gender,Male,Mlae,high-confidence category spelling typo,auto
+1894,9281-PKKZE,gender,Female,Femlae,high-confidence category spelling typo,auto
+3137,4567-AKPIA,gender,Female,Femlae,high-confidence category spelling typo,auto
+5684,0193-ESZXP,gender,Female,Femlae,high-confidence category spelling typo,auto
+1251,7595-EUIVN,gender,Female,Femlae,high-confidence category spelling typo,auto
+5786,8661-BOYNW,gender,Female,Femlae,high-confidence category spelling typo,auto
+1752,7801-CEDNV,gender,Male,Mlae,high-confidence category spelling typo,auto
+526,8606-CIQUL,gender,Male,Mlae,high-confidence category spelling typo,auto
+3398,3096-WPXBT,gender,Female,Femlae,high-confidence category spelling typo,auto
+3339,8690-ZVLCL,gender,Female,Femlae,high-confidence category spelling typo,auto
+2710,3594-BDSOA,gender,Female,Femlae,high-confidence category spelling typo,auto
+4445,3134-DSHVC,gender,Female,Femlae,high-confidence category spelling typo,auto
+3816,4304-XUMGI,gender,Male,Mlae,high-confidence category spelling typo,auto
+3406,6447-EGDIV,gender,Female,Femlae,high-confidence category spelling typo,auto
+510,4332-MUOEZ,Partner,Yes,Yse,high-confidence category spelling typo,auto
+1694,0375-HVGXO,Partner,No,N0,high-confidence category spelling typo,auto
+6823,7009-LGECI,Partner,No,N0,high-confidence category spelling typo,auto
+3441,4086-ATNFV,Partner,Yes,Yse,high-confidence category spelling typo,auto
+3190,3745-HRPHI,Partner,Yes,Yse,high-confidence category spelling typo,auto
+6306,0186-CAERR,Partner,No,N0,high-confidence category spelling typo,auto
+4784,1622-HSHSF,Partner,No,N0,high-confidence category spelling typo,auto
+5697,1984-FCOWB,Partner,Yes,Yse,high-confidence category spelling typo,auto
+160,8992-VONJD,Partner,No,N0,high-confidence category spelling typo,auto
+7018,1122-JWTJW,Partner,Yes,Yse,high-confidence category spelling typo,auto
+6271,6726-WEXXK,Partner,Yes,Yse,high-confidence category spelling typo,auto
+4716,5176-OLSKT,Partner,Yes,Yse,high-confidence category spelling typo,auto
+3116,9391-DXGGG,Partner,No,N0,high-confidence category spelling typo,auto
+3907,2139-FQHLM,Partner,No,N0,high-confidence category spelling typo,auto
+48,7639-LIAYI,Partner,No,N0,high-confidence category spelling typo,auto
+2881,4003-OCTMP,Dependents,No,N0,high-confidence category spelling typo,auto
+2446,9492-TOKRI,Dependents,No,N0,high-confidence category spelling typo,auto
+6172,6379-RXJRQ,Dependents,No,N0,high-confidence category spelling typo,auto
+3194,6397-JNZZG,Dependents,No,N0,high-confidence category spelling typo,auto
+6991,3585-ISXZP,Dependents,No,N0,high-confidence category spelling typo,auto
+6846,6618-RYATB,Dependents,No,N0,high-confidence category spelling typo,auto
+3432,8174-TBVCF,Dependents,No,N0,high-confidence category spelling typo,auto
+4409,5227-JSCFE,Dependents,No,N0,high-confidence category spelling typo,auto
+6123,0623-EJQEG,Dependents,No,N0,high-confidence category spelling typo,auto
+6018,8859-DZTGQ,Dependents,No,N0,high-confidence category spelling typo,auto
+4473,2665-NPTGL,Dependents,No,N0,high-confidence category spelling typo,auto
+6552,9317-WZPGV,Dependents,no,N0,high-confidence category spelling typo,auto
+4941,1449-XQEMT,Dependents,No,N0,high-confidence category spelling typo,auto
+1806,8966-KZXXA,Dependents,Yes,Yse,high-confidence category spelling typo,auto
+3999,5276-KQWHG,Dependents,No,N0,high-confidence category spelling typo,auto
+1797,0839-QNXME,Contract,Two year,Two yer,high-confidence category spelling typo,auto
+2235,9917-KWRBE,Contract,One year,One yera,high-confidence category spelling typo,auto
+3570,6696-YDAYZ,Contract,Two year,Two yer,high-confidence category spelling typo,auto
+3978,0432-CAJZV,Contract,Month-to-month,Month-to-mont,high-confidence category spelling typo,auto
+237,9903-LYSAB,Contract,Month-to-month,Month-to-mont,high-confidence category spelling typo,auto
+3185,9907-SWKKF,Contract,Month-to-month,Month-to-mont,high-confidence category spelling typo,auto
+2753,6857-VWJDT,Contract,Month-to-month,Month-to-mont,high-confidence category spelling typo,auto
+5479,8990-ZXLSU,Contract,Month-to-month,Month-to-mont,high-confidence category spelling typo,auto
+5563,4397-FRLTA,Contract,Month-to-month,Month-to-mont,high-confidence category spelling typo,auto
+6538,5712-PTIWW,Contract,Month-to-month,Month-to-mont,high-confidence category spelling typo,auto
+3312,9122-UMROB,Contract,Month-to-month,Month-to-mont,high-confidence category spelling typo,auto
+5932,4192-GORJT,Contract,Month-to-month,Month-to-mont,high-confidence category spelling typo,auto
+1352,7722-VJRQD,Contract,Two year,Two yer,high-confidence category spelling typo,auto
+6885,7603-USHJS,Contract,Month-to-month,Month-to-mont,high-confidence category spelling typo,auto
+3828,8747-UDCOI,Contract,Two year,Two yer,high-confidence category spelling typo,auto
+1045,3524-WQDSG,PaymentMethod,Bank transfer (automatic),Bank tranfer (automatic),high-confidence category spelling typo,auto
+5097,8547-NSBBO,PaymentMethod,Mailed check,Maild check,high-confidence category spelling typo,auto
+4375,9896-UYMIE,PaymentMethod,Bank transfer (automatic),Bank tranfer (automatic),high-confidence category spelling typo,auto
+220,9408-SSNVZ,PaymentMethod,Electronic check,Eletronic check,high-confidence category spelling typo,auto
+3227,7669-LCRSD,PaymentMethod,Mailed check,Maild check,high-confidence category spelling typo,auto
+4848,5380-AFSSK,PaymentMethod,Mailed check,Maild check,high-confidence category spelling typo,auto
+4623,8755-IWJHN,PaymentMethod,Bank transfer (automatic),Bank tranfer (automatic),high-confidence category spelling typo,auto
+5431,5995-WWKKG,PaymentMethod,Electronic check,Eletronic check,high-confidence category spelling typo,auto
+222,6469-MRVET,PaymentMethod,Electronic check,Eletronic check,high-confidence category spelling typo,auto
+687,0067-DKWBL,PaymentMethod,Electronic check,Eletronic check,high-confidence category spelling typo,auto
+5265,4274-DRSQT,PaymentMethod,Bank transfer (automatic),Bank tranfer (automatic),high-confidence category spelling typo,auto
+3511,3785-KTYSH,PaymentMethod,Mailed check,Maild check,high-confidence category spelling typo,auto
+1111,9763-PDTKK,PaymentMethod,Bank transfer (automatic),Bank tranfer (automatic),high-confidence category spelling typo,auto
+3782,8800-JOOCF,PaymentMethod,Electronic check,Eletronic check,high-confidence category spelling typo,auto
+1488,8695-WDYEA,PaymentMethod,Mailed check,Maild check,high-confidence category spelling typo,auto
+411,4163-NCJAK,InternetService,No,N0,high-confidence category spelling typo,auto
+2131,5656-MJEFC,InternetService,DSL,DSl,high-confidence category spelling typo,auto
+3105,4429-WYGFR,InternetService,DSL,DSl,high-confidence category spelling typo,auto
+2681,9674-EHPPG,InternetService,DSL,DSl,high-confidence category spelling typo,auto
+1733,1015-OWJKI,InternetService,No,N0,high-confidence category spelling typo,auto
+3724,5201-CBWYG,InternetService,No,N0,high-confidence category spelling typo,auto
+2677,2608-BHKFN,InternetService,Fiber optic,Fiber optc,high-confidence category spelling typo,auto
+2764,1810-MVMAI,InternetService,DSL,DSl,high-confidence category spelling typo,auto
+6235,5180-UCIIQ,InternetService,DSL,DSl,high-confidence category spelling typo,auto
+2279,5334-AFQJB,InternetService,No,N0,high-confidence category spelling typo,auto
+6160,0725-CXOTM,InternetService,DSL,DSl,high-confidence category spelling typo,auto
+6815,0270-THENM,InternetService,DSL,DSl,high-confidence category spelling typo,auto
+3453,0326-VDYXE,InternetService,Fiber optic,Fiber optc,high-confidence category spelling typo,auto
+2066,1852-QSWCD,InternetService,No,N0,high-confidence category spelling typo,auto
+6839,4078-SAYYN,InternetService,Fiber optic,Fiber optc,high-confidence category spelling typo,auto
+670,5642-MHDQT,tenure,53,53.0,numeric formatting inconsistency,auto
+3852,7291-CDTMJ,tenure,1,1.0,numeric formatting inconsistency,auto
+158,6371-NZYEG,tenure,16,16.0,numeric formatting inconsistency,auto
+6136,3190-ITQXP,tenure,46,46.0,numeric formatting inconsistency,auto
+4418,0378-XSZPU,tenure,58,58.0,numeric formatting inconsistency,auto
+426,2806-MLNTI,tenure,52,52.0,numeric formatting inconsistency,auto
+2866,7517-LDMPS,tenure,12,12.0,numeric formatting inconsistency,auto
+1836,6365-MTGZX,tenure,24,24.0,numeric formatting inconsistency,auto
+5325,2690-DVRVK,tenure,5,5.0,numeric formatting inconsistency,auto
+562,3701-SFMUH,tenure,7,7.0,numeric formatting inconsistency,auto
+6399,2101-RANCD,tenure,55,55.0,numeric formatting inconsistency,auto
+5339,3370-GQEAL,tenure,30,30.0,numeric formatting inconsistency,auto
+329,2739-CACDQ,tenure,17,17.0,numeric formatting inconsistency,auto
+6178,3719-TDVQB,tenure,54,54.0,numeric formatting inconsistency,auto
+254,3675-YDUPJ,tenure,10,10.0,numeric formatting inconsistency,auto
+2025,1488-PBLJN,tenure,72,72.0,numeric formatting inconsistency,auto
+1633,1478-VPOAD,tenure,1,1.0,numeric formatting inconsistency,auto
+6874,4926-UMJZD,tenure,31,31.0,numeric formatting inconsistency,auto
+166,3376-BMGFE,tenure,4,4.0,numeric formatting inconsistency,auto
+5089,0277-BKSQP,tenure,8,8.0,numeric formatting inconsistency,auto
+1248,7321-PKUYW,tenure,11,11.0,numeric formatting inconsistency,auto
+1954,5834-ASPWA,tenure,1,1.0,numeric formatting inconsistency,auto
+1034,8146-QQKZH,tenure,71,71.0,numeric formatting inconsistency,auto
+3879,7359-PTSXY,tenure,1,1.0,numeric formatting inconsistency,auto
+5484,4419-UJMUS,tenure,69,69.0,numeric formatting inconsistency,auto
+937,6400-BWQKW,tenure,6,6.0,numeric formatting inconsistency,auto
+4620,8513-OLYGY,tenure,72,72.0,numeric formatting inconsistency,auto
+1785,1568-LJSZU,tenure,68,68.0,numeric formatting inconsistency,auto
+3809,9602-WCXPI,tenure,50,50.0,numeric formatting inconsistency,auto
+5730,7167-PCEYD,tenure,67,67.0,numeric formatting inconsistency,auto
+2099,2190-BCXEC,tenure,40,40.0,numeric formatting inconsistency,auto
+6282,1354-YZFNB,tenure,4,4.0,numeric formatting inconsistency,auto
+3021,6377-KSLXC,tenure,5,5.0,numeric formatting inconsistency,auto
+1374,8999-YPYBV,tenure,45,45.0,numeric formatting inconsistency,auto
+4963,8313-AFGBW,tenure,47,47.0,numeric formatting inconsistency,auto
+4974,4430-UZIPO,tenure,3,3.0,numeric formatting inconsistency,auto
+6127,6198-PNNSZ,tenure,56,56.0,numeric formatting inconsistency,auto
+5884,4785-QRJHC,tenure,46,46.0,numeric formatting inconsistency,auto
+938,2692-AQCPF,tenure,65,65.0,numeric formatting inconsistency,auto
+6371,1535-VTJOQ,tenure,24,24.0,numeric formatting inconsistency,auto
+6711,3545-CNWRG,MonthlyCharges,98.35,98.35,numeric formatting inconsistency,auto
+1341,9269-CQOOL,MonthlyCharges,54.7,54.70,numeric formatting inconsistency,auto
+2548,9796-BPKIW,MonthlyCharges,69.95,69.95,numeric formatting inconsistency,auto
+885,4661-NJEUX,MonthlyCharges,20.05,20.05,numeric formatting inconsistency,auto
+4740,2778-OCLGR,MonthlyCharges,39.1,39.10,numeric formatting inconsistency,auto
+210,7841-TZDMQ,MonthlyCharges,46.0,46.00,numeric formatting inconsistency,auto
+2555,1849-RJYIG,MonthlyCharges,60.0,60.00,numeric formatting inconsistency,auto
+4716,5176-OLSKT,MonthlyCharges,66.9,66.90,numeric formatting inconsistency,auto
+5548,4589-IUAJB,MonthlyCharges,24.25,24.25,numeric formatting inconsistency,auto
+3074,4504-YOULA,MonthlyCharges,59.45,59.45,numeric formatting inconsistency,auto
+3249,4324-BZCKL,MonthlyCharges,55.55,55.55,numeric formatting inconsistency,auto
+5857,0378-NHQXU,MonthlyCharges,88.25,88.25,numeric formatting inconsistency,auto
+1624,2929-QNSRW,MonthlyCharges,98.25,98.25,numeric formatting inconsistency,auto
+622,4851-BQDNX,MonthlyCharges,85.05,85.05,numeric formatting inconsistency,auto
+4850,0931-MHTEM,MonthlyCharges,100.05,100.05,numeric formatting inconsistency,auto
+5657,3096-GKWEB,MonthlyCharges,94.75,94.75,numeric formatting inconsistency,auto
+6804,8212-DJRCH,MonthlyCharges,90.35,90.35,numeric formatting inconsistency,auto
+5138,4119-ZYPZY,MonthlyCharges,106.8,106.80,numeric formatting inconsistency,auto
+1989,9885-MFVSU,MonthlyCharges,46.35,46.35,numeric formatting inconsistency,auto
+834,9231-ZJYAM,MonthlyCharges,78.85,78.85,numeric formatting inconsistency,auto
+5711,1891-UAWWU,MonthlyCharges,90.8,90.80,numeric formatting inconsistency,auto
+6328,4701-LKOZD,MonthlyCharges,89.75,89.75,numeric formatting inconsistency,auto
+2470,2143-LJULT,MonthlyCharges,25.25,25.25,numeric formatting inconsistency,auto
+6965,7789-CRUVC,MonthlyCharges,94.2,94.20,numeric formatting inconsistency,auto
+5605,8049-WJCLQ,MonthlyCharges,60.2,60.20,numeric formatting inconsistency,auto
+4918,6582-PLFUU,MonthlyCharges,19.55,19.55,numeric formatting inconsistency,auto
+6598,6169-PGNCD,MonthlyCharges,74.3,74.30,numeric formatting inconsistency,auto
+991,8361-LBRDI,MonthlyCharges,24.35,24.35,numeric formatting inconsistency,auto
+6522,7233-IOQNP,MonthlyCharges,34.0,34.00,numeric formatting inconsistency,auto
+4636,1269-FOYWN,MonthlyCharges,20.0,20.00,numeric formatting inconsistency,auto
+6411,5119-NZPTV,MonthlyCharges,70.1,70.10,numeric formatting inconsistency,auto
+336,6680-NENYN,MonthlyCharges,104.6,104.60,numeric formatting inconsistency,auto
+2844,2265-CYWIV,MonthlyCharges,99.6,99.60,numeric formatting inconsistency,auto
+4364,6741-QRLUP,MonthlyCharges,80.3,80.30,numeric formatting inconsistency,auto
+3509,8710-YGLWG,MonthlyCharges,44.9,44.90,numeric formatting inconsistency,auto
+5419,7173-TETGO,MonthlyCharges,78.5,78.50,numeric formatting inconsistency,auto
+3035,7924-GJZFI,MonthlyCharges,69.3,69.30,numeric formatting inconsistency,auto
+564,7319-VENRZ,MonthlyCharges,64.3,64.30,numeric formatting inconsistency,auto
+4144,7181-OQCUT,MonthlyCharges,103.85,103.85,numeric formatting inconsistency,auto
+5304,6078-VESFR,MonthlyCharges,70.45,70.45,numeric formatting inconsistency,auto
+2795,0709-TVGUR,TotalCharges,622.9,622.90,numeric formatting inconsistency,auto
+103,5386-THSLQ,TotalCharges,3027.25,3027.25,numeric formatting inconsistency,auto
+6959,1024-KPRBB,TotalCharges,3342,3342.0,numeric formatting inconsistency,auto
+3441,4086-ATNFV,TotalCharges,2042.05,2042.05,numeric formatting inconsistency,auto
+6736,7558-IMLMT,TotalCharges,1411.9,1411.90,numeric formatting inconsistency,auto
+4015,8570-KLJYJ,TotalCharges,1893.5,1893.50,numeric formatting inconsistency,auto
+864,4124-MMETB,TotalCharges,2104.55,2104.55,numeric formatting inconsistency,auto
+3551,7594-RQHXR,TotalCharges,79.6,79.60,numeric formatting inconsistency,auto
+2967,7663-CUXZB,TotalCharges,6561.25,6561.25,numeric formatting inconsistency,auto
+5206,7349-ALMUX,TotalCharges,2313.8,2313.80,numeric formatting inconsistency,auto
+6788,1760-CAZHT,TotalCharges,460.2,460.20,numeric formatting inconsistency,auto
+3766,4201-JMNGR,TotalCharges,55.8,55.80,numeric formatting inconsistency,auto
+5794,1162-ECVII,TotalCharges,7932.5,7932.50,numeric formatting inconsistency,auto
+1253,2026-TGDHM,TotalCharges,523.15,523.15,numeric formatting inconsistency,auto
+3567,1670-SVOWZ,TotalCharges,1208.35,1208.35,numeric formatting inconsistency,auto
+1442,3253-HKOKL,TotalCharges,5244.45,5244.45,numeric formatting inconsistency,auto
+6011,5917-HBSDW,TotalCharges,683.75,683.75,numeric formatting inconsistency,auto
+4274,3572-UUHRS,TotalCharges,867.3,867.30,numeric formatting inconsistency,auto
+5328,0334-ZFJSR,TotalCharges,3462.1,3462.10,numeric formatting inconsistency,auto
+2212,8076-FEZKJ,TotalCharges,225.85,225.85,numeric formatting inconsistency,auto
+5045,9500-LTVBP,TotalCharges,2835.9,2835.90,numeric formatting inconsistency,auto
+6620,6457-USBER,TotalCharges,80.8,80.80,numeric formatting inconsistency,auto
+4408,2824-DXNKN,TotalCharges,5025.85,5025.85,numeric formatting inconsistency,auto
+6345,6048-QBXKL,TotalCharges,118.25,118.25,numeric formatting inconsistency,auto
+3960,7404-JLKQG,TotalCharges,161.45,161.45,numeric formatting inconsistency,auto
+3808,7785-RDVIG,TotalCharges,54.7,54.70,numeric formatting inconsistency,auto
+3568,2227-JRSJX,TotalCharges,1956.4,1956.40,numeric formatting inconsistency,auto
+6764,7660-HDPJV,TotalCharges,69.2,69.20,numeric formatting inconsistency,auto
+5988,6828-HMKWP,TotalCharges,262.05,262.05,numeric formatting inconsistency,auto
+4853,0440-UEDAI,TotalCharges,5042.75,5042.75,numeric formatting inconsistency,auto
+2198,9798-DRYDS,TotalCharges,1070.7,1070.70,numeric formatting inconsistency,auto
+2640,4391-LNRXK,TotalCharges,2142.8,2142.80,numeric formatting inconsistency,auto
+6977,2843-CQMEG,TotalCharges,1218.25,1218.25,numeric formatting inconsistency,auto
+2011,1492-QGCLU,TotalCharges,4616.1,4616.10,numeric formatting inconsistency,auto
+6805,4323-OHFOW,TotalCharges,7195.35,7195.35,numeric formatting inconsistency,auto
+709,3347-YJZZE,TotalCharges,2211.8,2211.80,numeric formatting inconsistency,auto
+2284,8963-JLGJT,TotalCharges,157.55,157.55,numeric formatting inconsistency,auto
+3692,7159-FVYPK,TotalCharges,235,235.0,numeric formatting inconsistency,auto
+1997,0266-CLZKZ,TotalCharges,6717.9,6717.90,numeric formatting inconsistency,auto
+6147,6383-ZTSIW,TotalCharges,3877.95,3877.95,numeric formatting inconsistency,auto
+3806,0650-BWOZN,TotalCharges,1359.45,1359.45,numeric formatting inconsistency,auto
+4668,1791-PQHBB,TotalCharges,125.95,125.95,numeric formatting inconsistency,auto
+4999,1699-TLDLZ,TotalCharges,301.55,301.55,numeric formatting inconsistency,auto
+5473,1208-NBVFH,TotalCharges,939.8,939.80,numeric formatting inconsistency,auto
+3104,6860-YRJZP,TotalCharges,678.45,678.45,numeric formatting inconsistency,auto
+2755,5468-BPMMO,TotalCharges,851.2,851.20,numeric formatting inconsistency,auto
+235,1251-KRREG,TotalCharges,114.1,114.10,numeric formatting inconsistency,auto
+4049,6199-IWKGC,TotalCharges,4753.85,4753.85,numeric formatting inconsistency,auto
+6971,7240-FQLHE,TotalCharges,1836.25,1836.25,numeric formatting inconsistency,auto
+2662,8348-HFYIV,TotalCharges,90.35,90.35,numeric formatting inconsistency,auto
+141,4080-OGPJL,customerID,4080-OGPJL, 4080-OGPJL ,leading/trailing whitespace,auto
+762,7379-POKDZ,customerID,7379-POKDZ, 7379-POKDZ ,leading/trailing whitespace,auto
+2410,3503-TYDAY,customerID,3503-TYDAY, 3503-TYDAY ,leading/trailing whitespace,auto
+1815,1927-QEWMY,customerID,1927-QEWMY, 1927-QEWMY ,leading/trailing whitespace,auto
+3312,9122-UMROB,customerID,9122-UMROB, 9122-UMROB ,leading/trailing whitespace,auto
+5667,6469-QJKZW,customerID,6469-QJKZW, 6469-QJKZW ,leading/trailing whitespace,auto
+1993,9828-AOQLM,customerID,9828-AOQLM, 9828-AOQLM ,leading/trailing whitespace,auto
+2508,9405-GPBBG,customerID,9405-GPBBG, 9405-GPBBG ,leading/trailing whitespace,auto
+5439,5959-BELXA,customerID,5959-BELXA, 5959-BELXA ,leading/trailing whitespace,auto
+4764,2962-XPMCQ,customerID,2962-XPMCQ, 2962-XPMCQ ,leading/trailing whitespace,auto
+3023,0238-WHBIQ,customerID,0238-WHBIQ, 0238-WHBIQ ,leading/trailing whitespace,auto
+3876,7392-YYPYJ,customerID,7392-YYPYJ, 7392-YYPYJ ,leading/trailing whitespace,auto
+4534,2607-FBDFF,customerID,2607-FBDFF, 2607-FBDFF ,leading/trailing whitespace,auto
+4349,7903-CMPEY,customerID,7903-CMPEY, 7903-CMPEY ,leading/trailing whitespace,auto
+2816,0536-ACXIP,customerID,0536-ACXIP, 0536-ACXIP ,leading/trailing whitespace,auto
+3485,6221-AVQYL,customerID,6221-AVQYL, 6221-AVQYL ,leading/trailing whitespace,auto
+6110,5438-QMDDL,customerID,5438-QMDDL, 5438-QMDDL ,leading/trailing whitespace,auto
+4508,3530-VWVGU,customerID,3530-VWVGU, 3530-VWVGU ,leading/trailing whitespace,auto
+2709,6128-AQBMT,customerID,6128-AQBMT, 6128-AQBMT ,leading/trailing whitespace,auto
+2882,6652-YFFJO,customerID,6652-YFFJO, 6652-YFFJO ,leading/trailing whitespace,auto

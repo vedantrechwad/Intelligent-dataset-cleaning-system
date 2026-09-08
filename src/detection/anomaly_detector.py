@@ -129,7 +129,7 @@ def detect_all_issues(df: pd.DataFrame, dynamic_rules: Dict[str, Any] = None, ta
         # High confidence (>= auto_thresh) and not explicitly marked human review
         if corr_conf >= auto_thresh and not issue.get("is_human_review_required", False):
             issue["routing_decision"] = "AUTO_CORRECT"
-        elif 0.70 <= corr_conf < auto_thresh:
+        elif 0.70 <= corr_conf < auto_thresh or (issue.get("is_human_review_required", False) and corr_conf >= 0.70):
             issue["routing_decision"] = "SUGGEST_REVIEW"
         else:
             issue["routing_decision"] = "HUMAN_REVIEW_REQUIRED"

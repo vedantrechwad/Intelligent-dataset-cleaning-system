@@ -173,7 +173,7 @@ with st.sidebar.expander("💡 Recommended Local Models"):
 
 st.sidebar.divider()
 st.sidebar.markdown("### ⚙️ Quick System Actions")
-if st.sidebar.button("🧹 Reset All State", use_container_width=True):
+if st.sidebar.button("🧹 Reset All State", width="stretch"):
     for key in list(st.session_state.keys()):
         del st.session_state[key]
     st.rerun()
@@ -273,7 +273,7 @@ with tabs[0]:
             st.info(f"🤖 **Dataset Context (AI Inferred):** {st.session_state.dataset_summary_text}")
 
         st.markdown("#### 🔍 Raw Dataset Preview (First 15 Rows)")
-        st.dataframe(st.session_state.raw_df.head(15), use_container_width=True)
+        st.dataframe(st.session_state.raw_df.head(15), width="stretch")
 
         st.markdown("#### 🧬 Inferred Logical Column Schema")
         schema_rows = []
@@ -285,7 +285,7 @@ with tabs[0]:
                 "Nullable": s.get("is_nullable"),
                 "Sample Values": ", ".join([str(x) for x in s.get("sample_values", [])[:3]])
             })
-        st.dataframe(pd.DataFrame(schema_rows), use_container_width=True)
+        st.dataframe(pd.DataFrame(schema_rows), width="stretch")
     else:
         st.info("👆 Please upload a CSV/XLSX file to begin.")
 
@@ -297,7 +297,7 @@ with tabs[1]:
         st.info("Please upload a dataset first in Tab 1.")
     else:
         profile = st.session_state.raw_profile
-        qscore = st.session_state.raw_quality_score
+        qscore = st.session_state.raw_quality_score or {}
 
         st.markdown("### 📊 Dataset Quality & Statistical Profile")
         
@@ -321,7 +321,7 @@ with tabs[1]:
                 }
             ))
             fig.update_layout(height=240, margin=dict(l=20, r=20, t=30, b=20), paper_bgcolor="rgba(0,0,0,0)")
-            st.plotly_chart(fig, use_container_width=True)
+            st.plotly_chart(fig, width="stretch")
 
         with col_q2:
             st.markdown("#### Quality Dimensions Breakdown")
@@ -330,7 +330,7 @@ with tabs[1]:
                 {"Dimension": k.replace("_", " ").title(), "Score (%)": v, "Status": "Optimal" if v >= 90 else ("Fair" if v >= 75 else "Needs Improvement")}
                 for k, v in dims.items()
             ])
-            st.dataframe(dim_df, use_container_width=True, hide_index=True)
+            st.dataframe(dim_df, width="stretch", hide_index=True)
             st.caption(f"**Explanation:** {qscore.get('explanation')}")
 
         st.divider()
@@ -354,7 +354,7 @@ with tabs[1]:
                     "Zeroes": cp.get("zero_count"),
                     "Negative Count": cp.get("negative_count")
                 })
-            st.dataframe(pd.DataFrame(num_rows), use_container_width=True)
+            st.dataframe(pd.DataFrame(num_rows), width="stretch")
 
         # Categorical Columns Profile
         if profile.get("categorical_columns"):
@@ -369,16 +369,29 @@ with tabs[1]:
                     "Missing Count": cp.get("missing_count"),
                     "Missing (%)": f"{cp.get('missing_percentage')}%"
                 })
-            st.dataframe(pd.DataFrame(cat_rows), use_container_width=True)
+            st.dataframe(pd.DataFrame(cat_rows), width="stretch")
 
             # Top value charts for categorical
-            cat_to_plot = st.selectbox("Select Categorical Column to Visualize Distribution", profile["categorical_columns"])
+            best_cat = None
+            for col in profile["categorical_columns"]:
+                ucount = profile["columns"].get(col, {}).get("unique_count", 999)
+                if 1 < ucount < 50:
+                    best_cat = col
+                    break
+            
+            default_idx = profile["categorical_columns"].index(best_cat) if best_cat else 0
+
+            cat_to_plot = st.selectbox(
+                "Select Categorical Column to Visualize Distribution", 
+                profile["categorical_columns"],
+                index=default_idx
+            )
             top_vals = profile["columns"].get(cat_to_plot, {}).get("top_frequent_values", {})
             if top_vals:
                 plot_df = pd.DataFrame(list(top_vals.items()), columns=["Category", "Count"])
                 fig_cat = px.bar(plot_df, x="Category", y="Count", title=f"Value Distribution for '{cat_to_plot}'", color="Count", color_continuous_scale="Viridis")
                 fig_cat.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)")
-                st.plotly_chart(fig_cat, use_container_width=True)
+                st.plotly_chart(fig_cat, width="stretch")
 
 # -------------------------------------------------------------
 # TAB 3: Detected Quality Issues
@@ -438,7 +451,7 @@ with tabs[2]:
                 "Reason": i.get("reason")
             })
 
-        st.dataframe(pd.DataFrame(table_rows), use_container_width=True)
+        st.dataframe(pd.DataFrame(table_rows), width="stretch")
 
 # -------------------------------------------------------------
 # TAB 4: Human-in-the-Loop Review
@@ -489,14 +502,26 @@ with tabs[3]:
                             st.session_state[exp_cache_key] = reasoning_engine.generate_issue_explanation(itype, col)
                         st.info(f"💡 **AI Explanation:** {st.session_state[exp_cache_key]}")
                     
-                    # Sample Table
-                    st.markdown("**Affected Rows Sample:**")
+                    # Interactive Table
+                    st.markdown("**Affected Rows:**")
+                    display_group = group[:100]
+                    if len(group) > 100:
+                        st.warning(f"Showing first 100 of {len(group)} rows for performance.")
+
                     sample_df = pd.DataFrame([{
+                        "Issue ID": i.get("issue_id"),
                         "Row": i.get("row"), 
                         "Original Value": str(i.get("original_value")), 
                         "Suggested": str(i.get("suggested_value", ""))
-                    } for i in group[:10]])
-                    st.dataframe(sample_df, hide_index=True, use_container_width=True)
+                    } for i in display_group])
+                    
+                    edited_df = st.data_editor(
+                        sample_df, 
+                        hide_index=True, 
+                        width="stretch",
+                        disabled=["Issue ID", "Row", "Original Value"],
+                        key=f"editor_{group_id}"
+                    )
 
                     if is_resolved:
                         st.success("All items in this group have been resolved.")
@@ -505,29 +530,69 @@ with tabs[3]:
                                 st.session_state.human_decisions.pop(i.get("issue_id"), None)
                             st.rerun()
                     else:
-                        st.markdown("**Bulk Correction (Applies to all rows above):**")
-                        user_input = st.text_input("New Value (leave blank for NaN)", value=str(group[0].get("suggested_value") or ""), key=f"inp_{group_id}")
+                        st.markdown("**Correction Options:**")
+                        c1, c2, c3 = st.columns(3)
                         
-                        btn_c1, btn_c2 = st.columns(2)
-                        if btn_c1.button("✅ Apply to All", key=f"acc_{group_id}", use_container_width=True):
-                            is_valid, clean_val, err = validate_user_correction_input(col, itype, user_input)
-                            if is_valid:
+                        if c1.button("✅ Apply Individual Edits", key=f"acc_ind_{group_id}", width="stretch"):
+                            has_error = False
+                            for idx, row_data in edited_df.iterrows():
+                                iss_id = row_data["Issue ID"]
+                                new_val = row_data["Suggested"]
+                                is_valid, clean_val, err = validate_user_correction_input(col, itype, new_val)
+                                if is_valid:
+                                    issue = next((i for i in display_group if i["issue_id"] == iss_id), None)
+                                    if issue:
+                                        st.session_state.human_decisions[iss_id] = {
+                                            "status": "accepted",
+                                            "row": issue.get("row"),
+                                            "column": col,
+                                            "original_value": issue.get("original_value"),
+                                            "corrected_value": clean_val,
+                                            "issue_type": itype,
+                                            "notes": "Individually verified by user"
+                                        }
+                                else:
+                                    st.error(f"Row {row_data['Row']}: {err}")
+                                    has_error = True
+                                    break
+                            
+                            if not has_error:
+                                # Skip the rest if group is > 100
                                 for issue in group:
-                                    st.session_state.human_decisions[issue.get("issue_id")] = {
-                                        "status": "accepted",
-                                        "row": issue.get("row"),
-                                        "column": col,
-                                        "original_value": issue.get("original_value"),
-                                        "corrected_value": clean_val,
-                                        "issue_type": itype,
-                                        "notes": "Bulk verified by user"
-                                    }
-                                st.success(f"Applied to {len(group)} rows!")
+                                    if issue.get("issue_id") not in st.session_state.human_decisions:
+                                        st.session_state.human_decisions[issue.get("issue_id")] = {
+                                            "status": "rejected",
+                                            "row": issue.get("row"),
+                                            "column": col,
+                                            "original_value": issue.get("original_value"),
+                                            "corrected_value": issue.get("original_value"),
+                                            "issue_type": itype,
+                                            "notes": "Not included in display limit, skipped"
+                                        }
+                                st.success("Applied edits!")
                                 st.rerun()
-                            else:
-                                st.error(err)
 
-                        if btn_c2.button("❌ Skip All (Keep Original)", key=f"rej_{group_id}", use_container_width=True):
+                        with c2.popover("✅ Bulk Apply to All"):
+                            st.markdown("Apply one value to all rows in this group.")
+                            bulk_val = st.text_input("New Value", value=str(group[0].get("suggested_value") or ""), key=f"bulk_inp_{group_id}")
+                            if st.button("Confirm Bulk Apply", key=f"conf_bulk_{group_id}"):
+                                is_valid, clean_val, err = validate_user_correction_input(col, itype, bulk_val)
+                                if is_valid:
+                                    for issue in group:
+                                        st.session_state.human_decisions[issue.get("issue_id")] = {
+                                            "status": "accepted",
+                                            "row": issue.get("row"),
+                                            "column": col,
+                                            "original_value": issue.get("original_value"),
+                                            "corrected_value": clean_val,
+                                            "issue_type": itype,
+                                            "notes": "Bulk verified by user"
+                                        }
+                                    st.rerun()
+                                else:
+                                    st.error(err)
+                        
+                        if c3.button("❌ Skip All", key=f"rej_{group_id}", width="stretch"):
                             for issue in group:
                                 st.session_state.human_decisions[issue.get("issue_id")] = {
                                     "status": "rejected",
@@ -538,7 +603,6 @@ with tabs[3]:
                                     "issue_type": itype,
                                     "notes": "Bulk rejected by user"
                                 }
-                            st.warning("Marked as skipped.")
                             st.rerun()
 
 # -------------------------------------------------------------
@@ -574,7 +638,7 @@ with tabs[4]:
         human_count = len(st.session_state.human_decisions)
         st.write(f"💼 **Human Review Corrections Ready to Apply:** {human_count} items")
 
-        if st.button("🚀 Execute Deterministic Cleaning Pipeline", type="primary", use_container_width=True):
+        if st.button("🚀 Execute Deterministic Cleaning Pipeline", type="primary", width="stretch"):
             with st.status("Executing Cleaning Pipeline...", expanded=True) as status:
                 st.write("Configuring missing imputation and outlier policies...")
                 cleaning_opts = {
@@ -612,7 +676,7 @@ with tabs[4]:
 
         if st.session_state.cleaned_df is not None:
             st.markdown("#### 📋 Cleaned Dataset Preview (First 15 Rows)")
-            st.dataframe(st.session_state.cleaned_df.head(15), use_container_width=True)
+            st.dataframe(st.session_state.cleaned_df.head(15), width="stretch")
 
 # -------------------------------------------------------------
 # TAB 6: Validation & Before/After Deltas
@@ -668,10 +732,10 @@ with tabs[5]:
             color_discrete_map={"Before Cleaning": "#f59e0b", "After Cleaning": "#10b981"}
         )
         dim_fig.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)")
-        st.plotly_chart(dim_fig, use_container_width=True)
+        st.plotly_chart(dim_fig, width="stretch")
 
         st.markdown("#### 🎯 Issue Resolution Summary")
-        st.dataframe(pd.DataFrame(comparison["issue_type_comparison"]), use_container_width=True)
+        st.dataframe(pd.DataFrame(comparison["issue_type_comparison"]), width="stretch")
 
 # -------------------------------------------------------------
 # TAB 7: Audit Trail & Export
@@ -697,7 +761,7 @@ with tabs[6]:
             data=csv_buffer.getvalue(),
             file_name="cleaned_dataset.csv",
             mime="text/csv",
-            use_container_width=True
+            width="stretch"
         )
 
         # 2. Download Excel XLSX
@@ -709,7 +773,7 @@ with tabs[6]:
             data=xlsx_buffer.getvalue(),
             file_name="cleaned_dataset.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-            use_container_width=True
+            width="stretch"
         )
 
         # 3. Download JSON Audit Trail
@@ -719,7 +783,7 @@ with tabs[6]:
             data=json_str,
             file_name="cleaning_audit_log.json",
             mime="application/json",
-            use_container_width=True
+            width="stretch"
         )
 
         # 4. Download HTML Audit Report
@@ -736,7 +800,7 @@ with tabs[6]:
             data=html_report,
             file_name="data_quality_report.html",
             mime="text/html",
-            use_container_width=True
+            width="stretch"
         )
 
         st.divider()

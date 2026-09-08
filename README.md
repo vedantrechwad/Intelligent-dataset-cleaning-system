@@ -137,14 +137,14 @@ The application automatically checks for an active Ollama instance at `http://12
 
 | Issue Category | Detection Technique | Correction Policy | Default Routing |
 | :--- | :--- | :--- | :--- |
-| **Missing Values** | `NaN`, `None`, empty, whitespace, and tokens (`null`, `N/A`, `unknown`) | Configurable Imputation (Median / Mean / Mode / KNN) | Auto / Configurable |
+| **Missing Values** | `NaN`, `None`, empty, whitespace, and tokens (`null`, `N/A`) (excludes `unknown` to preserve semantics) | Configurable Imputation (Median / Mean / Mode / KNN) or `skip` (default) | Auto / Configurable |
 | **Exact Duplicates** | Vectorized tuple hash matching | Remove duplicates keeping first | `AUTO_CORRECT` (1.0) |
 | **Near Duplicates** | RapidFuzz token sort ratio (>= 90%) | Flag for review | `HUMAN_REVIEW_REQUIRED` |
 | **Invalid Ranges** | Domain boundary rules (e.g. `age < 0` or `> 120`) | Strict Human Input Validation | `HUMAN_REVIEW_REQUIRED` |
 | **Invalid Dates** | Unparseable strings, invalid days (Feb 30), month > 12 | Strict Date Format Validation | `HUMAN_REVIEW_REQUIRED` |
 | **Type Inconsistencies** | Numeric strings (`"25"` vs `"Thirty"`) | Safe Numeric Cast or Word Map | Auto (`"25"`) / Review (`"Thirty"`) |
 | **Whitespace / Casing** | Regex normalization & Title Case alignment | Canonical string replacement | `AUTO_CORRECT` (>=0.98) |
-| **Spelling Typos** | RapidFuzz ratio + Frequency ratio + Ollama | Dominant category replacement | Auto (>=0.95) / Review |
+| **Spelling Typos** | RapidFuzz ratio + Frequency ratio + Length checks (prevents semantic collapse) | Dominant category replacement | Auto (>=0.95) / Review |
 | **Numerical Outliers** | Ensemble (IQR 1.5x + Z-score \|z\|>3 + Isolation Forest) | User policy (`flag_only`, `cap`, `remove`) | Flagged by default |
 
 ---

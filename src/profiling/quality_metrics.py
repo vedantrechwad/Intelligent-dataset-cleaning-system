@@ -48,16 +48,23 @@ def compute_quality_score(
             itype = issue.get("issue_type", "")
             if itype in ["invalid_date", "invalid_range", "invalid_type", "domain_violation", "invalid_format"]:
                 invalid_count += 1
-            elif itype in ["categorical_inconsistency", "casing_inconsistency", "whitespace_inconsistency", "spelling_typo"]:
-                inconsistent_count += 1
             elif itype in ["outlier", "extreme_outlier"]:
                 outlier_count += 1
+            else:
+                # Catch-all for formatting, near_duplicates, typos, casing, whitespace, exact_duplicates
+                inconsistent_count += 1
+
+    # Apply a geometric penalty scaling (e.g., multiplier of 10 for severity)
+    # This ensures tabular datasets drop visibly in quality score for structural/formatting errors.
+    penalty_multiplier = 10.0
 
     # 3. Validity Score
-    validity_score = max(0.0, min(100.0, 100.0 * (1.0 - (invalid_count / total_cells))))
+    validity_penalty = min(1.0, (invalid_count / total_cells) * penalty_multiplier)
+    validity_score = max(0.0, 100.0 * (1.0 - validity_penalty))
 
     # 4. Consistency Score
-    consistency_score = max(0.0, min(100.0, 100.0 * (1.0 - (inconsistent_count / total_cells))))
+    consistency_penalty = min(1.0, (inconsistent_count / total_cells) * penalty_multiplier)
+    consistency_score = max(0.0, 100.0 * (1.0 - consistency_penalty))
 
     # 5. Anomaly Quality Score
     numeric_cells = sum([
