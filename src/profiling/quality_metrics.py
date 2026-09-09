@@ -50,8 +50,14 @@ def compute_quality_score(
                 invalid_count += 1
             elif itype in ["outlier", "extreme_outlier"]:
                 outlier_count += 1
+            elif itype == "missing_value":
+                pass  # Handled by Completeness dimension natively
+            elif itype == "exact_duplicate":
+                pass  # Handled by Uniqueness dimension natively
+            elif itype == "type_inconsistency" and issue.get("suggested_action") in ["convert_type", "convert_to_boolean", "convert_to_null"]:
+                pass  # Safe schema typecasts should not heavily penalize cell-level consistency
             else:
-                # Catch-all for formatting, near_duplicates, typos, casing, whitespace, exact_duplicates
+                # Catch-all for formatting, near_duplicates, typos, casing, whitespace
                 inconsistent_count += 1
 
     # Apply a geometric penalty scaling (e.g., multiplier of 10 for severity)
