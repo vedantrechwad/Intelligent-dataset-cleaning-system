@@ -46,14 +46,17 @@ class Proposal:
     description: str
     evidence: str
     changes: List[CellChange] = field(default_factory=list)
+    dropped_rows: List[int] = field(default_factory=list)
     n_cells: int = 0
     sample: List[Dict[str, Any]] = field(default_factory=list)
 
     def __post_init__(self):
-        if not self.n_cells and self.changes:
-            self.n_cells = len(self.changes)
+        if not self.n_cells:
+            self.n_cells = len(self.changes) if self.changes else len(self.dropped_rows)
         if not self.sample and self.changes:
             self.sample = [c.to_dict() for c in self.changes[:5]]
+        elif not self.sample and self.dropped_rows:
+            self.sample = [{"dropped_row_index": r} for r in self.dropped_rows[:5]]
 
     @property
     def order_rank(self) -> int:
@@ -69,5 +72,6 @@ class Proposal:
             "evidence": self.evidence,
             "n_cells": self.n_cells,
             "sample": self.sample,
-            "changes": [c.to_dict() for c in self.changes]
+            "changes": [c.to_dict() for c in self.changes],
+            "dropped_rows": list(self.dropped_rows)
         }
