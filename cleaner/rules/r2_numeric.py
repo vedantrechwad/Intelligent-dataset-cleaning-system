@@ -134,8 +134,21 @@ def propose_r2_numeric(
             ))
             continue
 
-        # If 100% of numeric values already have '%', that IS the dominant format. Do not strip %.
-        if len(has_pct) > 0 and len(no_pct) == 0:
+        # Check if a single non-empty unit suffix is overwhelmingly dominant (>= 85% of parsed cells)
+        suffix_counts: Dict[str, int] = {}
+        for _, _, _, _, sfx in parsed_cells:
+            s_clean = sfx.strip().lower()
+            if s_clean:
+                suffix_counts[s_clean] = suffix_counts.get(s_clean, 0) + 1
+
+        dominant_unit = None
+        for s_clean, s_count in suffix_counts.items():
+            if s_count / len(parsed_cells) >= 0.85:
+                dominant_unit = s_clean
+                break
+
+        # If 100% of numeric values already have a uniform unit (like '%' or 'min'), that IS the dominant format.
+        if dominant_unit and suffix_counts[dominant_unit] == len(parsed_cells):
             continue
 
         # Case 2: Unit tokens, currency symbols, and descriptor text
@@ -160,14 +173,26 @@ def propose_r2_numeric(
                 dropped_text_samples.add(prefix)
                 continue
 
+            if dominant_unit and suffix_low == dominant_unit:
+                # Value already adheres to the column's dominant unit format
+                continue
+
             if suffix_low == "":
                 auto_changes.append(
                     CellChange(row=int(idx), column=col, old_value=val, new_value=num_str)
                 )
             elif suffix_low in STANDARD_UNITS:
-                auto_changes.append(
-                    CellChange(row=int(idx), column=col, old_value=val, new_value=num_str)
-                )
+                if dominant_unit:
+                    # Column has a dominant unit; convert minority unit variant to dominant unit
+                    new_val = f"{num_str} {dominant_unit}"
+                    if val != new_val:
+                        review_changes.append(
+                            CellChange(row=int(idx), column=col, old_value=val, new_value=new_val)
+                        )
+                else:
+                    auto_changes.append(
+                        CellChange(row=int(idx), column=col, old_value=val, new_value=num_str)
+                    )
             else:
                 has_unit_prefix = False
                 extra_text = suffix_clean

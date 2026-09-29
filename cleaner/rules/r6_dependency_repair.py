@@ -21,7 +21,7 @@ def propose_r6_dependency_repair(
     min_confidence: float = 0.95,
     min_grouped_row_share: float = 0.30,
     max_columns: int = 40,
-    sample_threshold: int = 200_000
+    sample_threshold: int = 25_000
 ) -> List[Proposal]:
     """
     Propose R6 functional dependency repairs.
@@ -109,37 +109,45 @@ def propose_r6_dependency_repair(
         n_repairs = 0
         n_fills = 0
 
-        # Group rows by A in the full dataframe
+        # Fast lookup mapping: group non_blanks by col_a to get majority value
         sub_all = df[[col_a, col_b]][df[col_a] != ""]
-        for _, grp_df in sub_all.groupby(col_a):
+        non_blanks_b = sub_all[sub_all[col_b] != ""]
+        if len(non_blanks_b) < 2:
+            continue
+
+        a_to_maj: Dict[str, str] = {}
+        for a_val, grp_df in non_blanks_b.groupby(col_a):
             if len(grp_df) >= 2:
-                non_blanks_b = grp_df[grp_df[col_b] != ""]
-                if len(non_blanks_b) >= 2:
-                    vc_b = non_blanks_b[col_b].value_counts()
-                    maj_val = vc_b.index[0]
-                    maj_count = vc_b.iloc[0]
-                    share = maj_count / len(non_blanks_b)
+                vc_b = grp_df[col_b].value_counts()
+                maj_val = vc_b.index[0]
+                maj_count = vc_b.iloc[0]
+                if maj_count >= 2 and (maj_count / len(grp_df)) >= (2.0 / 3.0):
+                    a_to_maj[a_val] = maj_val
 
-                    # Condition: support >= 2 and share >= 2/3
-                    if maj_count >= 2 and share >= (2.0 / 3.0):
-                        for r_idx, row in grp_df.iterrows():
-                            idx = int(r_idx)
-                            if (idx, col_b) in local_touched:
-                                continue
+        if not a_to_maj:
+            continue
 
-                            cur_b = row[col_b]
-                            if cur_b != "" and cur_b != maj_val:
-                                changes.append(
-                                    CellChange(row=idx, column=col_b, old_value=cur_b, new_value=maj_val)
-                                )
-                                n_repairs += 1
-                                local_touched.add((idx, col_b))
-                            elif cur_b == "":
-                                changes.append(
-                                    CellChange(row=idx, column=col_b, old_value="", new_value=maj_val)
-                                )
-                                n_fills += 1
-                                local_touched.add((idx, col_b))
+        # Fast itertuples pass
+        for row in sub_all.itertuples():
+            idx = int(row.Index)
+            if (idx, col_b) in local_touched:
+                continue
+            a_val = getattr(row, col_a)
+            if a_val in a_to_maj:
+                maj_val = a_to_maj[a_val]
+                cur_b = getattr(row, col_b)
+                if cur_b != "" and cur_b != maj_val:
+                    changes.append(
+                        CellChange(row=idx, column=col_b, old_value=cur_b, new_value=maj_val)
+                    )
+                    n_repairs += 1
+                    local_touched.add((idx, col_b))
+                elif cur_b == "":
+                    changes.append(
+                        CellChange(row=idx, column=col_b, old_value="", new_value=maj_val)
+                    )
+                    n_fills += 1
+                    local_touched.add((idx, col_b))
 
         if changes:
             proposals.append(Proposal(

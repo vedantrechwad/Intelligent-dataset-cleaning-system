@@ -33,7 +33,7 @@ def discover_candidate_dependencies(
     min_confidence: float = 0.95,
     min_grouped_row_share: float = 0.30,
     max_columns: int = 40,
-    sample_threshold: int = 200_000
+    sample_threshold: int = 25_000
 ) -> List[Dict[str, Any]]:
     """
     Discover approximate functional dependencies A -> B over column pairs.
