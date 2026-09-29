@@ -15,9 +15,12 @@ from cleaner.rules.base import Proposal, CellChange, RULE_ORDER_MAP
 from cleaner.rules.r1_missing import propose_r1_missing
 from cleaner.rules.r2_numeric import propose_r2_numeric
 from cleaner.rules.r3_whitespace_case import propose_r3_whitespace_case
+from cleaner.rules.r4_dates import propose_r4_dates
 from cleaner.rules.r5_compound_split import propose_r5_compound_split
 from cleaner.rules.r6_dependency_repair import propose_r6_dependency_repair
+from cleaner.rules.r7_category_variants import propose_r7_category_variants
 from cleaner.rules.r8_exact_duplicates import propose_r8_exact_duplicates
+from cleaner.validators import check_universal_validators, check_iqr_outliers
 
 
 class CleaningEngine:
@@ -31,7 +34,7 @@ class CleaningEngine:
     ) -> List[Proposal]:
         """
         Generate reviewable proposals in strict fixed application order:
-        R1 > R2 > R3 > (R4) > R5 > R6 > (R7) > R8
+        R1 > R2 > R3 > R4 > R5 > R6 > R7 > R8
         Guarantees:
         - One cell is changed by at most one proposal.
         """
@@ -59,6 +62,13 @@ class CleaningEngine:
                 touched_cells.add((c.row, c.column))
             all_proposals.append(p)
 
+        # Step 4: R4 Dates
+        r4_props = propose_r4_dates(df, profile=profile, touched_cells=touched_cells)
+        for p in r4_props:
+            for c in p.changes:
+                touched_cells.add((c.row, c.column))
+            all_proposals.append(p)
+
         # Step 5: R5 Compound Split
         r5_props = propose_r5_compound_split(df, profile=profile, touched_cells=touched_cells)
         for p in r5_props:
@@ -73,9 +83,23 @@ class CleaningEngine:
                 touched_cells.add((c.row, c.column))
             all_proposals.append(p)
 
+        # Step 7: R7 Category Variants
+        r7_props = propose_r7_category_variants(df, profile=profile, touched_cells=touched_cells)
+        for p in r7_props:
+            for c in p.changes:
+                touched_cells.add((c.row, c.column))
+            all_proposals.append(p)
+
         # Step 8: R8 Exact Duplicates
         r8_props = propose_r8_exact_duplicates(df, profile=profile, touched_cells=touched_cells)
         all_proposals.extend(r8_props)
+
+        # Non-modifying Universal Format and Outlier Validators (Tier: FLAG)
+        validator_props = check_universal_validators(df)
+        all_proposals.extend(validator_props)
+
+        outlier_props = check_iqr_outliers(df)
+        all_proposals.extend(outlier_props)
 
         return all_proposals
 
