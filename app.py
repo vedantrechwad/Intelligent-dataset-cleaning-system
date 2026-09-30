@@ -262,54 +262,54 @@ with tabs[0]:
                 
                 if st.session_state.raw_profile is None:
                     with st.status("Comprehensive Validation & Processing in Progress...", expanded=True) as status:
-                    def update_progress(msg):
-                        st.write(msg)
+                        def update_progress(msg):
+                            st.write(msg)
 
-                    st.write("✔️ Extracting logical schema and computing memory footprints...")
-                    st.session_state.schema_info = detect_dataset_schema(work_df)
-                    
-                    st.write("✔️ Dynamically inferring dataset domain constraints with LLM...")
-                    st.session_state.dynamic_rules = infer_dynamic_domain_rules(work_df, st.session_state.schema_info, ollama_client)
-                    
-                    st.write("✔️ Executing statistical profiling across numerical distributions...")
-                    st.session_state.raw_profile = profile_dataset(work_df, st.session_state.schema_info)
-                    
-                    target_var_cleaned = target_var.strip() if target_var else None
-                    raw_issues = detect_all_issues(work_df, dynamic_rules=st.session_state.dynamic_rules, target_variable=target_var_cleaned, progress_callback=update_progress)
-                    
-                    st.write("✔️ Initializing local LLM inference for ambiguous categorical normalization...")
-                    reasoning_engine = ReasoningEngine(ollama_client)
-                    st.session_state.raw_issues = reasoning_engine.enrich_issues(raw_issues, work_df, use_ollama=is_ollama_online)
-                    
-                    st.write("✔️ Computing multi-dimensional quality scores...")
-                    st.session_state.raw_quality_score = compute_quality_score(work_df, detected_issues=st.session_state.raw_issues)
-                    
-                    st.write("✔️ Generating dataset contextual summary via LLM...")
-                    if is_ollama_online:
-                        sample_json = work_df.head(3).to_json(orient='records')
-                        prompt = f"Provide a brief, 2-3 sentence verbal description of what this dataset appears to represent based on this sample:\n{sample_json}"
-                        try:
-                            import requests
-                            payload = {"model": ollama_client.model, "prompt": prompt, "stream": False, "options": {"temperature": 0.2}}
-                            r = requests.post(f"{ollama_client.host}/api/generate", json=payload, timeout=ollama_client.timeout)
-                            if r.status_code == 200:
-                                st.session_state.dataset_summary_text = r.json().get("response", "").strip()
-                        except Exception:
-                            st.session_state.dataset_summary_text = "Context summary unavailable (LLM timeout)."
-                    else:
-                        st.session_state.dataset_summary_text = "Context summary unavailable (LLM offline)."
+                        st.write("✔️ Extracting logical schema and computing memory footprints...")
+                        st.session_state.schema_info = detect_dataset_schema(work_df)
+                        
+                        st.write("✔️ Dynamically inferring dataset domain constraints with LLM...")
+                        st.session_state.dynamic_rules = infer_dynamic_domain_rules(work_df, st.session_state.schema_info, ollama_client)
+                        
+                        st.write("✔️ Executing statistical profiling across numerical distributions...")
+                        st.session_state.raw_profile = profile_dataset(work_df, st.session_state.schema_info)
+                        
+                        target_var_cleaned = target_var.strip() if target_var else None
+                        raw_issues = detect_all_issues(work_df, dynamic_rules=st.session_state.dynamic_rules, target_variable=target_var_cleaned, progress_callback=update_progress)
+                        
+                        st.write("✔️ Initializing local LLM inference for ambiguous categorical normalization...")
+                        reasoning_engine = ReasoningEngine(ollama_client)
+                        st.session_state.raw_issues = reasoning_engine.enrich_issues(raw_issues, work_df, use_ollama=is_ollama_online)
+                        
+                        st.write("✔️ Computing multi-dimensional quality scores...")
+                        st.session_state.raw_quality_score = compute_quality_score(work_df, detected_issues=st.session_state.raw_issues)
+                        
+                        st.write("✔️ Generating dataset contextual summary via LLM...")
+                        if is_ollama_online:
+                            sample_json = work_df.head(3).to_json(orient='records')
+                            prompt = f"Provide a brief, 2-3 sentence verbal description of what this dataset appears to represent based on this sample:\n{sample_json}"
+                            try:
+                                import requests
+                                payload = {"model": ollama_client.model, "prompt": prompt, "stream": False, "options": {"temperature": 0.2}}
+                                r = requests.post(f"{ollama_client.host}/api/generate", json=payload, timeout=ollama_client.timeout)
+                                if r.status_code == 200:
+                                    st.session_state.dataset_summary_text = r.json().get("response", "").strip()
+                            except Exception:
+                                st.session_state.dataset_summary_text = "Context summary unavailable (LLM timeout)."
+                        else:
+                            st.session_state.dataset_summary_text = "Context summary unavailable (LLM offline)."
 
-                    st.write("✔️ Profiling value shapes & generating evidence-backed cleaning rules...")
-                    cleaner_df = work_df.astype(str).fillna("")
-                    st.session_state.cleaner_df = cleaner_df
-                    st.session_state.cleaner_profile = cleaner_profile_table(cleaner_df)
-                    c_engine = CleaningEngine()
-                    st.session_state.cleaner_proposals = c_engine.generate_proposals(cleaner_df, st.session_state.cleaner_profile)
-                    st.session_state.rule_approvals = {
-                        p.id: (p.tier == "AUTO") for p in st.session_state.cleaner_proposals
-                    }
+                        st.write("✔️ Profiling value shapes & generating evidence-backed cleaning rules...")
+                        cleaner_df = work_df.astype(str).fillna("")
+                        st.session_state.cleaner_df = cleaner_df
+                        st.session_state.cleaner_profile = cleaner_profile_table(cleaner_df)
+                        c_engine = CleaningEngine()
+                        st.session_state.cleaner_proposals = c_engine.generate_proposals(cleaner_df, st.session_state.cleaner_profile)
+                        st.session_state.rule_approvals = {
+                            p.id: (p.tier == "AUTO") for p in st.session_state.cleaner_proposals
+                        }
 
-                    status.update(label="Processing Complete!", state="complete", expanded=False)
+                        status.update(label="Processing Complete!", state="complete", expanded=False)
                 st.success(f"Loaded '{meta['filename']}' ({meta['row_count']} rows, {meta['column_count']} cols).")
         except Exception as e:
             st.error(f"Failed to load dataset: {str(e)}")
