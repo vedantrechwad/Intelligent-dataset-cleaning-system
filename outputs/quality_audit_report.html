@@ -133,7 +133,7 @@
     <div class="container">
         <div class="header">
             <h1>Data Quality & Cleaning Audit Report</h1>
-            <p>Dataset: <strong>dirty_customer_dataset.csv</strong> | Generated: 2026-09-02 22:56:52</p>
+            <p>Dataset: <strong>dirty_customer_dataset.csv</strong> | Generated: 2026-09-30 23:54:40</p>
         </div>
 
         <div class="grid">
@@ -141,17 +141,17 @@
                 <h3>Quality Score Progression</h3>
                 <div class="score-display">
                     <div>
-                        <div class="score-box score-before">95.57</div>
+                        <div class="score-box score-before">71.34</div>
                         <div style="color: var(--text-muted); font-size: 12px;">Before Cleaning</div>
                     </div>
                     <div style="font-size: 24px; color: var(--text-muted);">➔</div>
                     <div>
-                        <div class="score-box score-after">99.38</div>
+                        <div class="score-box score-after">97.6</div>
                         <div style="color: var(--text-muted); font-size: 12px;">After Cleaning</div>
                     </div>
                 </div>
                 <div style="text-align: center; margin-top: 15px;">
-                    Net Improvement: <span class="delta">+3.81 Points</span>
+                    Net Improvement: <span class="delta">+26.26 Points</span>
                 </div>
             </div>
 
@@ -159,7 +159,7 @@
                 <h3>Pipeline Execution Summary</h3>
                 <table>
                     <thead><tr><th>Operation</th><th>Count</th></tr></thead>
-                    <tbody><tr><td><code>user_rejected</code></td><td><strong>3</strong></td></tr><tr><td><code>user_corrected</code></td><td><strong>7</strong></td></tr><tr><td><code>normalized_casing</code></td><td><strong>6</strong></td></tr><tr><td><code>normalized_whitespace</code></td><td><strong>1</strong></td></tr><tr><td><code>removed_duplicate_row</code></td><td><strong>1</strong></td></tr><tr><td><code>imputed_median</code></td><td><strong>1</strong></td></tr><tr><td><code>imputed_mode</code></td><td><strong>1</strong></td></tr><tr><td><code>acknowledged_flagged</code></td><td><strong>1</strong></td></tr></tbody>
+                    <tbody><tr><td><code>HUMAN_REVIEW</code></td><td><strong>9</strong></td></tr><tr><td><code>CORRECTION</code></td><td><strong>17</strong></td></tr><tr><td><code>NORMALIZATION</code></td><td><strong>7</strong></td></tr><tr><td><code>DUPLICATE_REMOVAL</code></td><td><strong>1</strong></td></tr><tr><td><code>IMPUTATION</code></td><td><strong>2</strong></td></tr><tr><td><code>DETECT_ONLY</code></td><td><strong>1</strong></td></tr></tbody>
                 </table>
             </div>
         </div>
@@ -178,16 +178,16 @@
         
         <tr>
             <td style="text-transform: capitalize;"><strong>consistency</strong></td>
-            <td>88.0%</td>
-            <td><strong>98.44%</strong></td>
-            <td style="color: #10b981; font-weight: bold;">+10.44%</td>
+            <td>0.0%</td>
+            <td><strong>89.58%</strong></td>
+            <td style="color: #10b981; font-weight: bold;">+89.58%</td>
         </tr>
         
         <tr>
             <td style="text-transform: capitalize;"><strong>validity</strong></td>
-            <td>96.5%</td>
+            <td>70.0%</td>
             <td><strong>100.0%</strong></td>
-            <td style="color: #10b981; font-weight: bold;">+3.5%</td>
+            <td style="color: #10b981; font-weight: bold;">+30.0%</td>
         </tr>
         
         <tr>
@@ -218,7 +218,7 @@
             <td>13</td>
             <td><strong>Age</strong></td>
             <td><code>None</code></td>
-            <td><span class="badge badge-success">user_rejected</span></td>
+            <td><span class="badge badge-success">HUMAN_REVIEW</span></td>
             <td><code>None</code></td>
             <td>1.0</td>
         </tr>
@@ -227,7 +227,7 @@
             <td>19</td>
             <td><strong>Salary</strong></td>
             <td><code>None</code></td>
-            <td><span class="badge badge-success">user_rejected</span></td>
+            <td><span class="badge badge-success">HUMAN_REVIEW</span></td>
             <td><code>None</code></td>
             <td>1.0</td>
         </tr>
@@ -236,7 +236,7 @@
             <td>2</td>
             <td><strong>Age</strong></td>
             <td><code>-5.0</code></td>
-            <td><span class="badge badge-success">user_corrected</span></td>
+            <td><span class="badge badge-success">HUMAN_REVIEW</span></td>
             <td><code>32</code></td>
             <td>1.0</td>
         </tr>
@@ -245,7 +245,7 @@
             <td>4</td>
             <td><strong>Age</strong></td>
             <td><code>-5.0</code></td>
-            <td><span class="badge badge-success">user_corrected</span></td>
+            <td><span class="badge badge-success">HUMAN_REVIEW</span></td>
             <td><code>32</code></td>
             <td>1.0</td>
         </tr>
@@ -254,7 +254,7 @@
             <td>6</td>
             <td><strong>Age</strong></td>
             <td><code>999.0</code></td>
-            <td><span class="badge badge-success">user_corrected</span></td>
+            <td><span class="badge badge-success">HUMAN_REVIEW</span></td>
             <td><code>32</code></td>
             <td>1.0</td>
         </tr>
@@ -263,7 +263,7 @@
             <td>2</td>
             <td><strong>Join_Date</strong></td>
             <td><code>22/13/2020</code></td>
-            <td><span class="badge badge-success">user_corrected</span></td>
+            <td><span class="badge badge-success">HUMAN_REVIEW</span></td>
             <td><code>2024-01-20</code></td>
             <td>1.0</td>
         </tr>
@@ -272,7 +272,7 @@
             <td>4</td>
             <td><strong>Join_Date</strong></td>
             <td><code>22/13/2020</code></td>
-            <td><span class="badge badge-success">user_corrected</span></td>
+            <td><span class="badge badge-success">HUMAN_REVIEW</span></td>
             <td><code>2024-01-20</code></td>
             <td>1.0</td>
         </tr>
@@ -281,126 +281,162 @@
             <td>5</td>
             <td><strong>Join_Date</strong></td>
             <td><code>2025-02-30</code></td>
-            <td><span class="badge badge-success">user_corrected</span></td>
+            <td><span class="badge badge-success">HUMAN_REVIEW</span></td>
             <td><code>2024-01-20</code></td>
+            <td>1.0</td>
+        </tr>
+        
+        <tr>
+            <td>6</td>
+            <td><strong>Salary</strong></td>
+            <td><code>1200000.0</code></td>
+            <td><span class="badge badge-success">HUMAN_REVIEW</span></td>
+            <td><code>1200000.0</code></td>
+            <td>1.0</td>
+        </tr>
+        
+        <tr>
+            <td>12</td>
+            <td><strong>Customer_ID</strong></td>
+            <td><code>CUST_1012</code></td>
+            <td><span class="badge badge-success">CORRECTION</span></td>
+            <td><code>CUST_1002</code></td>
             <td>1.0</td>
         </tr>
         
         <tr>
             <td>9</td>
-            <td><strong>Join_Date</strong></td>
-            <td><code>2024-02-28</code></td>
-            <td><span class="badge badge-success">user_corrected</span></td>
-            <td><code>2024-01-20</code></td>
+            <td><strong>Customer_ID</strong></td>
+            <td><code>CUST_1009</code></td>
+            <td><span class="badge badge-success">CORRECTION</span></td>
+            <td><code>CUST_1002</code></td>
+            <td>1.0</td>
+        </tr>
+        
+        <tr>
+            <td>10</td>
+            <td><strong>Customer_ID</strong></td>
+            <td><code>CUST_1010</code></td>
+            <td><span class="badge badge-success">CORRECTION</span></td>
+            <td><code>CUST_1002</code></td>
+            <td>1.0</td>
+        </tr>
+        
+        <tr>
+            <td>7</td>
+            <td><strong>Customer_ID</strong></td>
+            <td><code>CUST_1007</code></td>
+            <td><span class="badge badge-success">CORRECTION</span></td>
+            <td><code>CUST_1002</code></td>
+            <td>1.0</td>
+        </tr>
+        
+        <tr>
+            <td>8</td>
+            <td><strong>Customer_ID</strong></td>
+            <td><code>CUST_1008</code></td>
+            <td><span class="badge badge-success">CORRECTION</span></td>
+            <td><code>CUST_1002</code></td>
+            <td>1.0</td>
+        </tr>
+        
+        <tr>
+            <td>20</td>
+            <td><strong>Customer_ID</strong></td>
+            <td><code>CUST_1020</code></td>
+            <td><span class="badge badge-success">CORRECTION</span></td>
+            <td><code>CUST_1002</code></td>
+            <td>1.0</td>
+        </tr>
+        
+        <tr>
+            <td>21</td>
+            <td><strong>Customer_ID</strong></td>
+            <td><code>CUST_1021</code></td>
+            <td><span class="badge badge-success">CORRECTION</span></td>
+            <td><code>CUST_1002</code></td>
+            <td>1.0</td>
+        </tr>
+        
+        <tr>
+            <td>5</td>
+            <td><strong>Customer_ID</strong></td>
+            <td><code>CUST_1005</code></td>
+            <td><span class="badge badge-success">CORRECTION</span></td>
+            <td><code>CUST_1002</code></td>
             <td>1.0</td>
         </tr>
         
         <tr>
             <td>6</td>
-            <td><strong>Salary</strong></td>
-            <td><code>1200000.0</code></td>
-            <td><span class="badge badge-success">user_rejected</span></td>
-            <td><code>1200000.0</code></td>
+            <td><strong>Customer_ID</strong></td>
+            <td><code>CUST_1006</code></td>
+            <td><span class="badge badge-success">CORRECTION</span></td>
+            <td><code>CUST_1002</code></td>
             <td>1.0</td>
         </tr>
         
         <tr>
             <td>1</td>
-            <td><strong>City</strong></td>
-            <td><code>mumbai</code></td>
-            <td><span class="badge badge-success">normalized_casing</span></td>
-            <td><code>Mumbai</code></td>
-            <td>0.98</td>
+            <td><strong>Customer_ID</strong></td>
+            <td><code>CUST_1001</code></td>
+            <td><span class="badge badge-success">CORRECTION</span></td>
+            <td><code>CUST_1002</code></td>
+            <td>1.0</td>
         </tr>
         
         <tr>
-            <td>2</td>
-            <td><strong>City</strong></td>
-            <td><code>MUMBAI</code></td>
-            <td><span class="badge badge-success">normalized_casing</span></td>
-            <td><code>Mumbai</code></td>
-            <td>0.98</td>
+            <td>23</td>
+            <td><strong>Customer_ID</strong></td>
+            <td><code>CUST_1023</code></td>
+            <td><span class="badge badge-success">CORRECTION</span></td>
+            <td><code>CUST_1002</code></td>
+            <td>1.0</td>
+        </tr>
+        
+        <tr>
+            <td>0</td>
+            <td><strong>Customer_ID</strong></td>
+            <td><code>CUST_1000</code></td>
+            <td><span class="badge badge-success">CORRECTION</span></td>
+            <td><code>CUST_1002</code></td>
+            <td>1.0</td>
         </tr>
         
         <tr>
             <td>3</td>
-            <td><strong>City</strong></td>
-            <td><code> Mumbai</code></td>
-            <td><span class="badge badge-success">normalized_whitespace</span></td>
-            <td><code>Mumbai</code></td>
+            <td><strong>Customer_ID</strong></td>
+            <td><code>CUST_1003</code></td>
+            <td><span class="badge badge-success">CORRECTION</span></td>
+            <td><code>CUST_1002</code></td>
             <td>1.0</td>
         </tr>
         
         <tr>
-            <td>4</td>
-            <td><strong>City</strong></td>
-            <td><code>MUMBAI</code></td>
-            <td><span class="badge badge-success">normalized_casing</span></td>
-            <td><code>Mumbai</code></td>
-            <td>0.98</td>
-        </tr>
-        
-        <tr>
-            <td>6</td>
-            <td><strong>City</strong></td>
-            <td><code>delhi</code></td>
-            <td><span class="badge badge-success">normalized_casing</span></td>
-            <td><code>Delhi</code></td>
-            <td>0.98</td>
-        </tr>
-        
-        <tr>
-            <td>7</td>
-            <td><strong>City</strong></td>
-            <td><code>DELHI</code></td>
-            <td><span class="badge badge-success">normalized_casing</span></td>
-            <td><code>Delhi</code></td>
-            <td>0.98</td>
-        </tr>
-        
-        <tr>
-            <td>19</td>
-            <td><strong>City</strong></td>
-            <td><code>pune</code></td>
-            <td><span class="badge badge-success">normalized_casing</span></td>
-            <td><code>Pune</code></td>
-            <td>0.98</td>
-        </tr>
-        
-        <tr>
-            <td>4</td>
-            <td><strong>__all__</strong></td>
-            <td><code>Duplicate row</code></td>
-            <td><span class="badge badge-success">removed_duplicate_row</span></td>
-            <td><code>None</code></td>
+            <td>22</td>
+            <td><strong>Customer_ID</strong></td>
+            <td><code>CUST_1022</code></td>
+            <td><span class="badge badge-success">CORRECTION</span></td>
+            <td><code>CUST_1002</code></td>
             <td>1.0</td>
         </tr>
         
         <tr>
-            <td>18</td>
-            <td><strong>Salary</strong></td>
-            <td><code>None</code></td>
-            <td><span class="badge badge-success">imputed_median</span></td>
-            <td><code>79000.0</code></td>
-            <td>0.88</td>
+            <td>24</td>
+            <td><strong>Customer_ID</strong></td>
+            <td><code>CUST_1024</code></td>
+            <td><span class="badge badge-success">CORRECTION</span></td>
+            <td><code>CUST_1002</code></td>
+            <td>1.0</td>
         </tr>
         
         <tr>
             <td>12</td>
-            <td><strong>Age</strong></td>
-            <td><code>None</code></td>
-            <td><span class="badge badge-success">imputed_mode</span></td>
-            <td><code>32</code></td>
-            <td>0.85</td>
-        </tr>
-        
-        <tr>
-            <td>6</td>
-            <td><strong>Salary</strong></td>
-            <td><code>1200000.0</code></td>
-            <td><span class="badge badge-success">acknowledged_flagged</span></td>
-            <td><code>1200000.0</code></td>
-            <td>0.89</td>
+            <td><strong>City</strong></td>
+            <td><code>Banglore</code></td>
+            <td><span class="badge badge-success">CORRECTION</span></td>
+            <td><code>Bangalore</code></td>
+            <td>1.0</td>
         </tr>
         </tbody>
             </table>

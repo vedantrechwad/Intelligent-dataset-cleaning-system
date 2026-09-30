@@ -40,6 +40,6 @@ def propose_r8_exact_duplicates(
             description=f"Drop {count} exact duplicate rows (preserving first occurrence)",
             evidence=f"{count} exact duplicate rows detected in dataset ({share*100:.2f}% of rows).",
             dropped_rows=dup_indices,
-            n_cells=count
+            n_cells=count * len(df.columns)
         )
     ]

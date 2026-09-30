@@ -127,15 +127,15 @@ def propose_r6_dependency_repair(
         if not a_to_maj:
             continue
 
-        # Fast itertuples pass
-        for row in sub_all.itertuples():
-            idx = int(row.Index)
+        # Fast iterrows pass
+        for idx, row in sub_all.iterrows():
+            idx = int(idx)
             if (idx, col_b) in local_touched:
                 continue
-            a_val = getattr(row, col_a)
+            a_val = row[col_a]
             if a_val in a_to_maj:
                 maj_val = a_to_maj[a_val]
-                cur_b = getattr(row, col_b)
+                cur_b = row[col_b]
                 if cur_b != "" and cur_b != maj_val:
                     changes.append(
                         CellChange(row=idx, column=col_b, old_value=cur_b, new_value=maj_val)

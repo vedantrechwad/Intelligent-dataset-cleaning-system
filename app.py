@@ -228,24 +228,40 @@ tabs = st.tabs([
 with tabs[0]:
     st.markdown("### 📤 Upload Tabular Dataset")
     
-    col_u1, col_u2 = st.columns([2, 1])
-    with col_u1:
-        uploaded_file = st.file_uploader(
-            "Choose a CSV or Excel file",
-            type=["csv", "xlsx", "xls"],
-            help="Original raw data is preserved strictly without modification."
-        )
-    with col_u2:
-        target_var = st.text_input("🎯 Optional Target Variable", help="Specify column to predict for data leakage checks.")
+    with st.form("upload_form"):
+        col_u1, col_u2 = st.columns([2, 1])
+        with col_u1:
+            uploaded_file = st.file_uploader(
+                "Choose a CSV or Excel file",
+                type=["csv", "xlsx", "xls"],
+                help="Original raw data is preserved strictly without modification."
+            )
+        with col_u2:
+            target_var = st.text_input("🎯 Optional Target Variable", help="Specify column to predict for data leakage checks.")
+            
+        submitted = st.form_submit_button("Analyze Dataset", type="primary", use_container_width=True)
 
     if uploaded_file is not None:
-        try:
-            orig_df, work_df, meta = load_dataset(uploaded_file, filename=uploaded_file.name)
-            st.session_state.raw_df = orig_df
-            st.session_state.working_df = work_df
-            st.session_state.dataset_meta = meta
-            if st.session_state.raw_profile is None:
-                with st.status("Comprehensive Validation & Processing in Progress...", expanded=True) as status:
+        current_state_key = f"{uploaded_file.name}_{target_var}"
+        
+        # If the user clicks analyze on a new file or new target, reset state
+        if submitted and st.session_state.get("current_dataset_key") != current_state_key:
+            for key in ["raw_profile", "raw_issues", "raw_quality_score", "human_decisions", "cleaned_df", "cleaning_audit", "after_profile", "after_issues", "after_quality_score", "cleaner_df", "cleaner_profile", "cleaner_proposals", "rule_approvals", "cleaner_diff_records", "cleaner_cleaned_df", "dataset_summary_text"]:
+                st.session_state.pop(key, None)
+            st.session_state.current_dataset_key = current_state_key
+            st.session_state.raw_profile = None
+
+        active_key = st.session_state.get("current_dataset_key", "")
+        if active_key and active_key.startswith(uploaded_file.name):
+            try:
+                # OOM Prevention: Avoid keeping redundant deep copies of the raw dataset
+                _, work_df, meta = load_dataset(uploaded_file, filename=uploaded_file.name)
+                st.session_state.raw_df = work_df
+                st.session_state.working_df = work_df
+                st.session_state.dataset_meta = meta
+                
+                if st.session_state.raw_profile is None:
+                    with st.status("Comprehensive Validation & Processing in Progress...", expanded=True) as status:
                     def update_progress(msg):
                         st.write(msg)
 
@@ -352,14 +368,11 @@ with tabs[1]:
             score_val = qscore.get("overall_score", 0.0)
             grade = qscore.get("grade", "N/A")
             fig = go.Figure(go.Indicator(
-                mode="gauge+number",
+                mode="gauge",
                 value=score_val,
-                align="center",
                 domain={'x': [0, 1], 'y': [0, 1]},
-                number={'font': {'size': 40}},
-                title={'text': f"Data Quality Score (Grade {grade})", 'font': {'size': 18}},
                 gauge={
-                    'axis': {'range': [0, 100]},
+                    'axis': {'range': [0, 100], 'tickcolor': "#94a3b8"},
                     'bar': {'color': "#4f46e5"},
                     'steps': [
                         {'range': [0, 60], 'color': "rgba(239, 68, 68, 0.2)"},
@@ -368,8 +381,28 @@ with tabs[1]:
                     ]
                 }
             ))
-            fig.update_layout(height=240, margin=dict(l=20, r=20, t=50, b=20), paper_bgcolor="rgba(0,0,0,0)")
-            st.plotly_chart(fig, width="stretch")
+            fig.add_annotation(
+                text=f"<b>{score_val:.1f}</b>",
+                x=0.5,
+                y=0.28,
+                xref="paper",
+                yref="paper",
+                showarrow=False,
+                font=dict(size=42, color="#ffffff")
+            )
+            fig.update_layout(
+                title={
+                    'text': f"Data Quality Score (Grade {grade})",
+                    'font': {'size': 18, 'color': '#ffffff'},
+                    'x': 0.5,
+                    'xanchor': 'center'
+                },
+                height=240,
+                margin=dict(l=20, r=20, t=50, b=20),
+                paper_bgcolor="rgba(0,0,0,0)",
+                plot_bgcolor="rgba(0,0,0,0)"
+            )
+            st.plotly_chart(fig, use_container_width=True)
 
         with col_q2:
             h1, h2 = st.columns([0.85, 0.15])
@@ -792,11 +825,35 @@ with tabs[4]:
                 with st.spinner("Applying deterministic rules in fixed order (R1 -> R8)..."):
                     c_engine = CleaningEngine()
                     cleaned_df, diff_records = c_engine.apply(st.session_state.cleaner_df, approved_props)
+                    
+                    # Restore logical types to prevent issue count explosion during validation
+                    cleaned_df = cleaned_df.replace("", np.nan)
+                    for col in cleaned_df.columns:
+                        cleaned_df[col] = pd.to_numeric(cleaned_df[col], errors="ignore")
+                        orig_df = st.session_state.working_df
+                        if orig_df is not None and col in orig_df.columns:
+                            try:
+                                cleaned_df[col] = cleaned_df[col].astype(orig_df[col].dtype)
+                            except Exception:
+                                pass
+                                
                     st.session_state.cleaner_cleaned_df = cleaned_df
                     st.session_state.cleaner_diff_records = diff_records
 
                     # Update session_state.cleaned_df for compatibility with other tabs
                     st.session_state.cleaned_df = cleaned_df
+                    st.session_state.cleaning_audit = [
+                        {
+                            "action": d.get("rule_kind", "rule_application"),
+                            "column": d.get("column"),
+                            "row": d.get("row"),
+                            "old_value": d.get("old_value"),
+                            "new_value": d.get("new_value"),
+                            "rule_id": d.get("rule_id"),
+                            "tier": d.get("tier")
+                        }
+                        for d in (diff_records or [])
+                    ]
 
                     # Compute after profile
                     af_prof, af_issues, af_score = validate_cleaned_dataset(cleaned_df)
@@ -846,7 +903,8 @@ with tabs[4]:
                     data=csv_buf.getvalue(),
                     file_name="cleaned_dataset.csv",
                     mime="text/csv",
-                    width="stretch"
+                    width="stretch",
+                    key="tab5_download_cleaned_csv"
                 )
                 xlsx_buf = io.BytesIO()
                 with pd.ExcelWriter(xlsx_buf, engine="openpyxl") as writer:
@@ -856,7 +914,8 @@ with tabs[4]:
                     data=xlsx_buf.getvalue(),
                     file_name="cleaned_dataset.xlsx",
                     mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                    width="stretch"
+                    width="stretch",
+                    key="tab5_download_cleaned_xlsx"
                 )
     else:
         if st.session_state.working_df is None or st.session_state.raw_issues is None:
@@ -1013,9 +1072,27 @@ with tabs[6]:
     else:
         st.markdown("### 📥 Audit Log & Cleaned Dataset Export")
 
-        logger_inst = AuditLogger(dataset_name=st.session_state.dataset_meta.get("filename", "dataset"))
-        logger_inst.log_detected_issues(st.session_state.raw_issues)
-        logger_inst.log_applied_actions(st.session_state.cleaning_audit)
+        dataset_name = st.session_state.dataset_meta.get("filename", "dataset") if st.session_state.dataset_meta else "dataset"
+        logger_inst = AuditLogger(dataset_name=dataset_name)
+        logger_inst.log_detected_issues(st.session_state.raw_issues or [])
+        
+        applied_actions = st.session_state.cleaning_audit
+        if (applied_actions is None or len(applied_actions) == 0) and st.session_state.cleaner_diff_records is not None:
+            applied_actions = [
+                {
+                    "action": d.get("rule_kind", "rule_application"),
+                    "column": d.get("column"),
+                    "row": d.get("row"),
+                    "old_value": d.get("old_value"),
+                    "new_value": d.get("new_value"),
+                    "rule_id": d.get("rule_id"),
+                    "tier": d.get("tier")
+                }
+                for d in st.session_state.cleaner_diff_records
+            ]
+            st.session_state.cleaning_audit = applied_actions
+
+        logger_inst.log_applied_actions(applied_actions or [])
         audit_report = logger_inst.generate_audit_report()
 
         exp_c1, exp_c2, exp_c3, exp_c4 = st.columns(4)
@@ -1028,7 +1105,8 @@ with tabs[6]:
             data=csv_buffer.getvalue(),
             file_name="cleaned_dataset.csv",
             mime="text/csv",
-            width="stretch"
+            width="stretch",
+            key="tab7_download_cleaned_csv"
         )
 
         # 2. Download Excel XLSX
@@ -1040,7 +1118,8 @@ with tabs[6]:
             data=xlsx_buffer.getvalue(),
             file_name="cleaned_dataset.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-            width="stretch"
+            width="stretch",
+            key="tab7_download_cleaned_xlsx"
         )
 
         # 3. Download JSON Audit Trail
@@ -1050,7 +1129,8 @@ with tabs[6]:
             data=json_str,
             file_name="cleaning_audit_log.json",
             mime="application/json",
-            width="stretch"
+            width="stretch",
+            key="tab7_download_audit_json"
         )
 
         # 4. Download HTML Audit Report
@@ -1067,7 +1147,8 @@ with tabs[6]:
             data=html_report,
             file_name="data_quality_report.html",
             mime="text/html",
-            width="stretch"
+            width="stretch",
+            key="tab7_download_audit_html"
         )
 
         st.divider()
@@ -1092,7 +1173,8 @@ with tabs[6]:
                 data=py_script_code,
                 file_name="clean_pipeline.py",
                 mime="text/x-python",
-                width="stretch"
+                width="stretch",
+                key="tab7_download_standalone_script"
             )
 
             with st.expander("📄 View Generated Standalone Python Script Code", expanded=False):

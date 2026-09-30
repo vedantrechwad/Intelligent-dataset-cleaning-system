@@ -21,21 +21,24 @@ def detect_missing_values(df: pd.DataFrame, custom_missing: List[str] = None) ->
 
     for col in df.columns:
         series = df[col]
-        for row_idx, val in series.items():
-            is_missing = False
-            raw_val = val
-            
-            # Check native null
-            if pd.isna(val) or val is None:
-                is_missing = True
-            elif isinstance(val, str):
-                s = val.strip()
-                if not s or s.lower() in missing_lookup:
-                    is_missing = True
-
-            if is_missing:
+        # Check native nulls
+        null_mask = series.isna()
+        
+        # Check string representations using vectorized string operations
+        # Convert only non-nulls to string for comparison to avoid 'nan' string matches unless specified
+        str_series = series.astype(str).str.strip().str.lower()
+        str_mask = str_series.isin(missing_lookup)
+        empty_str_mask = str_series == ""
+        
+        missing_mask = null_mask | str_mask | empty_str_mask
+        
+        if missing_mask.any():
+            missing_indices = missing_mask[missing_mask].index
+            # Cap at 5000 issues per column to prevent memory explosions on massive datasets
+            for idx in missing_indices[:5000]:
+                raw_val = series.loc[idx]
                 missing_issues.append({
-                    "row": int(row_idx),
+                    "row": int(idx),
                     "column": col,
                     "original_value": None if pd.isna(raw_val) else str(raw_val),
                     "issue_type": "missing_value",
