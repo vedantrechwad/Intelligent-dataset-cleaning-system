@@ -57,7 +57,7 @@ def detect_numerical_outliers(
         series = pd.to_numeric(df[col], errors="coerce")
         valid_series = series.dropna()
 
-        if len(valid_series) < 5:
+        if len(valid_series) < 5 or valid_series.nunique() <= 2:
             continue
 
         # IQR
