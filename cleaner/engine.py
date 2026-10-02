@@ -30,11 +30,13 @@ class CleaningEngine:
     def generate_proposals(
         self,
         df: pd.DataFrame,
-        profile: Optional[Dict[str, Any]] = None
+        profile: Optional[Dict[str, Any]] = None,
+        enable_semantic_ai: bool = False,
+        ollama_client: Optional[Any] = None
     ) -> List[Proposal]:
         """
         Generate reviewable proposals in strict fixed application order:
-        R1 > R2 > R3 > R4 > R5 > R6 > R7 > R8
+        R1 > R2 > R3 > R4 > R5 > R6 > R7 > R9 > R8
         Guarantees:
         - One cell is changed by at most one proposal.
         """
@@ -90,7 +92,20 @@ class CleaningEngine:
                 touched_cells.add((c.row, c.column))
             all_proposals.append(p)
 
-        # Step 8: R8 Exact Duplicates
+        # Step 8: R9 Semantic AI Vocabulary Harmonization (Optional)
+        if enable_semantic_ai and ollama_client is not None:
+            try:
+                from src.intelligence.semantic_standardizer import generate_semantic_vocabulary_proposal
+                for col in df.columns:
+                    r9_p = generate_semantic_vocabulary_proposal(df, col, ollama_client, touched_cells=touched_cells)
+                    if r9_p:
+                        for c in r9_p.changes:
+                            touched_cells.add((c.row, c.column))
+                        all_proposals.append(r9_p)
+            except Exception:
+                pass
+
+        # Step 9: R8 Exact Duplicates
         r8_props = propose_r8_exact_duplicates(df, profile=profile, touched_cells=touched_cells)
         all_proposals.extend(r8_props)
 

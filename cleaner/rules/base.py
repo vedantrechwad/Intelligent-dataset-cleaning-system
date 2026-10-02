@@ -15,6 +15,7 @@ RULE_ORDER = [
     "R5_compound_split",
     "R6_dependency_repair",
     "R7_category_variants",
+    "R9_semantic_vocabulary",
     "R8_exact_duplicates"
 ]
 
