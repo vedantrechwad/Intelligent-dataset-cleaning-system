@@ -8,10 +8,16 @@ from src.utils.helpers import load_config, logger
 
 RECOMMENDED_MODELS = [
     {
+        "name": "qwen2.5:3b",
+        "description": "Ultra-lightweight & Blazing Fast (~78 tok/s). Minimal ~2.0 GB VRAM footprint. Outstanding JSON schema adherence and tabular classification.",
+        "parameters": "3.1B",
+        "vram_required": "~2.0 GB"
+    },
+    {
         "name": "qwen2.5:7b",
-        "description": "Recommended. Outstanding JSON schema adherence, structured reasoning, and high performance.",
+        "description": "Gold Standard Tabular Model. Outstanding structured reasoning, complex multi-column dependencies, and code understanding.",
         "parameters": "7.6B",
-        "vram_required": "~5 GB"
+        "vram_required": "~5.0 GB"
     },
     {
         "name": "llama3.1:8b",

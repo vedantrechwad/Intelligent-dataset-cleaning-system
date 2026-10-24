@@ -20,6 +20,7 @@ from src.intelligence.domain_inferencer import infer_dynamic_domain_rules
 from src.intelligence.semantic_standardizer import generate_semantic_vocabulary_proposal
 from src.validation.validator import validate_cleaned_dataset
 from src.validation.before_after import compute_before_after_comparison
+from src.evaluation.downstream_evaluation import evaluate_downstream_ml, infer_target_column
 from src.reporting.audit_logger import AuditLogger
 from src.reporting.report_generator import generate_html_report
 from cleaner.profile import profile_table as cleaner_profile_table
@@ -233,11 +234,22 @@ with tabs[0]:
     st.markdown("### 📤 Dataset Ingestion & Intake")
     
     SAMPLE_OPTIONS = {
-        "Custom Upload (Upload your own CSV/XLSX)": None,
+        "Custom Upload (Upload your own CSV/XLSX/TSV/DATA)": None,
         "Customer Churn (Telco) - 1,000 rows (Missing, Typos, Duplicates)": "sample_data/dirty_customer_dataset.csv",
         "Hospital Quality Care - 1,000 rows (Functional Dependencies, Typos)": "benchmarks/hospital/dirty.csv",
         "Craft Beers & Breweries - 2,410 rows (Ounces, Percentages, Formats)": "benchmarks/beers/dirty.csv",
-        "Car Dekho Used Cars - 4,340 rows (Mileage 'kmpl', Engine 'CC', Power 'bhp')": "sample_data/car_dekho/car data.csv"
+        "Car Dekho Used Cars - 4,340 rows (Mileage 'kmpl', Engine 'CC', Power 'bhp')": "sample_data/car_dekho/car data.csv",
+        "Adult Census Income - 32,561 rows (UCI Disguised '?', Whitespace, Duplicates)": "new test datasets/adult (1)/adult.data",
+        "Bank Marketing - 4,521 rows (UCI Semicolon ';', AFDs, Campaign Outliers)": "new test datasets/bank+marketing/bank.csv",
+        "Breast Cancer Wisconsin - 569 rows (UCI 30 Continuous Medical Features)": "new test datasets/breast+cancer+wisconsin+diagnostic/wdbc.data",
+        "Student Performance (Math) - 395 rows (UCI Semicolon ';', Discrete Ordinal Grades)": "new test datasets/student+performance/student-mat.csv",
+        "Movies 1 Benchmark - 7,390 rows (CleanML Units, Ratings)": "benchmarks/movies_1/dirty.csv",
+        "Airbnb NYC 2019 - 48,895 rows (Kaggle NYC Real Estate, Missing Reviews, Outliers)": "yet another test datasets/AB_NYC_2019.csv/AB_NYC_2019.csv",
+        "Netflix Movies & TV Shows - 8,807 rows (Kaggle Streaming Catalog, Missing Directors)": "yet another test datasets/archive (5)/netflix_titles.csv",
+        "IMDb Top 1000 Movies - 1,000 rows (Kaggle Cinema Ratings, Runtime, Missing Certs)": "yet another test datasets/archive (6)/imdb_top_1000.csv",
+        "World Happiness Report - 158 rows (Kaggle Macroeconomics, Happiness Scores)": "yet another test datasets/archive (8)/2015.csv",
+        "Uber NYC FOIL - 354 rows (Kaggle Dispatch Logistics, Base Vehicles)": "yet another test datasets/archive (4)/Uber-Jan-Feb-FOIL.csv",
+        "Global Superstore - 51,290 rows (Kaggle Global Retail & Logistics, Excel .xls)": "yet another test datasets/archive (7)/Global Superstore.xls"
     }
 
     selected_sample = st.selectbox(
@@ -256,9 +268,9 @@ with tabs[0]:
                 uploaded_file = None
             else:
                 uploaded_file = st.file_uploader(
-                    "Choose a CSV or Excel file",
-                    type=["csv", "xlsx", "xls"],
-                    help="Loaded with dtype=str to preserve leading zeros and prevent silent pandas auto-casting."
+                    "Choose a CSV, TSV, DATA, or Excel file",
+                    type=["csv", "xlsx", "xls", "tsv", "data", "txt"],
+                    help="Loaded with dtype=str to preserve leading zeros, auto-detect delimiters, and prevent silent pandas auto-casting."
                 )
         with col_u2:
             target_var = st.text_input("🎯 Target Variable (Optional)", help="Specify label column for data leakage & class balance checks.")
@@ -527,6 +539,9 @@ with tabs[2]:
             "R6_dependency_repair": "R6 Functional Dependency Repairs",
             "R7_category_variants": "R7 Categorical Variant Consolidation",
             "R9_semantic_vocabulary": "R9 AI Semantic Vocabulary Harmonization",
+            "imputation_numeric": "Statistical Numerical Imputation (KNN/Covariance)",
+            "imputation_categorical_mode": "Closed-Vocabulary Categorical Imputation (Dominant Mode)",
+            "flag_missing_categorical": "Advisory Missing Categorical Flags (Entropy Guard)",
             "R8_exact_duplicates": "R8 Exact Duplicate Rows",
             "validator_flag": "Universal Format Validation Flags",
             "outlier_iqr": "Statistical Outlier Detection (IQR Flags)"
@@ -832,9 +847,98 @@ with tabs[5]:
         st.markdown("#### 🎯 Issue Resolution Breakdown")
         st.dataframe(pd.DataFrame(comparison["issue_type_comparison"]), width="stretch")
 
-# -------------------------------------------------------------
-# TAB 7: Audit Trail & Export
-# -------------------------------------------------------------
+        st.divider()
+        st.markdown("### 🚀 Downstream Machine Learning Utility Benchmark")
+        st.caption("Empirically evaluates predictive performance gains by training identical ML models on Dirty (Raw) vs. Cleaned data splits.")
+
+        ml_dirty_df = st.session_state.cleaner_df if st.session_state.cleaner_df is not None else st.session_state.raw_df
+        ml_clean_df = st.session_state.cleaned_df
+
+        if ml_dirty_df is not None and ml_clean_df is not None:
+            inferred_target = infer_target_column(ml_clean_df)
+            col_list = list(ml_clean_df.columns)
+            default_idx = col_list.index(inferred_target) if inferred_target in col_list else 0
+
+            ml_c1, ml_c2 = st.columns([2.5, 1])
+            with ml_c1:
+                selected_target_col = st.selectbox(
+                    "🎯 Select Target Variable for ML Model Training",
+                    col_list,
+                    index=default_idx,
+                    help="Choose the predictive classification target or regression outcome column."
+                )
+            with ml_c2:
+                st.write("")
+                st.write("")
+                run_ml_btn = st.button("⚡ Evaluate Downstream ML Impact", width="stretch", type="primary")
+
+            if "ml_benchmark_result" not in st.session_state:
+                st.session_state.ml_benchmark_result = None
+
+            if run_ml_btn:
+                with st.spinner("Training baseline Random Forest models on Dirty vs. Cleaned data splits..."):
+                    ml_res = evaluate_downstream_ml(
+                        ml_dirty_df,
+                        ml_clean_df,
+                        target_column=selected_target_col,
+                        random_seed=42
+                    )
+                    st.session_state.ml_benchmark_result = ml_res
+
+            if st.session_state.ml_benchmark_result:
+                res = st.session_state.ml_benchmark_result
+                if "error" in res:
+                    st.error(f"ML Benchmarking Error: {res['error']}")
+                else:
+                    st.success(f"✅ Machine Learning Evaluation Complete! Evaluated on {res.get('n_samples_evaluated', 0):,} records using {res.get('model_name')}.")
+
+                    task_type = res.get("task_type", "Classification")
+                    m_dirty = res.get("dirty_metrics", {})
+                    m_clean = res.get("cleaned_metrics", {})
+                    deltas = res.get("deltas", {})
+
+                    if task_type == "Classification":
+                        mc1, mc2, mc3, mc4 = st.columns(4)
+                        d_acc = deltas.get("delta_accuracy", 0.0)
+                        d_f1 = deltas.get("delta_f1", 0.0)
+                        pct_f1 = deltas.get("pct_gain_f1", 0.0)
+
+                        mc1.metric("Test Accuracy", f"{m_clean.get('accuracy', 0.0)*100:.2f}%", delta=f"{'+' if d_acc>=0 else ''}{d_acc*100:.2f}%")
+                        mc2.metric("Weighted F1-Score", f"{m_clean.get('f1_score', 0.0)*100:.2f}%", delta=f"{'+' if d_f1>=0 else ''}{d_f1*100:.2f}%")
+                        mc3.metric("F1 Relative Gain", f"{pct_f1:+.2f}%", delta="Positive Lift" if pct_f1 >= 0 else "Decline")
+                        mc4.metric("Test Precision", f"{m_clean.get('precision', 0.0)*100:.2f}%", delta=f"{(m_clean.get('precision', 0.0) - m_dirty.get('precision', 0.0))*100:+.2f}%")
+
+                        # Plot classification comparison
+                        df_chart = pd.DataFrame([
+                            {"Metric": "Accuracy", "Stage": "Raw Dirty Data", "Score": m_dirty.get("accuracy", 0.0)},
+                            {"Metric": "Accuracy", "Stage": "Cleaned Data", "Score": m_clean.get("accuracy", 0.0)},
+                            {"Metric": "F1-Score", "Stage": "Raw Dirty Data", "Score": m_dirty.get("f1_score", 0.0)},
+                            {"Metric": "F1-Score", "Stage": "Cleaned Data", "Score": m_clean.get("f1_score", 0.0)},
+                            {"Metric": "Precision", "Stage": "Raw Dirty Data", "Score": m_dirty.get("precision", 0.0)},
+                            {"Metric": "Precision", "Stage": "Cleaned Data", "Score": m_clean.get("precision", 0.0)},
+                            {"Metric": "Recall", "Stage": "Raw Dirty Data", "Score": m_dirty.get("recall", 0.0)},
+                            {"Metric": "Recall", "Stage": "Cleaned Data", "Score": m_clean.get("recall", 0.0)},
+                        ])
+                        fig_ml = px.bar(
+                            df_chart,
+                            x="Metric",
+                            y="Score",
+                            color="Stage",
+                            barmode="group",
+                            title=f"Downstream Predictive Performance: Raw vs. Cleaned (Target: '{selected_target_col}')",
+                            color_discrete_map={"Raw Dirty Data": "#f59e0b", "Cleaned Data": "#10b981"}
+                        )
+                        fig_ml.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)")
+                        st.plotly_chart(fig_ml, width="stretch")
+
+                    else:
+                        # Regression task
+                        mc1, mc2, mc3 = st.columns(3)
+                        d_r2 = deltas.get("delta_r2", 0.0)
+                        d_rmse = deltas.get("delta_rmse_reduction", 0.0)
+                        mc1.metric("R² Score", f"{m_clean.get('r2_score', 0.0):.4f}", delta=f"{'+' if d_r2>=0 else ''}{d_r2:.4f}")
+                        mc2.metric("RMSE Error", f"{m_clean.get('rmse', 0.0):.4f}", delta=f"{-d_rmse:.4f}", delta_color="inverse")
+                        mc3.metric("MAE Error", f"{m_clean.get('mae', 0.0):.4f}", delta=f"{(m_clean.get('mae', 0.0) - m_dirty.get('mae', 0.0)):.4f}", delta_color="inverse")
 with tabs[6]:
     if st.session_state.cleaned_df is None:
         st.info("Clean a dataset in Tab 5 first to export results.")

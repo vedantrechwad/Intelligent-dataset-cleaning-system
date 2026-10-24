@@ -11,14 +11,17 @@ from cleaner.rules.r1_missing import CANDIDATE_MISSING_TOKENS
 from cleaner.rules.r2_numeric import parse_numeric_cell
 
 
-def compute_shape_signature(val: str) -> str:
+def compute_shape_signature(val: Any) -> str:
     """
     Compute character shape signature:
     digits -> '#', letters -> 'a', spaces and punctuation preserved.
     e.g. '12.0 oz.' -> '#.# aa.'
     """
+    if val is None or pd.isna(val):
+        return ""
+    val_str = str(val)
     sig = []
-    for ch in val:
+    for ch in val_str:
         if ch.isdigit():
             sig.append("#")
         elif ch.isalpha():

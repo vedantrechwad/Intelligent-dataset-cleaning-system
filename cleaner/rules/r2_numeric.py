@@ -145,8 +145,16 @@ def propose_r2_numeric(
         if len(has_pct) > 0 and len(no_pct) == 0:
             continue
 
+        # If a single non-empty suffix has >= 85% share, that IS the dominant format across the column.
+        # Do not strip it; preserve it as the canonical unit representation.
+        dominant_suffix = None
+        if suffix_counts:
+            top_sfx, top_sfx_cnt = max(suffix_counts.items(), key=lambda x: x[1])
+            if top_sfx_cnt / len(parsed_cells) >= 0.85:
+                dominant_suffix = top_sfx
+
         # If 100% of numeric values already share the exact same non-empty suffix, that IS the dominant format.
-        if len(suffix_counts) == 1 and list(suffix_counts.values())[0] == len(parsed_cells):
+        if dominant_suffix and len(suffix_counts) == 1 and list(suffix_counts.values())[0] == len(parsed_cells):
             continue
 
         # Case 2: Unit tokens, currency symbols, and descriptor text
@@ -164,20 +172,26 @@ def propose_r2_numeric(
             suffix_clean = suffix.strip()
             suffix_low = suffix_clean.lower()
 
+            # If this column has a dominant unit suffix and cell already matches it exactly:
+            if dominant_suffix is not None and suffix_low == dominant_suffix and is_valid_prefix and not prefix_low:
+                continue
+
+            target_canonical = f"{num_str} {dominant_suffix}" if dominant_suffix else num_str
+
             if not is_valid_prefix and prefix_low != "":
                 review_changes.append(
-                    CellChange(row=int(idx), column=col, old_value=val, new_value=num_str)
+                    CellChange(row=int(idx), column=col, old_value=val, new_value=target_canonical)
                 )
                 dropped_text_samples.add(prefix)
                 continue
 
             if suffix_low == "":
                 auto_changes.append(
-                    CellChange(row=int(idx), column=col, old_value=val, new_value=num_str)
+                    CellChange(row=int(idx), column=col, old_value=val, new_value=target_canonical)
                 )
             elif suffix_low in STANDARD_UNITS:
                 auto_changes.append(
-                    CellChange(row=int(idx), column=col, old_value=val, new_value=num_str)
+                    CellChange(row=int(idx), column=col, old_value=val, new_value=target_canonical)
                 )
             else:
                 has_unit_prefix = False
@@ -190,11 +204,11 @@ def propose_r2_numeric(
 
                 if has_unit_prefix and not extra_text:
                     auto_changes.append(
-                        CellChange(row=int(idx), column=col, old_value=val, new_value=num_str)
+                        CellChange(row=int(idx), column=col, old_value=val, new_value=target_canonical)
                     )
                 else:
                     review_changes.append(
-                        CellChange(row=int(idx), column=col, old_value=val, new_value=num_str)
+                        CellChange(row=int(idx), column=col, old_value=val, new_value=target_canonical)
                     )
                     if extra_text:
                         dropped_text_samples.add(extra_text)

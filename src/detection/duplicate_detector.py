@@ -13,12 +13,9 @@ def detect_exact_duplicates(df: pd.DataFrame) -> List[Dict[str, Any]]:
         return duplicate_issues
 
     seen_signatures = {}
-    for idx in range(len(df)):
-        # Convert row values to a hashable tuple representation
-        row_tuple = tuple(
-            None if pd.isna(v) else (str(v) if isinstance(v, (str, bytes)) else v)
-            for v in df.iloc[idx].values
-        )
+    for row in df.itertuples(index=True, name=None):
+        idx = row[0]
+        row_tuple = row[1:]
 
         if row_tuple in seen_signatures:
             original_idx = seen_signatures[row_tuple]

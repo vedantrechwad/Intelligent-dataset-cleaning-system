@@ -16,6 +16,8 @@ RULE_ORDER = [
     "R6_dependency_repair",
     "R7_category_variants",
     "R9_semantic_vocabulary",
+    "imputation_numeric",
+    "imputation_categorical_mode",
     "R8_exact_duplicates"
 ]
 

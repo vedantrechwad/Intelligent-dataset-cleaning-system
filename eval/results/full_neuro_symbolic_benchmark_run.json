@@ -1,0 +1,805 @@
+[
+  {
+    "name": "hospital",
+    "category": "Academic Benchmark",
+    "domain": "Healthcare Operations",
+    "file_size_kb": 297.2,
+    "n_rows": 1000,
+    "n_cols": 20,
+    "n_cells": 20000,
+    "t_load": 0.009,
+    "t_profile": 1.638,
+    "t_proposals": 2.997,
+    "t_apply": 0.007,
+    "t_total": 4.651,
+    "total_proposals": 39,
+    "tier_auto": 0,
+    "tier_review": 31,
+    "tier_flag": 8,
+    "kind_counts": {
+      "R6_dependency_repair": 25,
+      "R7_category_variants": 6,
+      "validator_flag": 5,
+      "outlier_iqr": 3
+    },
+    "cells_repaired": 427,
+    "gt_precision": 0.9532,
+    "gt_recall": 0.7996,
+    "gt_f1": 0.8697,
+    "gt_harm_rate": 0.001082
+  },
+  {
+    "name": "beers",
+    "category": "Academic Benchmark",
+    "domain": "Food & Beverage / Brewing",
+    "file_size_kb": 251.7,
+    "n_rows": 2410,
+    "n_cols": 11,
+    "n_cells": 26510,
+    "t_load": 0.007,
+    "t_profile": 1.675,
+    "t_proposals": 2.154,
+    "t_apply": 0.062,
+    "t_total": 3.898,
+    "total_proposals": 12,
+    "tier_auto": 1,
+    "tier_review": 8,
+    "tier_flag": 3,
+    "kind_counts": {
+      "R1_missing_tokens": 1,
+      "R2_numeric": 3,
+      "R5_compound_split": 1,
+      "R6_dependency_repair": 4,
+      "flag_missing_categorical": 3
+    },
+    "cells_repaired": 4409,
+    "gt_precision": 0.9882,
+    "gt_recall": 0.9989,
+    "gt_f1": 0.9935,
+    "gt_harm_rate": 0.002635,
+    "ml_task": "Classification",
+    "ml_target": "style",
+    "ml_model": "Random Forest Classifier (40 trees, depth=12)",
+    "ml_dirty_metrics": {
+      "accuracy": 0.2254,
+      "f1_score": 0.1401,
+      "precision": 0.195,
+      "recall": 0.2254
+    },
+    "ml_cleaned_metrics": {
+      "accuracy": 0.2891,
+      "f1_score": 0.2021,
+      "precision": 0.2332,
+      "recall": 0.2891
+    },
+    "ml_deltas": {
+      "delta_accuracy": 0.0636,
+      "delta_f1": 0.0619,
+      "pct_gain_f1": 44.19
+    },
+    "ml_improved": true
+  },
+  {
+    "name": "flights",
+    "category": "Academic Benchmark",
+    "domain": "Aviation Logistics",
+    "file_size_kb": 151.1,
+    "n_rows": 2376,
+    "n_cols": 7,
+    "n_cells": 16632,
+    "t_load": 0.005,
+    "t_profile": 0.592,
+    "t_proposals": 0.706,
+    "t_apply": 0.001,
+    "t_total": 1.303,
+    "total_proposals": 4,
+    "tier_auto": 0,
+    "tier_review": 0,
+    "tier_flag": 4,
+    "kind_counts": {
+      "flag_missing_categorical": 4
+    },
+    "cells_repaired": 0,
+    "gt_precision": 0.0,
+    "gt_recall": 0.0,
+    "gt_f1": 0.0,
+    "gt_harm_rate": 0.0,
+    "ml_task": "Classification",
+    "ml_target": "flight",
+    "ml_model": "Random Forest Classifier (40 trees, depth=12)",
+    "ml_dirty_metrics": {
+      "accuracy": 0.4362,
+      "f1_score": 0.4644,
+      "precision": 0.5583,
+      "recall": 0.4362
+    },
+    "ml_cleaned_metrics": {
+      "accuracy": 0.4362,
+      "f1_score": 0.4644,
+      "precision": 0.5583,
+      "recall": 0.4362
+    },
+    "ml_deltas": {
+      "delta_accuracy": 0.0,
+      "delta_f1": 0.0,
+      "pct_gain_f1": 0.0
+    },
+    "ml_improved": true
+  },
+  {
+    "name": "movies_1",
+    "category": "Academic Benchmark",
+    "domain": "Entertainment & Media",
+    "file_size_kb": 4451.4,
+    "n_rows": 7390,
+    "n_cols": 17,
+    "n_cells": 125630,
+    "t_load": 0.043,
+    "t_profile": 11.076,
+    "t_proposals": 10.895,
+    "t_apply": 0.091,
+    "t_total": 22.105,
+    "total_proposals": 15,
+    "tier_auto": 2,
+    "tier_review": 2,
+    "tier_flag": 11,
+    "kind_counts": {
+      "R2_numeric": 3,
+      "imputation_numeric": 1,
+      "flag_missing_categorical": 9,
+      "outlier_iqr": 2
+    },
+    "cells_repaired": 5866,
+    "gt_precision": 0.9385,
+    "gt_recall": 0.7858,
+    "gt_f1": 0.8553,
+    "gt_harm_rate": 0.001956,
+    "ml_task": "Classification",
+    "ml_target": "rating_value",
+    "ml_model": "Random Forest Classifier (40 trees, depth=12)",
+    "ml_dirty_metrics": {
+      "accuracy": 0.0591,
+      "f1_score": 0.0376,
+      "precision": 0.038,
+      "recall": 0.0591
+    },
+    "ml_cleaned_metrics": {
+      "accuracy": 0.0677,
+      "f1_score": 0.0317,
+      "precision": 0.0416,
+      "recall": 0.0677
+    },
+    "ml_deltas": {
+      "delta_accuracy": 0.0086,
+      "delta_f1": -0.0059,
+      "pct_gain_f1": -15.58
+    },
+    "ml_improved": true
+  },
+  {
+    "name": "telco",
+    "category": "Academic Benchmark",
+    "domain": "Telecommunications Churn",
+    "file_size_kb": 959.2,
+    "n_rows": 7073,
+    "n_cols": 21,
+    "n_cells": 148533,
+    "t_load": 0.02,
+    "t_profile": 3.688,
+    "t_proposals": 8.968,
+    "t_apply": 0.035,
+    "t_total": 12.711,
+    "total_proposals": 39,
+    "tier_auto": 26,
+    "tier_review": 4,
+    "tier_flag": 9,
+    "kind_counts": {
+      "R1_missing_tokens": 20,
+      "R3_whitespace_case": 6,
+      "R7_category_variants": 3,
+      "flag_missing_categorical": 6,
+      "R8_exact_duplicates": 1,
+      "validator_flag": 3
+    },
+    "cells_repaired": 299,
+    "gt_precision": 0.7361,
+    "gt_recall": 0.441,
+    "gt_f1": 0.5515,
+    "gt_harm_rate": 7.5e-05,
+    "ml_task": "Classification",
+    "ml_target": "Churn",
+    "ml_model": "Random Forest Classifier (40 trees, depth=12)",
+    "ml_dirty_metrics": {
+      "accuracy": 0.7899,
+      "f1_score": 0.7785,
+      "precision": 0.7762,
+      "recall": 0.7899
+    },
+    "ml_cleaned_metrics": {
+      "accuracy": 0.7903,
+      "f1_score": 0.7804,
+      "precision": 0.7775,
+      "recall": 0.7903
+    },
+    "ml_deltas": {
+      "delta_accuracy": 0.0005,
+      "delta_f1": 0.0019,
+      "pct_gain_f1": 0.25
+    },
+    "ml_improved": true
+  },
+  {
+    "name": "tax_sample_25k",
+    "category": "Academic Benchmark",
+    "domain": "IRS Tax Geography",
+    "file_size_kb": 14485.6,
+    "n_rows": 25000,
+    "n_cols": 15,
+    "n_cells": 375000,
+    "t_load": 0.102,
+    "t_profile": 52.133,
+    "t_proposals": 41.681,
+    "t_apply": 0.026,
+    "t_total": 93.94,
+    "total_proposals": 11,
+    "tier_auto": 2,
+    "tier_review": 3,
+    "tier_flag": 6,
+    "kind_counts": {
+      "R1_missing_tokens": 2,
+      "R6_dependency_repair": 3,
+      "flag_missing_categorical": 1,
+      "validator_flag": 2,
+      "outlier_iqr": 3
+    },
+    "cells_repaired": 457,
+    "gt_precision": 0.9168,
+    "gt_recall": 0.4161,
+    "gt_f1": 0.5724,
+    "gt_harm_rate": 0.000102
+  },
+  {
+    "name": "adult_census_income (32.5k)",
+    "category": "Real-World Benchmark",
+    "domain": "Socioeconomic Census",
+    "file_size_kb": 3881.2,
+    "n_rows": 32561,
+    "n_cols": 15,
+    "n_cells": 488415,
+    "t_load": 0.057,
+    "t_profile": 9.646,
+    "t_proposals": 12.146,
+    "t_apply": 7.615,
+    "t_total": 29.464,
+    "total_proposals": 26,
+    "tier_auto": 17,
+    "tier_review": 3,
+    "tier_flag": 6,
+    "kind_counts": {
+      "R1_missing_tokens": 3,
+      "R2_numeric": 4,
+      "R3_whitespace_case": 12,
+      "flag_missing_categorical": 2,
+      "R8_exact_duplicates": 1,
+      "outlier_iqr": 4
+    },
+    "cells_repaired": 455878,
+    "ml_task": "Classification",
+    "ml_target": "income",
+    "ml_model": "Random Forest Classifier (40 trees, depth=12)",
+    "ml_dirty_metrics": {
+      "accuracy": 0.8517,
+      "f1_score": 0.8413,
+      "precision": 0.8456,
+      "recall": 0.8517
+    },
+    "ml_cleaned_metrics": {
+      "accuracy": 0.8584,
+      "f1_score": 0.8484,
+      "precision": 0.8542,
+      "recall": 0.8584
+    },
+    "ml_deltas": {
+      "delta_accuracy": 0.0067,
+      "delta_f1": 0.0071,
+      "pct_gain_f1": 0.84
+    },
+    "ml_improved": true
+  },
+  {
+    "name": "bank_marketing (Full 45k)",
+    "category": "Real-World Benchmark",
+    "domain": "Banking Direct Campaigns",
+    "file_size_kb": 4502.3,
+    "n_rows": 45211,
+    "n_cols": 17,
+    "n_cells": 768587,
+    "t_load": 0.087,
+    "t_profile": 10.62,
+    "t_proposals": 16.041,
+    "t_apply": 0.068,
+    "t_total": 26.816,
+    "total_proposals": 5,
+    "tier_auto": 0,
+    "tier_review": 0,
+    "tier_flag": 5,
+    "kind_counts": {
+      "validator_flag": 1,
+      "outlier_iqr": 4
+    },
+    "cells_repaired": 0,
+    "ml_task": "Classification",
+    "ml_target": "y",
+    "ml_model": "Random Forest Classifier (40 trees, depth=12)",
+    "ml_dirty_metrics": {
+      "accuracy": 0.9553,
+      "f1_score": 0.9457,
+      "precision": 0.9441,
+      "recall": 0.9553
+    },
+    "ml_cleaned_metrics": {
+      "accuracy": 0.9553,
+      "f1_score": 0.9457,
+      "precision": 0.9441,
+      "recall": 0.9553
+    },
+    "ml_deltas": {
+      "delta_accuracy": 0.0,
+      "delta_f1": 0.0,
+      "pct_gain_f1": 0.0
+    },
+    "ml_improved": true
+  },
+  {
+    "name": "wdbc (Breast Cancer Wisconsin)",
+    "category": "Real-World Benchmark",
+    "domain": "Medical Oncology",
+    "file_size_kb": 121.2,
+    "n_rows": 569,
+    "n_cols": 32,
+    "n_cells": 18208,
+    "t_load": 0.008,
+    "t_profile": 1.936,
+    "t_proposals": 2.456,
+    "t_apply": 0.003,
+    "t_total": 4.403,
+    "total_proposals": 30,
+    "tier_auto": 0,
+    "tier_review": 0,
+    "tier_flag": 30,
+    "kind_counts": {
+      "outlier_iqr": 30
+    },
+    "cells_repaired": 0,
+    "ml_task": "Classification",
+    "ml_target": "diagnosis",
+    "ml_model": "Random Forest Classifier (40 trees, depth=12)",
+    "ml_dirty_metrics": {
+      "accuracy": 0.9708,
+      "f1_score": 0.9706,
+      "precision": 0.9711,
+      "recall": 0.9708
+    },
+    "ml_cleaned_metrics": {
+      "accuracy": 0.9708,
+      "f1_score": 0.9706,
+      "precision": 0.9711,
+      "recall": 0.9708
+    },
+    "ml_deltas": {
+      "delta_accuracy": 0.0,
+      "delta_f1": 0.0,
+      "pct_gain_f1": 0.0
+    },
+    "ml_improved": true
+  },
+  {
+    "name": "student_math (Student Performance)",
+    "category": "Real-World Benchmark",
+    "domain": "Educational Outcomes",
+    "file_size_kb": 55.7,
+    "n_rows": 395,
+    "n_cols": 33,
+    "n_cells": 13035,
+    "t_load": 0.004,
+    "t_profile": 1.313,
+    "t_proposals": 1.568,
+    "t_apply": 0.001,
+    "t_total": 2.886,
+    "total_proposals": 10,
+    "tier_auto": 0,
+    "tier_review": 0,
+    "tier_flag": 10,
+    "kind_counts": {
+      "validator_flag": 1,
+      "outlier_iqr": 9
+    },
+    "cells_repaired": 0,
+    "ml_task": "Classification",
+    "ml_target": "G3",
+    "ml_model": "Random Forest Classifier (40 trees, depth=12)",
+    "ml_dirty_metrics": {
+      "accuracy": 0.3445,
+      "f1_score": 0.3203,
+      "precision": 0.3212,
+      "recall": 0.3445
+    },
+    "ml_cleaned_metrics": {
+      "accuracy": 0.3445,
+      "f1_score": 0.3203,
+      "precision": 0.3212,
+      "recall": 0.3445
+    },
+    "ml_deltas": {
+      "delta_accuracy": 0.0,
+      "delta_f1": 0.0,
+      "pct_gain_f1": 0.0
+    },
+    "ml_improved": true
+  },
+  {
+    "name": "student_portuguese",
+    "category": "Real-World Benchmark",
+    "domain": "Educational Outcomes",
+    "file_size_kb": 91.0,
+    "n_rows": 649,
+    "n_cols": 33,
+    "n_cells": 21417,
+    "t_load": 0.005,
+    "t_profile": 1.406,
+    "t_proposals": 1.733,
+    "t_apply": 0.002,
+    "t_total": 3.145,
+    "total_proposals": 11,
+    "tier_auto": 0,
+    "tier_review": 0,
+    "tier_flag": 11,
+    "kind_counts": {
+      "validator_flag": 1,
+      "outlier_iqr": 10
+    },
+    "cells_repaired": 0,
+    "ml_task": "Classification",
+    "ml_target": "G3",
+    "ml_model": "Random Forest Classifier (40 trees, depth=12)",
+    "ml_dirty_metrics": {
+      "accuracy": 0.4103,
+      "f1_score": 0.3938,
+      "precision": 0.4428,
+      "recall": 0.4103
+    },
+    "ml_cleaned_metrics": {
+      "accuracy": 0.4103,
+      "f1_score": 0.3938,
+      "precision": 0.4428,
+      "recall": 0.4103
+    },
+    "ml_deltas": {
+      "delta_accuracy": 0.0,
+      "delta_f1": 0.0,
+      "pct_gain_f1": 0.0
+    },
+    "ml_improved": true
+  },
+  {
+    "name": "credit_card_fraud (284k)",
+    "category": "Real-World Benchmark",
+    "domain": "Financial Fraud",
+    "file_size_kb": 147293.7,
+    "n_rows": 50000,
+    "n_cols": 31,
+    "n_cells": 1550000,
+    "t_load": 0.476,
+    "t_profile": 29.56,
+    "t_proposals": 38.625,
+    "t_apply": 0.27,
+    "t_total": 68.93,
+    "total_proposals": 31,
+    "tier_auto": 0,
+    "tier_review": 1,
+    "tier_flag": 30,
+    "kind_counts": {
+      "R8_exact_duplicates": 1,
+      "validator_flag": 1,
+      "outlier_iqr": 29
+    },
+    "cells_repaired": 220,
+    "ml_task": "Classification",
+    "ml_target": "Class",
+    "ml_model": "Random Forest Classifier (40 trees, depth=12)",
+    "ml_dirty_metrics": {
+      "accuracy": 0.9991,
+      "f1_score": 0.999,
+      "precision": 0.999,
+      "recall": 0.9991
+    },
+    "ml_cleaned_metrics": {
+      "accuracy": 0.9992,
+      "f1_score": 0.9992,
+      "precision": 0.9992,
+      "recall": 0.9992
+    },
+    "ml_deltas": {
+      "delta_accuracy": 0.0001,
+      "delta_f1": 0.0001,
+      "pct_gain_f1": 0.01
+    },
+    "ml_improved": true
+  },
+  {
+    "name": "online_retail_sample_50k",
+    "category": "Real-World Benchmark",
+    "domain": "E-Commerce Transactions",
+    "file_size_kb": 23159.5,
+    "n_rows": 50000,
+    "n_cols": 8,
+    "n_cells": 400000,
+    "t_load": 2.463,
+    "t_profile": 7.675,
+    "t_proposals": 21.817,
+    "t_apply": 0.677,
+    "t_total": 32.632,
+    "total_proposals": 15,
+    "tier_auto": 4,
+    "tier_review": 7,
+    "tier_flag": 4,
+    "kind_counts": {
+      "R1_missing_tokens": 1,
+      "R3_whitespace_case": 3,
+      "R6_dependency_repair": 5,
+      "imputation_numeric": 1,
+      "flag_missing_categorical": 1,
+      "R8_exact_duplicates": 1,
+      "outlier_iqr": 3
+    },
+    "cells_repaired": 29524,
+    "ml_task": "Classification",
+    "ml_target": "Country",
+    "ml_model": "Random Forest Classifier (40 trees, depth=12)",
+    "ml_dirty_metrics": {
+      "accuracy": 0.9629,
+      "f1_score": 0.9451,
+      "precision": 0.9279,
+      "recall": 0.9629
+    },
+    "ml_cleaned_metrics": {
+      "accuracy": 0.9761,
+      "f1_score": 0.9666,
+      "precision": 0.9595,
+      "recall": 0.9761
+    },
+    "ml_deltas": {
+      "delta_accuracy": 0.0132,
+      "delta_f1": 0.0215,
+      "pct_gain_f1": 2.27
+    },
+    "ml_improved": true
+  },
+  {
+    "name": "airbnb_nyc_2019 (48.8k)",
+    "category": "New Kaggle Dataset",
+    "domain": "Hospitality & Real Estate",
+    "file_size_kb": 6912.1,
+    "n_rows": 48895,
+    "n_cols": 16,
+    "n_cells": 782320,
+    "t_load": 0.135,
+    "t_profile": 33.386,
+    "t_proposals": 51.538,
+    "t_apply": 0.335,
+    "t_total": 85.392,
+    "total_proposals": 18,
+    "tier_auto": 4,
+    "tier_review": 1,
+    "tier_flag": 13,
+    "kind_counts": {
+      "R1_missing_tokens": 2,
+      "R3_whitespace_case": 2,
+      "imputation_numeric": 1,
+      "flag_missing_categorical": 3,
+      "validator_flag": 2,
+      "outlier_iqr": 8
+    },
+    "cells_repaired": 10314,
+    "ml_task": "Classification",
+    "ml_target": "room_type",
+    "ml_model": "Random Forest Classifier (40 trees, depth=12)",
+    "ml_dirty_metrics": {
+      "accuracy": 0.8376,
+      "f1_score": 0.8306,
+      "precision": 0.8399,
+      "recall": 0.8376
+    },
+    "ml_cleaned_metrics": {
+      "accuracy": 0.8352,
+      "f1_score": 0.8281,
+      "precision": 0.8213,
+      "recall": 0.8352
+    },
+    "ml_deltas": {
+      "delta_accuracy": -0.0024,
+      "delta_f1": -0.0025,
+      "pct_gain_f1": -0.3
+    },
+    "ml_improved": false
+  },
+  {
+    "name": "netflix_titles (8.8k)",
+    "category": "New Kaggle Dataset",
+    "domain": "Streaming Catalog",
+    "file_size_kb": 3320.0,
+    "n_rows": 8807,
+    "n_cols": 12,
+    "n_cells": 105684,
+    "t_load": 0.038,
+    "t_profile": 4.714,
+    "t_proposals": 5.213,
+    "t_apply": 0.013,
+    "t_total": 9.977,
+    "total_proposals": 10,
+    "tier_auto": 2,
+    "tier_review": 1,
+    "tier_flag": 7,
+    "kind_counts": {
+      "R3_whitespace_case": 2,
+      "R6_dependency_repair": 1,
+      "flag_missing_categorical": 6,
+      "outlier_iqr": 1
+    },
+    "cells_repaired": 108,
+    "ml_task": "Classification",
+    "ml_target": "type",
+    "ml_model": "Random Forest Classifier (40 trees, depth=12)",
+    "ml_dirty_metrics": {
+      "accuracy": 0.9508,
+      "f1_score": 0.9497,
+      "precision": 0.953,
+      "recall": 0.9508
+    },
+    "ml_cleaned_metrics": {
+      "accuracy": 0.9527,
+      "f1_score": 0.9517,
+      "precision": 0.9546,
+      "recall": 0.9527
+    },
+    "ml_deltas": {
+      "delta_accuracy": 0.0019,
+      "delta_f1": 0.002,
+      "pct_gain_f1": 0.21
+    },
+    "ml_improved": true
+  },
+  {
+    "name": "imdb_top_1000",
+    "category": "New Kaggle Dataset",
+    "domain": "Cinema & Entertainment",
+    "file_size_kb": 427.8,
+    "n_rows": 1000,
+    "n_cols": 16,
+    "n_cells": 16000,
+    "t_load": 0.01,
+    "t_profile": 1.404,
+    "t_proposals": 1.657,
+    "t_apply": 0.024,
+    "t_total": 3.095,
+    "total_proposals": 8,
+    "tier_auto": 1,
+    "tier_review": 1,
+    "tier_flag": 6,
+    "kind_counts": {
+      "R2_numeric": 1,
+      "imputation_numeric": 1,
+      "flag_missing_categorical": 2,
+      "outlier_iqr": 4
+    },
+    "cells_repaired": 988,
+    "ml_task": "Classification",
+    "ml_target": "Certificate",
+    "ml_model": "Random Forest Classifier (40 trees, depth=12)",
+    "ml_dirty_metrics": {
+      "accuracy": 0.3567,
+      "f1_score": 0.33,
+      "precision": 0.3206,
+      "recall": 0.3567
+    },
+    "ml_cleaned_metrics": {
+      "accuracy": 0.3933,
+      "f1_score": 0.3689,
+      "precision": 0.3644,
+      "recall": 0.3933
+    },
+    "ml_deltas": {
+      "delta_accuracy": 0.0367,
+      "delta_f1": 0.0389,
+      "pct_gain_f1": 11.8
+    },
+    "ml_improved": true
+  },
+  {
+    "name": "world_happiness_2015",
+    "category": "New Kaggle Dataset",
+    "domain": "Macroeconomics & Quality of Life",
+    "file_size_kb": 16.2,
+    "n_rows": 158,
+    "n_cols": 12,
+    "n_cells": 1896,
+    "t_load": 0.003,
+    "t_profile": 0.029,
+    "t_proposals": 0.054,
+    "t_apply": 0.001,
+    "t_total": 0.086,
+    "total_proposals": 5,
+    "tier_auto": 0,
+    "tier_review": 0,
+    "tier_flag": 5,
+    "kind_counts": {
+      "outlier_iqr": 5
+    },
+    "cells_repaired": 0,
+    "ml_task": "Classification",
+    "ml_target": "Region",
+    "ml_model": "Random Forest Classifier (40 trees, depth=12)",
+    "ml_dirty_metrics": {
+      "accuracy": 0.7708,
+      "f1_score": 0.7292,
+      "precision": 0.7039,
+      "recall": 0.7708
+    },
+    "ml_cleaned_metrics": {
+      "accuracy": 0.7708,
+      "f1_score": 0.7292,
+      "precision": 0.7039,
+      "recall": 0.7708
+    },
+    "ml_deltas": {
+      "delta_accuracy": 0.0,
+      "delta_f1": 0.0,
+      "pct_gain_f1": 0.0
+    },
+    "ml_improved": true
+  },
+  {
+    "name": "uber_foil_nyc",
+    "category": "New Kaggle Dataset",
+    "domain": "Urban Transportation Logistics",
+    "file_size_kb": 9.6,
+    "n_rows": 354,
+    "n_cols": 4,
+    "n_cells": 1416,
+    "t_load": 0.002,
+    "t_profile": 0.038,
+    "t_proposals": 0.054,
+    "t_apply": 0.006,
+    "t_total": 0.1,
+    "total_proposals": 3,
+    "tier_auto": 1,
+    "tier_review": 0,
+    "tier_flag": 2,
+    "kind_counts": {
+      "R4_dates": 1,
+      "outlier_iqr": 2
+    },
+    "cells_repaired": 354,
+    "ml_task": "Classification",
+    "ml_target": "trips",
+    "ml_model": "Random Forest Classifier (40 trees, depth=12)",
+    "ml_dirty_metrics": {
+      "accuracy": 0.0,
+      "f1_score": 0.0,
+      "precision": 0.0,
+      "recall": 0.0
+    },
+    "ml_cleaned_metrics": {
+      "accuracy": 0.0,
+      "f1_score": 0.0,
+      "precision": 0.0,
+      "recall": 0.0
+    },
+    "ml_deltas": {
+      "delta_accuracy": 0.0,
+      "delta_f1": 0.0,
+      "pct_gain_f1": 0.0
+    },
+    "ml_improved": true
+  }
+]

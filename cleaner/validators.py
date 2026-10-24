@@ -55,7 +55,12 @@ ISO_COUNTRY_CODES = {
 }
 
 
+FLOAT_RE = re.compile(r"^[-+]?\d+\.\d+$")
+
+
 def is_valid_phone(val: str) -> bool:
+    if FLOAT_RE.match(val):
+        return False
     if not PHONE_RE.match(val):
         return False
     digits = sum(1 for c in val if c.isdigit())
@@ -73,6 +78,7 @@ def check_universal_validators(
     Check universal format validators across DataFrame columns.
     If a column is mostly-valid (>= 80% matches validator, n >= 10),
     flags invalid cells with FLAG tier (never modifies data).
+    Incorporates contextual disambiguation guards to avoid false positive traps.
     """
     proposals: List[Proposal] = []
     n_rows = len(df)
@@ -86,13 +92,27 @@ def check_universal_validators(
         if n_valid < 10:
             continue
 
+        # Contextual guards:
+        sample_vals = [v for _, v in non_empty[:200]]
+        has_non_binary_numbers = any(v.isdigit() and int(v) > 1 for v in sample_vals)
+        has_boolean_context = any(v.lower() in {"yes", "true", "false", "y", "no"} for v in sample_vals)
+        has_alphanumeric_skus = sum(1 for v in sample_vals if bool(re.search(r"[a-zA-Z]", v) and re.search(r"\d", v))) / len(sample_vals) > 0.05
+
+        effective_boolean_words = (BOOLEAN_WORDS - {"0", "1"}) if has_non_binary_numbers else BOOLEAN_WORDS
+
+        def is_iso_code(v: str) -> bool:
+            up = v.upper()
+            if has_boolean_context and up == "NO":
+                return False
+            return up in US_STATE_CODES or up in ISO_COUNTRY_CODES
+
         validators = [
             ("email", lambda v: bool(EMAIL_RE.match(v))),
             ("url", lambda v: bool(URL_RE.match(v))),
             ("phone", is_valid_phone),
-            ("postal_code", is_valid_postal),
-            ("boolean", lambda v: v.lower() in BOOLEAN_WORDS),
-            ("iso_code", lambda v: v.upper() in US_STATE_CODES or v.upper() in ISO_COUNTRY_CODES)
+            ("postal_code", lambda v: False if has_alphanumeric_skus else is_valid_postal(v)),
+            ("boolean", lambda v: v.lower() in effective_boolean_words),
+            ("iso_code", is_iso_code)
         ]
 
         for val_name, validator_func in validators:
@@ -127,7 +147,7 @@ def check_iqr_outliers(
     df: pd.DataFrame
 ) -> List[Proposal]:
     """
-    Detect statistical outliers in numeric columns using the IQR method.
+    Detect statistical outliers in numeric columns using fast vectorized IQR method.
     Produces column-level FLAG proposals reporting mild (1.5x) and extreme (3.0x) outlier counts.
     Never alters cell values.
     """
@@ -138,24 +158,19 @@ def check_iqr_outliers(
 
     for col in df.columns:
         series = df[col]
-        # Collect numeric values
-        num_vals: List[Tuple[int, float]] = []
-        for idx, val in series.items():
-            s = str(val).strip()
-            if s != "":
-                try:
-                    num_vals.append((int(idx), float(s)))
-                except (ValueError, TypeError):
-                    pass
-
-        # Require >= 80% numeric values and >= 15 numbers
-        non_empty_count = sum(1 for val in series if str(val).strip() != "")
-        if non_empty_count < 15 or len(num_vals) / non_empty_count < 0.80:
+        s_stripped = series.astype(str).str.strip()
+        non_empty_mask = s_stripped != ""
+        non_empty_count = int(non_empty_mask.sum())
+        if non_empty_count < 15:
             continue
 
-        vals_series = pd.Series([v for _, v in num_vals])
-        q1 = vals_series.quantile(0.25)
-        q3 = vals_series.quantile(0.75)
+        num_s = pd.to_numeric(s_stripped[non_empty_mask], errors="coerce")
+        valid_num = num_s.dropna()
+        if len(valid_num) < 15 or (len(valid_num) / non_empty_count) < 0.80:
+            continue
+
+        q1 = float(valid_num.quantile(0.25))
+        q3 = float(valid_num.quantile(0.75))
         iqr = q3 - q1
 
         if iqr <= 0:
@@ -166,22 +181,24 @@ def check_iqr_outliers(
         extreme_lower = q1 - 3.0 * iqr
         extreme_upper = q3 + 3.0 * iqr
 
-        mild_outliers = [v for _, v in num_vals if v < mild_lower or v > mild_upper]
-        extreme_outliers = [v for _, v in num_vals if v < extreme_lower or v > extreme_upper]
+        mild_mask = (valid_num < mild_lower) | (valid_num > mild_upper)
+        extreme_mask = (valid_num < extreme_lower) | (valid_num > extreme_upper)
 
-        if mild_outliers:
+        mild_count = int(mild_mask.sum())
+        extreme_count = int(extreme_mask.sum())
+
+        if mild_count > 0:
             proposals.append(Proposal(
                 id=f"FLAG_outliers_iqr_{col}",
                 kind="outlier_iqr",
                 tier="FLAG",
                 columns=[col],
-                description=f"Flag {len(mild_outliers)} numeric outliers in column '{col}' ({len(extreme_outliers)} extreme)",
+                description=f"Flag {mild_count} numeric outliers in column '{col}' ({extreme_count} extreme)",
                 evidence=(
                     f"IQR Analysis: Q1={q1:.2f}, Q3={q3:.2f}, IQR={iqr:.2f}. "
-                    f"Bounds: 1.5x IQR [{mild_lower:.2f}, {mild_upper:.2f}], "
-                    f"3.0x IQR [{extreme_lower:.2f}, {extreme_upper:.2f}]. "
-                    f"Found {len(mild_outliers)} mild and {len(extreme_outliers)} extreme outliers. "
-                    f"Flagged for data scientist review; values preserved unchanged."
+                    f"Mild outlier bounds: [{mild_lower:.2f}, {mild_upper:.2f}]. "
+                    f"Extreme bounds: [{extreme_lower:.2f}, {extreme_upper:.2f}]. "
+                    f"Found {mild_count} mild and {extreme_count} extreme outliers. Flagged for review; values untouched."
                 ),
                 changes=[]
             ))

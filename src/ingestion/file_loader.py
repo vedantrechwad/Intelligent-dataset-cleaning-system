@@ -24,29 +24,18 @@ def load_dataset(file_source: Union[str, io.BytesIO], filename: str = None) -> T
         ext = os.path.splitext(fname)[1].lower()
         
     try:
-        if ext in [".csv", ".txt"]:
-            # Try reading with utf-8 first, fallback to latin-1
-            try:
-                if isinstance(file_source, str):
-                    df = pd.read_csv(file_source, encoding="utf-8")
-                else:
-                    file_source.seek(0)
-                    df = pd.read_csv(file_source, encoding="utf-8")
-            except (UnicodeDecodeError, Exception):
-                if isinstance(file_source, str):
-                    df = pd.read_csv(file_source, encoding="latin-1")
-                else:
-                    file_source.seek(0)
-                    df = pd.read_csv(file_source, encoding="latin-1")
-                    
+        if ext in [".csv", ".txt", ".tsv", ".data"]:
+            from cleaner.io import load_table
+            df = load_table(file_source)
         elif ext in [".xlsx", ".xls"]:
+            engine = "xlrd" if ext == ".xls" else "openpyxl"
             if isinstance(file_source, str):
-                df = pd.read_excel(file_source, engine="openpyxl")
+                df = pd.read_excel(file_source, engine=engine)
             else:
                 file_source.seek(0)
-                df = pd.read_excel(file_source, engine="openpyxl")
+                df = pd.read_excel(file_source, engine=engine)
         else:
-            raise ValueError(f"Unsupported file format: '{ext}'. Supported formats are CSV and XLSX.")
+            raise ValueError(f"Unsupported file format: '{ext}'. Supported formats are CSV, TSV, DATA, and XLSX.")
             
     except Exception as e:
         logger.error(f"Error reading dataset {fname}: {e}")

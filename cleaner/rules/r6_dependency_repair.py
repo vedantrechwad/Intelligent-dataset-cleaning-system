@@ -127,27 +127,35 @@ def propose_r6_dependency_repair(
         if not a_to_maj:
             continue
 
-        # Fast iterrows pass
-        for idx, row in sub_all.iterrows():
+        # Fast vectorized pass using Series mapping
+        target_series = df[col_a].map(a_to_maj)
+        has_target = target_series.notna()
+
+        cur_b_series = df[col_b]
+
+        viol_mask = has_target & (cur_b_series != "") & (cur_b_series != target_series)
+        fill_mask = has_target & (cur_b_series == "")
+
+        for idx in df[viol_mask].index:
             idx = int(idx)
-            if (idx, col_b) in local_touched:
-                continue
-            a_val = row[col_a]
-            if a_val in a_to_maj:
-                maj_val = a_to_maj[a_val]
-                cur_b = row[col_b]
-                if cur_b != "" and cur_b != maj_val:
-                    changes.append(
-                        CellChange(row=idx, column=col_b, old_value=cur_b, new_value=maj_val)
-                    )
-                    n_repairs += 1
-                    local_touched.add((idx, col_b))
-                elif cur_b == "":
-                    changes.append(
-                        CellChange(row=idx, column=col_b, old_value="", new_value=maj_val)
-                    )
-                    n_fills += 1
-                    local_touched.add((idx, col_b))
+            if (idx, col_b) not in local_touched:
+                maj_val = target_series.iat[idx]
+                cur_b = cur_b_series.iat[idx]
+                changes.append(
+                    CellChange(row=idx, column=col_b, old_value=cur_b, new_value=maj_val)
+                )
+                n_repairs += 1
+                local_touched.add((idx, col_b))
+
+        for idx in df[fill_mask].index:
+            idx = int(idx)
+            if (idx, col_b) not in local_touched:
+                maj_val = target_series.iat[idx]
+                changes.append(
+                    CellChange(row=idx, column=col_b, old_value="", new_value=maj_val)
+                )
+                n_fills += 1
+                local_touched.add((idx, col_b))
 
         if changes:
             proposals.append(Proposal(

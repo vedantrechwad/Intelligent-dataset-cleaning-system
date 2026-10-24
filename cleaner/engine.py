@@ -32,11 +32,12 @@ class CleaningEngine:
         df: pd.DataFrame,
         profile: Optional[Dict[str, Any]] = None,
         enable_semantic_ai: bool = False,
+        enable_imputation: bool = False,
         ollama_client: Optional[Any] = None
     ) -> List[Proposal]:
         """
         Generate reviewable proposals in strict fixed application order:
-        R1 > R2 > R3 > R4 > R5 > R6 > R7 > R9 > R8
+        R1 > R2 > R3 > R4 > R5 > R6 > R7 > R9 > Imputation > R8
         Guarantees:
         - One cell is changed by at most one proposal.
         """
@@ -105,7 +106,19 @@ class CleaningEngine:
             except Exception:
                 pass
 
-        # Step 9: R8 Exact Duplicates
+        # Step 9: Safe Neuro-Symbolic Imputation (Optional)
+        if enable_imputation:
+            try:
+                from src.cleaning.imputer import propose_safe_imputation
+                impute_props = propose_safe_imputation(df, ollama_client=ollama_client, touched_cells=touched_cells)
+                for p in impute_props:
+                    for c in p.changes:
+                        touched_cells.add((c.row, c.column))
+                    all_proposals.append(p)
+            except Exception as e:
+                pass
+
+        # Step 10: R8 Exact Duplicates
         r8_props = propose_r8_exact_duplicates(df, profile=profile, touched_cells=touched_cells)
         all_proposals.extend(r8_props)
 

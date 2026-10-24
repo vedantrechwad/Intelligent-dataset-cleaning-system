@@ -62,3 +62,15 @@ venv.bak/
 
 # Temporary outputs
 outputs/*.tmp
+
+# OS & archive artifacts
+.DS_Store
+._*
+__MACOSX/
+.Rhistory
+*.zip_old
+*_full.csv
+
+# Large raw Uber data dumps not referenced in benchmarks or application
+yet another test datasets/archive (4)/uber-raw-data-*.csv
+yet another test datasets/archive (4)/other-*.csv
