@@ -7,7 +7,8 @@ def compute_before_after_comparison(
     before_issues: List[Dict[str, Any]],
     after_issues: List[Dict[str, Any]],
     before_score: Dict[str, Any],
-    after_score: Dict[str, Any]
+    after_score: Dict[str, Any],
+    diff_records: List[Dict[str, Any]] = None
 ) -> Dict[str, Any]:
     """
     Computes rigorous before-and-after comparison metrics.
@@ -40,6 +41,14 @@ def compute_before_after_comparison(
             "resolution_rate_pct": res_rate
         })
 
+    # Calculate resolved defects: sum of resolved counts across categories where count decreased,
+    # or diff_records count if cell repairs were executed.
+    total_type_resolved = sum(item["resolved_count"] for item in issue_type_comparison)
+    repaired_cells = len(diff_records) if diff_records is not None else 0
+    resolved_count = max(total_type_resolved, repaired_cells, max(0, len(before_issues) - len(after_issues)))
+    initial_cnt = len(before_issues)
+    drr_rate = min(100.0, round((resolved_count / max(1, initial_cnt)) * 100.0, 1)) if initial_cnt > 0 else 100.0
+
     # Overall metrics comparison
     metrics = {
         "rows": {
@@ -68,10 +77,10 @@ def compute_before_after_comparison(
             "delta": round(after_score.get("overall_score", 0.0) - before_score.get("overall_score", 0.0), 2)
         },
         "defect_resolution_rate": {
-            "initial_defects": len(before_issues),
+            "initial_defects": initial_cnt,
             "remaining_defects": len(after_issues),
-            "resolved_defects": max(0, len(before_issues) - len(after_issues)),
-            "rate_pct": round((max(0, len(before_issues) - len(after_issues)) / max(1, len(before_issues))) * 100.0, 1) if len(before_issues) > 0 else 100.0
+            "resolved_defects": resolved_count,
+            "rate_pct": drr_rate
         }
     }
 

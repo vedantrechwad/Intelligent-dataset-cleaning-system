@@ -26,6 +26,12 @@ def detect_categorical_inconsistencies(
         if pd.api.types.is_numeric_dtype(series) or pd.api.types.is_datetime64_any_dtype(series):
             continue
 
+        # Skip columns that are predominantly numeric (even if formatted as strings/objects)
+        non_blanks = series.dropna().astype(str).str.strip()
+        non_blanks = non_blanks[~non_blanks.isin(["", "nan", "none", "null"])]
+        if len(non_blanks) > 0 and pd.to_numeric(non_blanks, errors="coerce").notna().mean() >= 0.70:
+            continue
+
         valid_series = series.dropna().astype(str)
         if len(valid_series) == 0:
             continue
@@ -101,7 +107,9 @@ def detect_categorical_inconsistencies(
 
         # 2. Spelling Typos & Fuzzy Variations across distinct categories
         unique_categories = list(set(canonical_counts.keys()))
-        if len(unique_categories) > 1 and len(unique_categories) <= 100:
+        is_code_col = any(w in col.lower() for w in ["state", "country", "code", "abbr", "currency", "iso", "zip"]) or (len(unique_categories) > 3 and all(len(c) <= 3 for c in unique_categories[:10]))
+
+        if len(unique_categories) > 1 and len(unique_categories) <= 100 and not is_code_col:
             # Sort categories by total occurrences descending
             sorted_cats = sorted(
                 unique_categories, 
@@ -113,11 +121,15 @@ def detect_categorical_inconsistencies(
             dominant_cats = [c for c in sorted_cats if canonical_counts[c][1] >= 2]
             
             for rare_cat in sorted_cats:
+                # Never treat 1 or 2 letter codes as typos of other words
+                if len(rare_cat) <= 2:
+                    continue
+
                 rare_count = canonical_counts[rare_cat][1]
                 
                 candidates = []
                 for dom_cat in dominant_cats:
-                    if rare_cat == dom_cat:
+                    if rare_cat == dom_cat or len(dom_cat) <= 2:
                         continue
                         
                     dom_count = canonical_counts[dom_cat][1]
@@ -133,13 +145,13 @@ def detect_categorical_inconsistencies(
                     is_obvious_typo = False
                     if sim >= similarity_threshold:
                         is_obvious_typo = True
-                    elif len(dom_cat) <= 4 and len(rare_cat) <= 4:
+                    elif 3 <= len(dom_cat) <= 5 and 3 <= len(rare_cat) <= 5:
                         if set(rare_cat) == set(dom_cat) and len(rare_cat) == len(dom_cat):
-                            is_obvious_typo = True # Anagram/transposition like yse -> yes
-                        else:
+                            is_obvious_typo = True # Exact transposition like yse -> yes
+                        elif len(dom_cat) >= 4 and len(rare_cat) >= 4:
                             match_chars = sum(1 for c in rare_cat if c in dom_cat)
-                            if match_chars >= len(dom_cat) - 1 and abs(len(rare_cat) - len(dom_cat)) <= 1:
-                                is_obvious_typo = True # n0 -> no
+                            if match_chars >= len(dom_cat) - 1 and abs(len(rare_cat) - len(dom_cat)) <= 1 and sim >= 75.0:
+                                is_obvious_typo = True # Single typo in >=4 char word (e.g. n0 -> no disabled, but tehl -> tell allowed)
 
                     if is_obvious_typo:
                         candidates.append((dom_cat, dom_count, sim))

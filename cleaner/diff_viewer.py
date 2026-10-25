@@ -43,15 +43,16 @@ def compute_diff_summary(
     }
 
 
-def format_diff_table(diff_records: List[Dict[str, Any]], limit: int = 500) -> pd.DataFrame:
+def format_diff_table(diff_records: List[Dict[str, Any]], limit: int = 500, max_rows: int = None, **kwargs) -> pd.DataFrame:
     """
     Format granular diff records into a clean DataFrame for interactive display.
     """
+    eff_limit = max_rows if max_rows is not None else limit
     if not diff_records:
         return pd.DataFrame(columns=["Row", "Column", "Old Value", "New Value", "Rule", "Tier"])
 
     rows = []
-    for d in diff_records[:limit]:
+    for d in diff_records[:eff_limit]:
         rows.append({
             "Row": d.get("row"),
             "Column": d.get("column"),
