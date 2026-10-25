@@ -349,7 +349,7 @@ Across all standard benchmarks, our measured harm rate is **$< 0.26\%$** (and **
 
 ## 6. Multi-Dataset Verification Suite
 
-The entire pipeline was audited across 6 benchmark and real-world Kaggle datasets using `scratch/test_all_datasets_e2e.py`. All invariants passed with **zero errors**:
+The entire pipeline was audited across benchmark and real-world Kaggle datasets using `eval/run_full_scale_complete_benchmarks.py`. All invariants passed with **zero errors**:
 
 | Dataset Name | Domain / Source | Raw Shape | Changes Made | Untouched Preserved | Duplicate Rows Removed | Byte-Identity Invariant | Standalone Export Script |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
@@ -407,14 +407,14 @@ streamlit run app.py
 ```
 Open your browser at `http://localhost:8501`. Use the sidebar to load any of the pre-configured benchmark datasets (Hospital, Beers, Car Dekho) with 1 click.
 
-### 4. Run Pytest Suite (60 Tests)
+### 4. Run Pytest Suite (87 Tests)
 ```bash
 pytest tests/
 ```
 
-### 5. Run Multi-Dataset Invariant Verification Suite
+### 5. Run Full-Scale Complete Benchmark Suite
 ```bash
-python scratch/test_all_datasets_e2e.py
+python eval/run_full_scale_complete_benchmarks.py
 ```
 
 ---
@@ -423,43 +423,30 @@ python scratch/test_all_datasets_e2e.py
 
 ```
 Dataset cleaning system/
-├── app.py                               # Modernized Streamlit Application
-├── cleaner/                             # Core Evidence-Backed Invariant Rule Engine
+├── app.py                               # AutoClean Streamlit Web Application
+├── cleaner/                             # Core Invariant Rule Engine
 │   ├── engine.py                        # Proposal generation & execution coordinator
 │   ├── profile.py                       # Pure-string statistical profiler
 │   ├── io.py                            # Invariant-safe table loader
 │   ├── diff_viewer.py                   # Side-by-side cell diff calculator
-│   ├── exporter.py                      # Standalone Python script generator
-│   └── rules/                           # Deterministic Rules Implementation
-│       ├── base.py                      # Rule base classes, Proposal, CellChange
-│       ├── r1_missing.py                # Disguised missing tokens normalizer
-│       ├── r2_numeric.py                # Numeric & measurement unit canonicalizer
-│       ├── r3_whitespace_case.py        # Whitespace and category casing standardizer
-│       ├── r4_dates.py                  # ISO 8601 deterministic date normalizer
-│       ├── r5_compound_split.py         # Compound field splitter (e.g. City/State)
-│       ├── r6_dependency_repair.py      # Approximate functional dependency repair
-│       ├── r7_category_variants.py      # RapidFuzz Levenshtein variant standardizer
-│       └── r8_exact_duplicates.py      # Exact duplicate row deduplicator
-├── src/                                 # Specialized Intelligence Modules
-│   └── intelligence/
-│       ├── semantic_standardizer.py     # O(1) LLM Vocabulary Standardizer (R9)
-│       └── chat_engine.py               # Local RAG Dataset Conversational Copilot
-├── benchmarks/                          # Standard Academic Datasets
-│   ├── hospital/                        # HoloClean / Baran Hospital benchmark
-│   ├── beers/                           # Baran Beers & Breweries benchmark
-│   └── movies_1/                        # Baran Movies benchmark
-├── sample_data/                         # Real-World Test Datasets
-│   ├── car_dekho/                       # Kaggle Car Dekho datasets
-│   └── dirty_customer_dataset.csv       # Synthetic Telecom Customer Churn dataset
-├── eval/                                # Benchmark Evaluation Metrics
-│   └── compare_published.py             # Precision, Recall, F1, and Harm Rate calculator
-└── tests/                               # Pytest Automated Test Suite (60 tests)
-    ├── test_phase1.py                   # Tests for R1, R2, R3
-    ├── test_phase2.py                   # Tests for R4, R5, R6
-    ├── test_phase3.py                   # Tests for R7, R8, Engine & Invariants
-    ├── test_phase4.py                   # Tests for Exporter & Diff Viewer
-    ├── test_semantic_standardizer.py    # Tests for R9 AI Vocabulary Standardizer
-    └── test_compare_published.py        # Tests for benchmark evaluation metrics
+│   ├── exporter.py                      # Standalone Python pipeline generator
+│   └── rules/                           # Deterministic Transformation Rules
+├── data/                                # Organized Benchmark & Real-World Datasets
+│   ├── dirty_benchmarks/                # 22 Dirty benchmark datasets (Baran, Kaggle)
+│   ├── dirty_large_scale/               # 5 Large datasets (32k to 564k+ rows)
+│   ├── real_world/                      # 11 Real-world Kaggle/UCI datasets
+│   └── downloaded/                      # 10 Classical ML reference datasets
+├── docs/                                # Technical Documentation & Comparative Analysis
+├── eval/                                # Full-Scale Empirical Benchmarking Suite
+│   ├── run_full_scale_complete_benchmarks.py
+│   └── results/                         # Verified empirical benchmark JSON outputs
+├── src/                                 # Diagnostic & Intelligence Subsystems
+│   ├── detection/                       # Vectorized anomaly & type validators
+│   ├── profiling/                       # Continuous quality scoring & DRR
+│   ├── evaluation/                      # CleanML downstream ML evaluation
+│   └── intelligence/                    # Contextual assistant & NL rule generator
+├── sample_data/                         # Unit-test mock tables
+└── tests/                               # Comprehensive Automated Test Suite (87 tests)
 ```
 
 ---

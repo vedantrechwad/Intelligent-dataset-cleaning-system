@@ -136,9 +136,12 @@ def profile_table(df: pd.DataFrame) -> Dict[str, Any]:
         # 2. Missing Token Evidence
         missing_token_counts: Dict[str, int] = {}
         for v in series:
-            s_low = v.strip().lower()
-            if s_low in CANDIDATE_MISSING_TOKENS or (v != "" and v.strip() == ""):
-                tok_name = "whitespace_only" if v.strip() == "" else v.strip()
+            if v is None or pd.isna(v) or v == "":
+                continue
+            v_str = str(v)
+            s_low = v_str.strip().lower()
+            if s_low in CANDIDATE_MISSING_TOKENS or v_str.strip() == "":
+                tok_name = "whitespace_only" if v_str.strip() == "" else v_str.strip()
                 missing_token_counts[tok_name] = missing_token_counts.get(tok_name, 0) + 1
 
         # 3. Numeric Parse Rate after Normalization

@@ -106,11 +106,16 @@ def check_universal_validators(
                 return False
             return up in US_STATE_CODES or up in ISO_COUNTRY_CODES
 
+        col_lower = col.lower()
+        is_postal_named = any(k in col_lower for k in ["zip", "postal", "postcode", "pincode"])
+        is_generic_numeric = all(bool(re.match(r"^[-+]?\d+(\.\d+)?$", v.replace(",", ""))) for v in sample_vals)
+        allow_postal = is_postal_named or (not is_generic_numeric and not has_alphanumeric_skus)
+
         validators = [
             ("email", lambda v: bool(EMAIL_RE.match(v))),
             ("url", lambda v: bool(URL_RE.match(v))),
             ("phone", is_valid_phone),
-            ("postal_code", lambda v: False if has_alphanumeric_skus else is_valid_postal(v)),
+            ("postal_code", lambda v: is_valid_postal(v) if allow_postal else False),
             ("boolean", lambda v: v.lower() in effective_boolean_words),
             ("iso_code", is_iso_code)
         ]
