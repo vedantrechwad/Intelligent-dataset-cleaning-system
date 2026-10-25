@@ -14,7 +14,8 @@ from cleaner.rules.base import Proposal, CellChange
 
 CANDIDATE_MISSING_TOKENS: Set[str] = {
     "na", "n/a", "null", "none", "nan", "?", "--", "-", "undefined",
-    "#n/a", "nil", "n.a.", "n/d", "#na", "n/k"
+    "#n/a", "nil", "n.a.", "n/d", "#na", "n/k", "unknown", "error",
+    "missing", "blank", "<na>", "<null>"
 }
 
 

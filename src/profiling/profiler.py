@@ -2,6 +2,7 @@ from typing import Dict, Any, List
 import pandas as pd
 import numpy as np
 from src.ingestion.schema_detector import detect_dataset_schema
+from src.profiling.quality_metrics import SENTINEL_NULLS
 from src.utils.helpers import logger
 
 def profile_dataset(df: pd.DataFrame, schema: Dict[str, Dict[str, Any]] = None) -> Dict[str, Any]:
@@ -28,8 +29,11 @@ def profile_dataset(df: pd.DataFrame, schema: Dict[str, Dict[str, Any]] = None) 
     col_count = len(df.columns)
     total_cells = row_count * col_count
     
-    # Dataset level missing & duplicates
-    missing_cells = int(df.isna().sum().sum())
+    # Dataset level missing & duplicates (Harmonized across raw string tables and typed DataFrames)
+    is_na_mask = df.isna()
+    str_na_mask = df.astype(str).apply(lambda col: col.str.strip().str.lower().isin(SENTINEL_NULLS))
+    missing_mask = is_na_mask | str_na_mask
+    missing_cells = int(missing_mask.sum().sum())
     missing_percentage = round((missing_cells / total_cells) * 100.0, 2) if total_cells > 0 else 0.0
     duplicate_rows = int(df.duplicated().sum())
 
@@ -43,7 +47,7 @@ def profile_dataset(df: pd.DataFrame, schema: Dict[str, Dict[str, Any]] = None) 
         col_schema = schema.get(col, {})
         logical_type = col_schema.get("logical_type", "unknown")
         
-        col_missing = int(col_series.isna().sum())
+        col_missing = int(missing_mask[col].sum())
         col_missing_pct = round((col_missing / row_count) * 100.0, 2) if row_count > 0 else 0.0
         unique_count = int(col_series.nunique(dropna=True))
 

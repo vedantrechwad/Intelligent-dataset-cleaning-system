@@ -77,25 +77,25 @@ def detect_advanced_anomalies(df: pd.DataFrame, target_variable: str = None) -> 
                 "is_human_review_required": False
             })
             
-        # Rare categories (< 1%)
-        for cat, freq in value_counts.items():
-            if freq < 0.01 and len(valid_series) > 100:
-                # Find rows with this rare category
-                rare_rows = df[df[col] == cat].index
-                for r in rare_rows:
-                    issues.append({
-                        "row": int(r),
-                        "column": col,
-                        "original_value": cat,
-                        "issue_type": "rare_category",
-                        "detection_method": ["advanced_detector"],
-                        "detection_confidence": 0.9,
-                        "correction_confidence": 0.0,
-                        "suggested_action": "report_only",
-                        "suggested_value": None,
-                        "reason": f"Category '{cat}' is extremely rare ({freq*100:.2f}% frequency).",
-                        "is_human_review_required": False
-                    })
+        # Rare categories (< 1% only for true categorical columns with <= 50 unique categories)
+        if len(value_counts) <= 50:
+            for cat, freq in value_counts.items():
+                if freq < 0.01 and len(valid_series) > 100:
+                    rare_rows = df[df[col] == cat].index[:25] # Limit sample rows to prevent memory explosion
+                    for r in rare_rows:
+                        issues.append({
+                            "row": int(r),
+                            "column": col,
+                            "original_value": cat,
+                            "issue_type": "rare_category",
+                            "detection_method": ["advanced_detector"],
+                            "detection_confidence": 0.9,
+                            "correction_confidence": 0.0,
+                            "suggested_action": "report_only",
+                            "suggested_value": None,
+                            "reason": f"Category '{cat}' is rare ({freq*100:.2f}% frequency).",
+                            "is_human_review_required": False
+                        })
 
     # 3. Highly Correlated / Data Leakage
     numeric_df = df.select_dtypes(include=[np.number])
@@ -131,9 +131,14 @@ def detect_advanced_anomalies(df: pd.DataFrame, target_variable: str = None) -> 
             from sklearn.ensemble import IsolationForest
             clean_num = numeric_df.dropna()
             if len(clean_num) > 50:
-                iso = IsolationForest(contamination=0.01, random_state=42)
-                preds = iso.fit_predict(clean_num)
-                anomaly_indices = clean_num.index[preds == -1]
+                # Subsample if dataset is large to prevent minutes of fitting
+                fit_data = clean_num.sample(n=min(10000, len(clean_num)), random_seed=42) if len(clean_num) > 10000 else clean_num
+                iso = IsolationForest(contamination=0.01, random_state=42, n_estimators=50, n_jobs=-1)
+                iso.fit(fit_data)
+                
+                eval_sample = clean_num.head(25000)
+                preds = iso.predict(eval_sample)
+                anomaly_indices = eval_sample.index[preds == -1][:100] # Cap anomaly entries to top 100
                 for r in anomaly_indices:
                     issues.append({
                         "row": int(r),
@@ -148,7 +153,7 @@ def detect_advanced_anomalies(df: pd.DataFrame, target_variable: str = None) -> 
                         "reason": f"Row {r} is a multivariate statistical anomaly across numeric columns.",
                         "is_human_review_required": False
                     })
-        except ImportError:
+        except Exception:
             pass
 
     # 5. Cross-Column Contradictions (Heuristics)

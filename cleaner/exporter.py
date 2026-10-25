@@ -6,17 +6,21 @@ approved cleaning rules using pure pandas and standard library.
 Zero dependencies on Streamlit, Ollama, or external ML packages.
 """
 
+import re
 from typing import List, Dict, Any, Optional
 from cleaner.rules.base import Proposal, RULE_ORDER_MAP
 
 
 def generate_cleaning_script(
     approved_proposals: List[Proposal],
-    original_filename: str = "dataset.csv"
+    original_filename: str = "dataset.csv",
+    **kwargs
 ) -> str:
     """
     Generate self-contained Python script code reproducing approved cleaning rules.
     """
+    if "input_path" in kwargs and original_filename == "dataset.csv":
+        original_filename = kwargs["input_path"]
     sorted_proposals = sorted(approved_proposals, key=lambda p: p.order_rank)
 
     lines = [
@@ -75,33 +79,44 @@ def generate_cleaning_script(
         if prop.changes:
             has_cell_changes = True
             # Group changes by column
-            col_changes: Dict[str, Dict[str, str]] = {}
+            by_col: Dict[str, List[CellChange]] = {}
             for c in prop.changes:
-                if c.column not in col_changes:
-                    col_changes[c.column] = {}
-                col_changes[c.column][c.old_value] = c.new_value
+                by_col.setdefault(c.column, []).append(c)
 
-            for col, mapping in col_changes.items():
-                # If mapping has <= 10 replacements, emit direct dict replace
-                if len(mapping) <= 15:
-                    mapping_repr = repr(mapping)
+            for col, ch_list in by_col.items():
+                old_vals = [c.old_value for c in ch_list]
+                distinct_pairs = set((c.old_value, c.new_value) for c in ch_list)
+                has_collision = len(distinct_pairs) > len(set(old_vals))
+
+                clean_col_var = re.sub(r"[^a-zA-Z0-9_]", "_", col)
+                if not clean_col_var or clean_col_var[0].isdigit():
+                    clean_col_var = f"col_{clean_col_var}"
+
+                if has_collision:
+                    # Multi-target collision (e.g. R6 with different target values for ''):
+                    # Emit row-indexed updates to guarantee 100% exactness and prevent dictionary collision
+                    updates_list = [(c.row, c.new_value) for c in ch_list]
                     rule_lines.extend([
                         f"    if '{col}' in df.columns:",
-                        f"        _map_{col} = {mapping_repr}",
-                        f"        _mask = df['{col}'].isin(_map_{col}.keys())",
-                        f"        _n_changed = _mask.sum()",
-                        f"        df['{col}'] = df['{col}'].replace(_map_{col})",
-                        f"        print(f'[{prop_id}] Modified {{_n_changed}} cells in column \\'{col}\\'')",
+                        f"        _updates_{clean_col_var} = {repr(updates_list)}",
+                        f"        _n_changed = 0",
+                        f"        for _r, _val in _updates_{clean_col_var}:",
+                        f"            if _r in df.index:",
+                        f"                df.at[_r, '{col}'] = _val",
+                        f"                _n_changed += 1",
+                        f"        print(f'[{prop_id}] Modified {{_n_changed}} coordinate-targeted cells in column \\'{col}\\'')",
                         ""
                     ])
                 else:
-                    # Generic batch replacement
+                    # Injective 1-to-1 mapping
+                    mapping = {c.old_value: c.new_value for c in ch_list}
+                    mapping_repr = repr(mapping)
                     rule_lines.extend([
                         f"    if '{col}' in df.columns:",
-                        f"        _map_{col} = {repr(mapping)}",
-                        f"        _mask = df['{col}'].isin(_map_{col}.keys())",
+                        f"        _map_{clean_col_var} = {mapping_repr}",
+                        f"        _mask = df['{col}'].isin(_map_{clean_col_var}.keys())",
                         f"        _n_changed = _mask.sum()",
-                        f"        df['{col}'] = df['{col}'].map(lambda x: _map_{col}.get(x, x))",
+                        f"        df['{col}'] = df['{col}'].replace(_map_{clean_col_var})",
                         f"        print(f'[{prop_id}] Modified {{_n_changed}} cells in column \\'{col}\\'')",
                         ""
                     ])

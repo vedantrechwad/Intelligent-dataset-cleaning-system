@@ -115,6 +115,7 @@ def load_table(
                     dtype=str,
                     keep_default_na=False,
                     na_filter=False,
+                    skipinitialspace=True,
                     encoding=enc,
                     low_memory=False
                 )
@@ -154,6 +155,7 @@ def load_table(
                     dtype=str,
                     keep_default_na=False,
                     na_filter=False,
+                    skipinitialspace=True,
                     low_memory=False
                 )
                 if detected_header is None:

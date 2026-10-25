@@ -134,10 +134,12 @@ class CleaningEngine:
     def apply(
         self,
         df: pd.DataFrame,
-        approved_proposals: List[Proposal]
+        approved_proposals: List[Proposal],
+        manual_overrides: Optional[List[Dict[str, Any]]] = None
     ) -> Tuple[pd.DataFrame, List[Dict[str, Any]]]:
         """
-        Apply approved proposals to the DataFrame in strict order rank.
+        Apply approved proposals to the DataFrame in strict order rank,
+        followed by any manual review overrides.
         Returns:
             (cleaned_df, diff_records)
         """
@@ -165,11 +167,12 @@ class CleaningEngine:
                     if current_val == change.old_value:
                         cleaned_df.at[r, col] = str(change.new_value)
                         modified_cells.add(cell_key)
+                        row_val = int(r) if (isinstance(r, (int, float)) or (isinstance(r, str) and r.isdigit())) else r
                         diff_records.append({
                             "rule_id": prop.id,
                             "rule_kind": prop.kind,
                             "tier": prop.tier,
-                            "row": int(r),
+                            "row": row_val,
                             "column": col,
                             "old_value": change.old_value,
                             "new_value": change.new_value
@@ -182,18 +185,40 @@ class CleaningEngine:
                 dup_indices = list(cleaned_df[dup_mask].index)
                 for r in dup_indices:
                     rows_to_drop.append(r)
+                    row_val = int(r) if (isinstance(r, (int, float)) or (isinstance(r, str) and r.isdigit())) else r
                     diff_records.append({
                         "rule_id": prop.id,
                         "rule_kind": prop.kind,
                         "tier": prop.tier,
-                        "row": int(r),
+                        "row": row_val,
                         "column": "__ROW__",
                         "old_value": "DUPLICATE_ROW",
                         "new_value": "DROPPED"
                     })
 
         if rows_to_drop:
-            cleaned_df = cleaned_df.drop(index=list(set(rows_to_drop)), errors="ignore").reset_index(drop=True)
+            cleaned_df = cleaned_df.drop(index=list(set(rows_to_drop)), errors="ignore")
+
+        # Apply manual human review overrides (highest priority ground truth)
+        if manual_overrides:
+            for override in manual_overrides:
+                r = override.get("row")
+                col = override.get("column")
+                new_v = str(override.get("new_value", ""))
+                if r in cleaned_df.index and col in cleaned_df.columns:
+                    old_v = str(cleaned_df.at[r, col])
+                    if old_v != new_v:
+                        cleaned_df.at[r, col] = new_v
+                        row_val = int(r) if (isinstance(r, (int, float)) or (isinstance(r, str) and r.isdigit())) else r
+                        diff_records.append({
+                            "rule_id": "MANUAL_EDIT",
+                            "rule_kind": "manual_review_edit",
+                            "tier": "REVIEW",
+                            "row": row_val,
+                            "column": col,
+                            "old_value": old_v,
+                            "new_value": new_v
+                        })
 
         cleaned_df = cleaned_df.astype(str).fillna("")
         return cleaned_df, diff_records

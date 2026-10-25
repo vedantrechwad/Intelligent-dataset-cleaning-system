@@ -1,0 +1,768 @@
+[
+  {
+    "id": "customer_churn",
+    "name": "Customer Churn (Telco)",
+    "category": "Classification / Real-World Dirty",
+    "status": "success",
+    "duration_sec": 0.23,
+    "shape": {
+      "rows": 25,
+      "cols": 8
+    },
+    "defects_repaired": 2,
+    "untouched_percentage": 99.5,
+    "harm_risk_bound": 0.0,
+    "health_score": {
+      "before": 71.65,
+      "after": 87.24,
+      "lift_points": 15.59
+    },
+    "dimensions": {
+      "completeness_before": 99.0,
+      "completeness_after": 98.96,
+      "consistency_before": 0.0,
+      "consistency_after": 63.54,
+      "uniqueness_before": 96.0,
+      "uniqueness_after": 100.0
+    },
+    "ml_utility": {
+      "task_type": "Classification",
+      "target_column": "Churn",
+      "dirty_metrics": {
+        "accuracy": 0.75,
+        "f1_score": 0.6429,
+        "precision": 0.5625,
+        "recall": 0.75
+      },
+      "clean_metrics": {
+        "accuracy": 0.75,
+        "f1_score": 0.6429,
+        "precision": 0.5625,
+        "recall": 0.75
+      },
+      "deltas": {
+        "delta_accuracy": 0.0,
+        "delta_f1": 0.0,
+        "pct_gain_f1": 0.0
+      }
+    },
+    "python_script_bytes": 2317
+  },
+  {
+    "id": "telco_corrupted",
+    "name": "Telco Large Enterprise Benchmark",
+    "category": "Classification / 7k Rows",
+    "status": "success",
+    "duration_sec": 27.11,
+    "shape": {
+      "rows": 7073,
+      "cols": 21
+    },
+    "defects_repaired": 269,
+    "untouched_percentage": 99.8390929961692,
+    "harm_risk_bound": 0.0,
+    "health_score": {
+      "before": 89.69,
+      "after": 89.93,
+      "lift_points": 0.24
+    },
+    "dimensions": {
+      "completeness_before": 99.95,
+      "completeness_after": 99.95,
+      "consistency_before": 48.82,
+      "consistency_after": 49.71,
+      "uniqueness_before": 99.58,
+      "uniqueness_after": 100.0
+    },
+    "ml_utility": {
+      "task_type": "Classification",
+      "target_column": "Churn",
+      "dirty_metrics": {
+        "accuracy": 0.7918,
+        "f1_score": 0.7803,
+        "precision": 0.7783,
+        "recall": 0.7918
+      },
+      "clean_metrics": {
+        "accuracy": 0.7903,
+        "f1_score": 0.7804,
+        "precision": 0.7775,
+        "recall": 0.7903
+      },
+      "deltas": {
+        "delta_accuracy": -0.0014,
+        "delta_f1": 0.0001,
+        "pct_gain_f1": 0.02
+      }
+    },
+    "python_script_bytes": 20632
+  },
+  {
+    "id": "car_dekho",
+    "name": "Car Dekho Used Car Prices",
+    "category": "Regression / Pricing",
+    "status": "success",
+    "duration_sec": 0.75,
+    "shape": {
+      "rows": 301,
+      "cols": 9
+    },
+    "defects_repaired": 11,
+    "untouched_percentage": 99.66777408637874,
+    "harm_risk_bound": 0.0,
+    "health_score": {
+      "before": 79.9,
+      "after": 80.0,
+      "lift_points": 0.1
+    },
+    "dimensions": {
+      "completeness_before": 100.0,
+      "completeness_after": 100.0,
+      "consistency_before": 0.0,
+      "consistency_after": 0.0,
+      "uniqueness_before": 99.34,
+      "uniqueness_after": 100.0
+    },
+    "ml_utility": {
+      "task_type": "Regression",
+      "target_column": "Selling_Price",
+      "dirty_metrics": {
+        "r2_score": 0.2363,
+        "mae": 1.5727,
+        "rmse": 4.2138
+      },
+      "clean_metrics": {
+        "r2_score": 0.2275,
+        "mae": 1.5826,
+        "rmse": 4.2379
+      },
+      "deltas": {
+        "delta_r2": -0.0088,
+        "delta_rmse_reduction": -0.0241
+      }
+    },
+    "python_script_bytes": 3857
+  },
+  {
+    "id": "adult_census",
+    "name": "Adult Census Income (UCI)",
+    "category": "Classification / 32k Rows",
+    "status": "success",
+    "duration_sec": 73.77,
+    "shape": {
+      "rows": 32561,
+      "cols": 15
+    },
+    "defects_repaired": 4286,
+    "untouched_percentage": 99.12738142767932,
+    "harm_risk_bound": 0.0,
+    "health_score": {
+      "before": 96.76,
+      "after": 96.77,
+      "lift_points": 0.01
+    },
+    "dimensions": {
+      "completeness_before": 99.13,
+      "completeness_after": 99.13,
+      "consistency_before": 84.95,
+      "consistency_after": 84.96,
+      "uniqueness_before": 99.93,
+      "uniqueness_after": 100.0
+    },
+    "ml_utility": {
+      "task_type": "Classification",
+      "target_column": "col_14",
+      "dirty_metrics": {
+        "accuracy": 0.8597,
+        "f1_score": 0.85,
+        "precision": 0.8557,
+        "recall": 0.8597
+      },
+      "clean_metrics": {
+        "accuracy": 0.8597,
+        "f1_score": 0.85,
+        "precision": 0.8557,
+        "recall": 0.8597
+      },
+      "deltas": {
+        "delta_accuracy": 0.0,
+        "delta_f1": 0.0,
+        "pct_gain_f1": 0.0
+      }
+    },
+    "python_script_bytes": 3557
+  },
+  {
+    "id": "bank_marketing",
+    "name": "Bank Marketing (UCI)",
+    "category": "Classification / Semicolon Delimited",
+    "status": "success",
+    "duration_sec": 9.78,
+    "shape": {
+      "rows": 4521,
+      "cols": 17
+    },
+    "defects_repaired": 67,
+    "untouched_percentage": 99.91282511677531,
+    "harm_risk_bound": 0.0,
+    "health_score": {
+      "before": 80.0,
+      "after": 80.0,
+      "lift_points": 0.0
+    },
+    "dimensions": {
+      "completeness_before": 100.0,
+      "completeness_after": 100.0,
+      "consistency_before": 0.0,
+      "consistency_after": 0.0,
+      "uniqueness_before": 100.0,
+      "uniqueness_after": 100.0
+    },
+    "ml_utility": {
+      "task_type": "Classification",
+      "target_column": "y",
+      "dirty_metrics": {
+        "accuracy": 0.8998,
+        "f1_score": 0.8786,
+        "precision": 0.8808,
+        "recall": 0.8998
+      },
+      "clean_metrics": {
+        "accuracy": 0.8924,
+        "f1_score": 0.8667,
+        "precision": 0.8662,
+        "recall": 0.8924
+      },
+      "deltas": {
+        "delta_accuracy": -0.0074,
+        "delta_f1": -0.0119,
+        "pct_gain_f1": -1.36
+      }
+    },
+    "python_script_bytes": 3182
+  },
+  {
+    "id": "student_performance",
+    "name": "Student Performance (UCI)",
+    "category": "Regression / Grades",
+    "status": "success",
+    "duration_sec": 3.46,
+    "shape": {
+      "rows": 395,
+      "cols": 33
+    },
+    "defects_repaired": 0,
+    "untouched_percentage": 100.0,
+    "harm_risk_bound": 0.0,
+    "health_score": {
+      "before": 57.27,
+      "after": 57.27,
+      "lift_points": 0.0
+    },
+    "dimensions": {
+      "completeness_before": 100.0,
+      "completeness_after": 100.0,
+      "consistency_before": 0.0,
+      "consistency_after": 0.0,
+      "uniqueness_before": 100.0,
+      "uniqueness_after": 100.0
+    },
+    "ml_utility": {
+      "task_type": "Regression",
+      "target_column": "G3",
+      "dirty_metrics": {
+        "r2_score": 0.8476,
+        "mae": 1.0737,
+        "rmse": 1.8304
+      },
+      "clean_metrics": {
+        "r2_score": 0.8476,
+        "mae": 1.0737,
+        "rmse": 1.8304
+      },
+      "deltas": {
+        "delta_r2": 0.0,
+        "delta_rmse_reduction": 0.0
+      }
+    },
+    "python_script_bytes": 1267
+  },
+  {
+    "id": "hospital_quality",
+    "name": "Hospital Quality Care Benchmark",
+    "category": "Classification / Relational Dependencies",
+    "status": "success",
+    "duration_sec": 6.18,
+    "shape": {
+      "rows": 1000,
+      "cols": 20
+    },
+    "defects_repaired": 427,
+    "untouched_percentage": 97.86500000000001,
+    "harm_risk_bound": 0.0,
+    "health_score": {
+      "before": 80.0,
+      "after": 80.0,
+      "lift_points": 0.0
+    },
+    "dimensions": {
+      "completeness_before": 100.0,
+      "completeness_after": 100.0,
+      "consistency_before": 0.0,
+      "consistency_after": 0.0,
+      "uniqueness_before": 100.0,
+      "uniqueness_after": 100.0
+    },
+    "ml_utility": {
+      "task_type": "Classification",
+      "target_column": "type",
+      "dirty_metrics": {
+        "accuracy": 0.98,
+        "f1_score": 0.9701,
+        "precision": 0.9604,
+        "recall": 0.98
+      },
+      "clean_metrics": {
+        "accuracy": 0.98,
+        "f1_score": 0.9701,
+        "precision": 0.9604,
+        "recall": 0.98
+      },
+      "deltas": {
+        "delta_accuracy": 0.0,
+        "delta_f1": 0.0,
+        "pct_gain_f1": 0.0
+      }
+    },
+    "python_script_bytes": 38396
+  },
+  {
+    "id": "craft_beers",
+    "name": "Craft Beers & Breweries Benchmark",
+    "category": "Classification / Unit Parsing",
+    "status": "success",
+    "duration_sec": 14.23,
+    "shape": {
+      "rows": 2410,
+      "cols": 11
+    },
+    "defects_repaired": 4409,
+    "untouched_percentage": 83.36854017351942,
+    "harm_risk_bound": 0.0,
+    "health_score": {
+      "before": 78.87,
+      "after": 78.99,
+      "lift_points": 0.12
+    },
+    "dimensions": {
+      "completeness_before": 95.48,
+      "completeness_after": 95.95,
+      "consistency_before": 0.0,
+      "consistency_after": 0.0,
+      "uniqueness_before": 100.0,
+      "uniqueness_after": 100.0
+    },
+    "ml_utility": {
+      "task_type": "Regression",
+      "target_column": "brewery_id",
+      "dirty_metrics": {
+        "r2_score": 0.6385,
+        "mae": 62.129,
+        "rmse": 94.6228
+      },
+      "clean_metrics": {
+        "r2_score": 0.6949,
+        "mae": 55.8891,
+        "rmse": 86.9407
+      },
+      "deltas": {
+        "delta_r2": 0.0563,
+        "delta_rmse_reduction": 7.682
+      }
+    },
+    "python_script_bytes": 14154
+  },
+  {
+    "id": "titanic",
+    "name": "Titanic Passenger Survival",
+    "category": "Classification / Famous Benchmark",
+    "status": "success",
+    "duration_sec": 5.45,
+    "shape": {
+      "rows": 891,
+      "cols": 12
+    },
+    "defects_repaired": 2,
+    "untouched_percentage": 99.98129442573887,
+    "harm_risk_bound": 0.0,
+    "health_score": {
+      "before": 77.98,
+      "after": 77.98,
+      "lift_points": 0.0
+    },
+    "dimensions": {
+      "completeness_before": 91.9,
+      "completeness_after": 91.9,
+      "consistency_before": 0.0,
+      "consistency_after": 0.0,
+      "uniqueness_before": 100.0,
+      "uniqueness_after": 100.0
+    },
+    "ml_utility": {
+      "task_type": "Classification",
+      "target_column": "Survived",
+      "dirty_metrics": {
+        "accuracy": 0.806,
+        "f1_score": 0.8022,
+        "precision": 0.808,
+        "recall": 0.806
+      },
+      "clean_metrics": {
+        "accuracy": 0.806,
+        "f1_score": 0.8022,
+        "precision": 0.808,
+        "recall": 0.806
+      },
+      "deltas": {
+        "delta_accuracy": 0.0,
+        "delta_f1": 0.0,
+        "pct_gain_f1": 0.0
+      }
+    },
+    "python_script_bytes": 1936
+  },
+  {
+    "id": "california_housing",
+    "name": "California Housing Prices",
+    "category": "Regression / 20k Rows",
+    "status": "success",
+    "duration_sec": 140.4,
+    "shape": {
+      "rows": 20640,
+      "cols": 10
+    },
+    "defects_repaired": 5,
+    "untouched_percentage": 99.99757751937985,
+    "harm_risk_bound": 0.0,
+    "health_score": {
+      "before": 99.97,
+      "after": 99.97,
+      "lift_points": 0.0
+    },
+    "dimensions": {
+      "completeness_before": 99.9,
+      "completeness_after": 99.9,
+      "consistency_before": 99.98,
+      "consistency_after": 100.0,
+      "uniqueness_before": 100.0,
+      "uniqueness_after": 100.0
+    },
+    "ml_utility": {
+      "task_type": "Regression",
+      "target_column": "median_house_value",
+      "dirty_metrics": {
+        "r2_score": 0.8012,
+        "mae": 34040.956,
+        "rmse": 51085.0972
+      },
+      "clean_metrics": {
+        "r2_score": 0.8022,
+        "mae": 34008.0704,
+        "rmse": 50953.5215
+      },
+      "deltas": {
+        "delta_r2": 0.001,
+        "delta_rmse_reduction": 131.5757
+      }
+    },
+    "python_script_bytes": 1992
+  },
+  {
+    "id": "wine_quality",
+    "name": "Red Wine Quality",
+    "category": "Regression / Physicochemical",
+    "status": "success",
+    "duration_sec": 2.94,
+    "shape": {
+      "rows": 1599,
+      "cols": 12
+    },
+    "defects_repaired": 240,
+    "untouched_percentage": 100.0,
+    "harm_risk_bound": 0.0,
+    "health_score": {
+      "before": 97.57,
+      "after": 99.69,
+      "lift_points": 2.12
+    },
+    "dimensions": {
+      "completeness_before": 100.0,
+      "completeness_after": 100.0,
+      "consistency_before": 99.11,
+      "consistency_after": 98.47,
+      "uniqueness_before": 84.99,
+      "uniqueness_after": 100.0
+    },
+    "ml_utility": {
+      "task_type": "Classification",
+      "target_column": "quality",
+      "dirty_metrics": {
+        "accuracy": 0.6054,
+        "f1_score": 0.5866,
+        "precision": 0.585,
+        "recall": 0.6054
+      },
+      "clean_metrics": {
+        "accuracy": 0.6054,
+        "f1_score": 0.5866,
+        "precision": 0.585,
+        "recall": 0.6054
+      },
+      "deltas": {
+        "delta_accuracy": 0.0,
+        "delta_f1": 0.0,
+        "pct_gain_f1": 0.0
+      }
+    },
+    "python_script_bytes": 1761
+  },
+  {
+    "id": "palmer_penguins",
+    "name": "Palmer Station Penguins",
+    "category": "Classification / Ecological",
+    "status": "success",
+    "duration_sec": 0.75,
+    "shape": {
+      "rows": 344,
+      "cols": 8
+    },
+    "defects_repaired": 19,
+    "untouched_percentage": 99.30959302325581,
+    "harm_risk_bound": 0.0,
+    "health_score": {
+      "before": 79.83,
+      "after": 79.83,
+      "lift_points": 0.0
+    },
+    "dimensions": {
+      "completeness_before": 99.31,
+      "completeness_after": 99.31,
+      "consistency_before": 0.0,
+      "consistency_after": 0.0,
+      "uniqueness_before": 100.0,
+      "uniqueness_after": 100.0
+    },
+    "ml_utility": {
+      "task_type": "Classification",
+      "target_column": "species",
+      "dirty_metrics": {
+        "accuracy": 1.0,
+        "f1_score": 1.0,
+        "precision": 1.0,
+        "recall": 1.0
+      },
+      "clean_metrics": {
+        "accuracy": 1.0,
+        "f1_score": 1.0,
+        "precision": 1.0,
+        "recall": 1.0
+      },
+      "deltas": {
+        "delta_accuracy": 0.0,
+        "delta_f1": 0.0,
+        "pct_gain_f1": 0.0
+      }
+    },
+    "python_script_bytes": 4514
+  },
+  {
+    "id": "pima_diabetes",
+    "name": "Pima Indians Diabetes",
+    "category": "Classification / Medical Zero-Disguise",
+    "status": "success",
+    "duration_sec": 1.7,
+    "shape": {
+      "rows": 768,
+      "cols": 9
+    },
+    "defects_repaired": 0,
+    "untouched_percentage": 100.0,
+    "harm_risk_bound": 0.0,
+    "health_score": {
+      "before": 99.97,
+      "after": 99.97,
+      "lift_points": 0.0
+    },
+    "dimensions": {
+      "completeness_before": 100.0,
+      "completeness_after": 100.0,
+      "consistency_before": 99.86,
+      "consistency_after": 99.86,
+      "uniqueness_before": 100.0,
+      "uniqueness_after": 100.0
+    },
+    "ml_utility": {
+      "task_type": "Classification",
+      "target_column": "col_8",
+      "dirty_metrics": {
+        "accuracy": 0.7489,
+        "f1_score": 0.7496,
+        "precision": 0.7505,
+        "recall": 0.7489
+      },
+      "clean_metrics": {
+        "accuracy": 0.7489,
+        "f1_score": 0.7496,
+        "precision": 0.7505,
+        "recall": 0.7489
+      },
+      "deltas": {
+        "delta_accuracy": 0.0,
+        "delta_f1": 0.0,
+        "pct_gain_f1": 0.0
+      }
+    },
+    "python_script_bytes": 1256
+  },
+  {
+    "id": "heart_disease",
+    "name": "Cleveland Heart Disease",
+    "category": "Classification / Cardiology",
+    "status": "success",
+    "duration_sec": 1.2,
+    "shape": {
+      "rows": 303,
+      "cols": 14
+    },
+    "defects_repaired": 1,
+    "untouched_percentage": 100.0,
+    "harm_risk_bound": 0.0,
+    "health_score": {
+      "before": 81.28,
+      "after": 81.27,
+      "lift_points": -0.01
+    },
+    "dimensions": {
+      "completeness_before": 100.0,
+      "completeness_after": 100.0,
+      "consistency_before": 6.65,
+      "consistency_after": 6.34,
+      "uniqueness_before": 99.67,
+      "uniqueness_after": 100.0
+    },
+    "ml_utility": {
+      "task_type": "Classification",
+      "target_column": "target",
+      "dirty_metrics": {
+        "accuracy": 0.8132,
+        "f1_score": 0.8133,
+        "precision": 0.8137,
+        "recall": 0.8132
+      },
+      "clean_metrics": {
+        "accuracy": 0.8132,
+        "f1_score": 0.8133,
+        "precision": 0.8137,
+        "recall": 0.8132
+      },
+      "deltas": {
+        "delta_accuracy": 0.0,
+        "delta_f1": 0.0,
+        "pct_gain_f1": 0.0
+      }
+    },
+    "python_script_bytes": 1757
+  },
+  {
+    "id": "auto_mpg",
+    "name": "Auto MPG Fuel Efficiency",
+    "category": "Regression / Question Mark Sentinels",
+    "status": "success",
+    "duration_sec": 0.8,
+    "shape": {
+      "rows": 398,
+      "cols": 7
+    },
+    "defects_repaired": 4,
+    "untouched_percentage": 99.85642498205313,
+    "harm_risk_bound": 0.0,
+    "health_score": {
+      "before": 98.98,
+      "after": 98.98,
+      "lift_points": 0.0
+    },
+    "dimensions": {
+      "completeness_before": 99.93,
+      "completeness_after": 99.93,
+      "consistency_before": 94.97,
+      "consistency_after": 94.97,
+      "uniqueness_before": 100.0,
+      "uniqueness_after": 100.0
+    },
+    "ml_utility": {
+      "task_type": "Regression",
+      "target_column": "mpg",
+      "dirty_metrics": {
+        "r2_score": 0.8864,
+        "mae": 1.8409,
+        "rmse": 2.5528
+      },
+      "clean_metrics": {
+        "r2_score": 0.8857,
+        "mae": 1.843,
+        "rmse": 2.5607
+      },
+      "deltas": {
+        "delta_r2": -0.0007,
+        "delta_rmse_reduction": -0.0079
+      }
+    },
+    "python_script_bytes": 1952
+  },
+  {
+    "id": "boston_housing",
+    "name": "Boston Housing Prices",
+    "category": "Regression / Econometrics",
+    "status": "success",
+    "duration_sec": 2.18,
+    "shape": {
+      "rows": 506,
+      "cols": 14
+    },
+    "defects_repaired": 8,
+    "untouched_percentage": 99.88706945228685,
+    "harm_risk_bound": 0.0,
+    "health_score": {
+      "before": 99.97,
+      "after": 99.97,
+      "lift_points": 0.0
+    },
+    "dimensions": {
+      "completeness_before": 100.0,
+      "completeness_after": 100.0,
+      "consistency_before": 99.86,
+      "consistency_after": 99.86,
+      "uniqueness_before": 100.0,
+      "uniqueness_after": 100.0
+    },
+    "ml_utility": {
+      "task_type": "Regression",
+      "target_column": "medv",
+      "dirty_metrics": {
+        "r2_score": 0.866,
+        "mae": 2.1283,
+        "rmse": 3.1597
+      },
+      "clean_metrics": {
+        "r2_score": 0.8666,
+        "mae": 2.1378,
+        "rmse": 3.1531
+      },
+      "deltas": {
+        "delta_r2": 0.0006,
+        "delta_rmse_reduction": 0.0065
+      }
+    },
+    "python_script_bytes": 1975
+  }
+]

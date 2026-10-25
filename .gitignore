@@ -1,12 +1,20 @@
-# Byte-compiled / optimized / DLL files
+# ==============================================================================
+# AutoClean Project .gitignore
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# Byte-compiled / Optimized / DLL Files
+# ------------------------------------------------------------------------------
 __pycache__/
 *.py[cod]
 *$py.class
+*.pyd
+*.pyo
 
-# C extensions
+# ------------------------------------------------------------------------------
+# C / Rust Extensions & Distribution Packages
+# ------------------------------------------------------------------------------
 *.so
-
-# Distribution / packaging
 .Python
 build/
 develop-eggs/
@@ -26,51 +34,123 @@ share/python-wheels/
 *.egg
 MANIFEST
 
-# PyInstaller
-*.manifest
-*.spec
-
-# Unit test / coverage
-htmlcov/
-.tox/
-.nox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-*.py,cover
-.hypothesis/
-.pytest_cache/
-cover/
-
-# Environments
+# ------------------------------------------------------------------------------
+# Virtual Environments & Package Managers
+# ------------------------------------------------------------------------------
 .env
+.env.local
+.env.*.local
 .venv
-env/
+.venv/
 venv/
+venv*/
+env/
+env*/
 ENV/
 env.bak/
 venv.bak/
 
-# IDE / Editor
+# ------------------------------------------------------------------------------
+# Streamlit & Local App Runtime
+# ------------------------------------------------------------------------------
+.streamlit/secrets.toml
+.streamlit/*.cache
+
+# ------------------------------------------------------------------------------
+# Unit Tests, Coverage, & Static Analysis Caches
+# ------------------------------------------------------------------------------
+.cache
+.pytest_cache/
+.tox/
+.nox/
+.coverage
+.coverage.*
+nosetests.xml
+coverage.xml
+htmlcov/
+*.cover
+*.py,cover
+.hypothesis/
+cover/
+.mypy_cache/
+.ruff_cache/
+
+# ------------------------------------------------------------------------------
+# Jupyter Notebooks & Editors
+# ------------------------------------------------------------------------------
+.ipynb_checkpoints/
+*-checkpoint.ipynb
 .vscode/
 .idea/
 *.swp
 *.swo
+*~
+*.sublime-project
+*.sublime-workspace
 
-# Temporary outputs
-outputs/*.tmp
+# ------------------------------------------------------------------------------
+# Outputs, Caches, & Temporary Execution Logs
+# ------------------------------------------------------------------------------
+*.log
+outputs/*
+scratch/
 
-# OS & archive artifacts
+# ------------------------------------------------------------------------------
+# OS-Specific Metadata Files
+# ------------------------------------------------------------------------------
 .DS_Store
+.DS_Store?
 ._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+[Dd]esktop.ini
 __MACOSX/
 .Rhistory
-*.zip_old
-*_full.csv
 
-# Large raw Uber data dumps not referenced in benchmarks or application
-yet another test datasets/archive (4)/uber-raw-data-*.csv
-yet another test datasets/archive (4)/other-*.csv
+# ------------------------------------------------------------------------------
+# Compressed Archives & Redundant Artifact Folders
+# ------------------------------------------------------------------------------
+*.zip
+*.zip_old
+*.tar.gz
+*.tgz
+*.rar
+*.7z
+new test datasets/
+yet another test datasets/
+
+# ------------------------------------------------------------------------------
+# Datasets: Keep massive/secondary datasets local; only track showcase datasets
+# ------------------------------------------------------------------------------
+# Large-scale datasets (30k to 560k rows, 10MB-46MB) stay local on disk
+data/dirty_large_scale/*
+data/large_scale
+
+# Legacy directory junctions stay local
+data/dirty_downloads
+data/dirty_downloads_round2
+
+# Academic benchmarks: ignore massive 30MB tax dataset
+benchmarks/tax/*
+
+# Dirty benchmarks: ignore all except the top evaluation showcase datasets
+data/dirty_benchmarks/*
+!data/dirty_benchmarks/beers_dirty.csv
+!data/dirty_benchmarks/dirty_cafe_sales.csv
+!data/dirty_benchmarks/movies_dirty.csv
+
+# Real-world datasets: ignore heavy files, track flagship evaluation sets
+data/real_world/*
+!data/real_world/adult_census.csv
+!data/real_world/telco_corrupted.csv
+!data/real_world/customer_churn.csv
+
+# Classical reference datasets: track lightweight showcase only
+data/downloaded/*
+!data/downloaded/winequality_red.csv
+
+# Ensure documentation catalogs are always tracked
+!data/README.md
+!benchmarks/README.md

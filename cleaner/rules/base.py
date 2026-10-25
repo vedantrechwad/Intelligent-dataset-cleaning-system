@@ -26,7 +26,7 @@ RULE_ORDER_MAP = {name: idx for idx, name in enumerate(RULE_ORDER)}
 
 @dataclass
 class CellChange:
-    row: int
+    row: Any
     column: str
     old_value: str
     new_value: str

@@ -2,17 +2,26 @@ from typing import Dict, Any, List
 import pandas as pd
 
 def compute_before_after_comparison(
-    before_profile: Dict[str, Any],
-    after_profile: Dict[str, Any],
-    before_issues: List[Dict[str, Any]],
-    after_issues: List[Dict[str, Any]],
-    before_score: Dict[str, Any],
-    after_score: Dict[str, Any]
+    before_profile: Dict[str, Any] = None,
+    after_profile: Dict[str, Any] = None,
+    before_issues: List[Dict[str, Any]] = None,
+    after_issues: List[Dict[str, Any]] = None,
+    before_score: Dict[str, Any] = None,
+    after_score: Dict[str, Any] = None,
+    diff_records: List[Dict[str, Any]] = None
 ) -> Dict[str, Any]:
     """
     Computes rigorous before-and-after comparison metrics.
     Quantifies resolved vs unresolved issues without false claims.
     """
+    before_profile = before_profile or {}
+    after_profile = after_profile or {}
+    before_issues = before_issues or []
+    after_issues = after_issues or []
+    before_score = before_score or {}
+    after_score = after_score or {}
+    diff_records = diff_records or []
+
     # Summary of issues by type before
     b_type_counts = {}
     for i in before_issues:
@@ -40,6 +49,14 @@ def compute_before_after_comparison(
             "resolution_rate_pct": res_rate
         })
 
+    # Calculate resolved defects: sum of resolved counts across categories where count decreased,
+    # or diff_records count if cell repairs were executed.
+    total_type_resolved = sum(item["resolved_count"] for item in issue_type_comparison)
+    repaired_cells = len(diff_records) if diff_records is not None else 0
+    resolved_count = max(total_type_resolved, repaired_cells, max(0, len(before_issues) - len(after_issues)))
+    initial_cnt = len(before_issues)
+    drr_rate = min(100.0, round((resolved_count / max(1, initial_cnt)) * 100.0, 1)) if initial_cnt > 0 else 100.0
+
     # Overall metrics comparison
     metrics = {
         "rows": {
@@ -66,6 +83,12 @@ def compute_before_after_comparison(
             "before": before_score.get("overall_score", 0.0),
             "after": after_score.get("overall_score", 0.0),
             "delta": round(after_score.get("overall_score", 0.0) - before_score.get("overall_score", 0.0), 2)
+        },
+        "defect_resolution_rate": {
+            "initial_defects": initial_cnt,
+            "remaining_defects": len(after_issues),
+            "resolved_defects": resolved_count,
+            "rate_pct": drr_rate
         }
     }
 

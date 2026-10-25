@@ -1,0 +1,26 @@
+Customer_ID,Name,Age,City,Join_Date,Salary,Department,Churn
+CUST_1000,Aarav Sharma,28,Mumbai,2024-01-15,65000.0,Engineering,0
+CUST_1001,Diya Patel,34,mumbai,2023-11-20,82000.0,Marketing,0
+CUST_1002,Vivaan Gupta,-5,MUMBAI,22/13/2020,55000.0,Engineering,1
+CUST_1003,Ananya Iyer,29, Mumbai,2024-05-10,71000.0,Finance,0
+CUST_1002,Vivaan Gupta,-5,MUMBAI,22/13/2020,55000.0,Engineering,1
+CUST_1005,Rohan Verma,42,Delhi,2025-02-30,95000.0,Engineering,0
+CUST_1006,Pooja Reddy,999,delhi,2023-08-19,1200000.0,Sales,1
+CUST_1007,Rahul Nair,Thirty,DELHI,2024-03-01,68000.0,Finance,0
+CUST_1008,Sneha Kulkarni,31,Mumabi,2022-12-14,74000.0,Marketing,0
+CUST_1009,Vikram Singh,45,Delhi,2024-02-28,89000.0,Sales,1
+CUST_1010,Ishita Rao,24,Bangalore,2023-06-25,62000.0,Engineering,0
+CUST_1011,Arjun Mehta,38,Bangalore,2024-07-12,85000.0,Finance,0
+CUST_1012,Kavya Joshi,52,Banglore,2022-09-30,110000.0,Marketing,0
+CUST_1013,Aditya Mishra,,Bangalore,2024-04-18,58000.0,Sales,1
+CUST_1014,Siddharth Jain,27,Pune,2023-10-05,76000.0,Engineering,0
+CUST_1015,Meera Pillai,33,Mumbai,2024-08-22,91000.0,Marketing,0
+CUST_1016,Karan Malhotra,41,Mumbai,2023-03-15,84000.0,Finance,1
+CUST_1017,Tanvi Saxena,26,Delhi,2024-09-01,67000.0,Sales,0
+CUST_1018,Rishi Choudhury,60,Pune,2022-11-11,105000.0,Engineering,0
+CUST_1019,Nisha Sen,35,pune,2023-05-19,,Finance,1
+CUST_1020,Aman Bhatia,25,Mumbai,2024-10-10,73000.0,Sales,0
+CUST_1021,Rhea Kapoor,29,Delhi,2023-01-20,79000.0,Engineering,0
+CUST_1022,Mohit Aggarwal,32,Bangalore,2024-06-08,88000.0,Marketing,0
+CUST_1023,Deepika Das,47,Pune,2022-07-04,69000.0,Finance,1
+CUST_1024,Sanjay Kumar,39,Mumbai,2024-11-30,94000.0,Sales,0

@@ -98,13 +98,14 @@ def evaluate_downstream_ml(
         X = pd.get_dummies(X, drop_first=True)
         return X, y
 
-    # Determine if task is classification or regression
-    target_series = clean_sub[target_column].dropna()
-    is_classification = (
-        target_series.nunique() <= 15
-        or pd.api.types.is_object_dtype(target_series)
-        or pd.api.types.is_bool_dtype(target_series)
+    # Determine if task is classification or regression based on numeric parsability and cardinality
+    target_series = clean_sub[target_column].replace("", np.nan).dropna()
+    num_target = pd.to_numeric(
+        target_series.astype(str).str.replace(r"[$,€£¥]", "", regex=True).str.replace(",", "").str.strip(),
+        errors="coerce"
     )
+    is_numeric_target = (num_target.notna().mean() >= 0.80) and (num_target.nunique() > 10)
+    is_classification = not is_numeric_target
 
     try:
         X_dirty, y_dirty = preprocess_features(dirty_sub, target_column)
@@ -115,40 +116,50 @@ def evaluate_downstream_ml(
         X_dirty = X_dirty.reindex(columns=all_cols, fill_value=0)
         X_clean = X_clean.reindex(columns=all_cols, fill_value=0)
 
-        # Fixed train/test split indices
-        idx_train, idx_test = train_test_split(
-            np.arange(len(X_clean)), test_size=0.3, random_state=random_seed
-        )
+        # Robust train/test split aligned by index intersection (handles dropped duplicates/rows)
+        common_indices = clean_sub.index.intersection(dirty_sub.index)
+        if len(common_indices) < 10:
+            # Fallback to positional indices
+            n_min = min(len(X_dirty), len(X_clean))
+            common_idx_pos = np.arange(n_min)
+            train_pos, test_pos = train_test_split(common_idx_pos, test_size=0.3, random_state=random_seed)
+            X_d_tr, X_d_te = X_dirty.iloc[train_pos], X_dirty.iloc[test_pos]
+            y_d_tr, y_d_te = y_dirty.iloc[train_pos], y_dirty.iloc[test_pos]
+            X_c_tr, X_c_te = X_clean.iloc[train_pos], X_clean.iloc[test_pos]
+            y_c_tr, y_c_te = y_clean.iloc[train_pos], y_clean.iloc[test_pos]
+        else:
+            train_idx, test_idx = train_test_split(common_indices, test_size=0.3, random_state=random_seed)
+            X_d_tr, X_d_te = X_dirty.loc[train_idx], X_dirty.loc[test_idx]
+            y_d_tr, y_d_te = y_dirty.loc[train_idx], y_dirty.loc[test_idx]
+            X_c_tr, X_c_te = X_clean.loc[train_idx], X_clean.loc[test_idx]
+            y_c_tr, y_c_te = y_clean.loc[train_idx], y_clean.loc[test_idx]
 
         if is_classification:
-            y_dirty = y_dirty.fillna("Unknown").astype(str)
-            y_clean = y_clean.fillna("Unknown").astype(str)
-
-            X_d_tr, X_d_te = X_dirty.iloc[idx_train], X_dirty.iloc[idx_test]
-            y_d_tr, y_d_te = y_dirty.iloc[idx_train], y_dirty.iloc[idx_test]
-
-            X_c_tr, X_c_te = X_clean.iloc[idx_train], X_clean.iloc[idx_test]
-            y_c_tr, y_c_te = y_clean.iloc[idx_train], y_clean.iloc[idx_test]
+            y_d_tr = y_d_tr.fillna("Unknown").astype(str)
+            y_d_te = y_d_te.fillna("Unknown").astype(str)
+            y_c_tr = y_c_tr.fillna("Unknown").astype(str)
+            y_c_te = y_c_te.fillna("Unknown").astype(str)
 
             # Model: Random Forest Classifier
             rf_dirty = RandomForestClassifier(n_estimators=40, max_depth=12, random_state=random_seed, n_jobs=-1)
             rf_dirty.fit(X_d_tr, y_d_tr)
-            preds_d = rf_dirty.predict(X_d_te)
+            # Evaluate both models on the clean test ground truth (CleanML methodology)
+            preds_d = rf_dirty.predict(X_c_te)
 
             rf_clean = RandomForestClassifier(n_estimators=40, max_depth=12, random_state=random_seed, n_jobs=-1)
             rf_clean.fit(X_c_tr, y_c_tr)
             preds_c = rf_clean.predict(X_c_te)
 
-            acc_d = float(accuracy_score(y_d_te, preds_d))
+            acc_d = float(accuracy_score(y_c_te, preds_d))
             acc_c = float(accuracy_score(y_c_te, preds_c))
 
-            f1_d = float(f1_score(y_d_te, preds_d, average="weighted", zero_division=0))
+            f1_d = float(f1_score(y_c_te, preds_d, average="weighted", zero_division=0))
             f1_c = float(f1_score(y_c_te, preds_c, average="weighted", zero_division=0))
 
-            prec_d = float(precision_score(y_d_te, preds_d, average="weighted", zero_division=0))
+            prec_d = float(precision_score(y_c_te, preds_d, average="weighted", zero_division=0))
             prec_c = float(precision_score(y_c_te, preds_c, average="weighted", zero_division=0))
 
-            rec_d = float(recall_score(y_d_te, preds_d, average="weighted", zero_division=0))
+            rec_d = float(recall_score(y_c_te, preds_d, average="weighted", zero_division=0))
             rec_c = float(recall_score(y_c_te, preds_c, average="weighted", zero_division=0))
 
             delta_acc = acc_c - acc_d
@@ -194,31 +205,31 @@ def evaluate_downstream_ml(
 
         else:
             # Regression task
-            y_d_num = pd.to_numeric(y_dirty, errors="coerce").fillna(0.0)
-            y_c_num = pd.to_numeric(y_clean, errors="coerce").fillna(0.0)
+            def clean_num_target(s: pd.Series) -> pd.Series:
+                s_str = s.astype(str).str.replace(r"[$,€£¥]", "", regex=True).str.replace(",", "").str.strip()
+                return pd.to_numeric(s_str, errors="coerce").fillna(0.0)
 
-            X_d_tr, X_d_te = X_dirty.iloc[idx_train], X_dirty.iloc[idx_test]
-            y_d_tr, y_d_te = y_d_num.iloc[idx_train], y_d_num.iloc[idx_test]
-
-            X_c_tr, X_c_te = X_clean.iloc[idx_train], X_clean.iloc[idx_test]
-            y_c_tr, y_c_te = y_c_num.iloc[idx_train], y_c_num.iloc[idx_test]
+            y_d_tr_num = clean_num_target(y_d_tr)
+            y_d_te_num = clean_num_target(y_d_te)
+            y_c_tr_num = clean_num_target(y_c_tr)
+            y_c_te_num = clean_num_target(y_c_te)
 
             rf_dirty = RandomForestRegressor(n_estimators=40, max_depth=12, random_state=random_seed, n_jobs=-1)
-            rf_dirty.fit(X_d_tr, y_d_tr)
-            preds_d = rf_dirty.predict(X_d_te)
+            rf_dirty.fit(X_d_tr, y_d_tr_num)
+            preds_d = rf_dirty.predict(X_c_te)
 
             rf_clean = RandomForestRegressor(n_estimators=40, max_depth=12, random_state=random_seed, n_jobs=-1)
-            rf_clean.fit(X_c_tr, y_c_tr)
+            rf_clean.fit(X_c_tr, y_c_tr_num)
             preds_c = rf_clean.predict(X_c_te)
 
-            r2_d = float(r2_score(y_d_te, preds_d))
-            r2_c = float(r2_score(y_c_te, preds_c))
+            r2_d = float(r2_score(y_c_te_num, preds_d))
+            r2_c = float(r2_score(y_c_te_num, preds_c))
 
-            mae_d = float(mean_absolute_error(y_d_te, preds_d))
-            mae_c = float(mean_absolute_error(y_c_te, preds_c))
+            mae_d = float(mean_absolute_error(y_c_te_num, preds_d))
+            mae_c = float(mean_absolute_error(y_c_te_num, preds_c))
 
-            rmse_d = float(np.sqrt(mean_squared_error(y_d_te, preds_d)))
-            rmse_c = float(np.sqrt(mean_squared_error(y_c_te, preds_c)))
+            rmse_d = float(np.sqrt(mean_squared_error(y_c_te_num, preds_d)))
+            rmse_c = float(np.sqrt(mean_squared_error(y_c_te_num, preds_c)))
 
             delta_r2 = r2_c - r2_d
             delta_rmse = rmse_d - rmse_c  # Positive means error decreased

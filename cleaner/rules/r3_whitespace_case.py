@@ -83,6 +83,13 @@ def propose_r3_whitespace_case(
                     # Dominant form must have strong evidence (>= 70% of cluster and at least 3 occurrences)
                     if dom_count >= 3 and (dom_count / total_in_cluster) >= 0.70:
                         dominant_form_map[key] = dominant
+        elif is_code and not is_free_text:
+            # For short alphabetic code columns (state abbreviations, currency codes, ISO country codes),
+            # canonicalize lowercase/mixed-case variants to standard uppercase
+            sample_non_empty = [v.strip() for v in series if v.strip() != ""]
+            if sample_non_empty and all(v.isalpha() and len(v) <= 4 for v in sample_non_empty[:30]):
+                for v in sample_non_empty:
+                    dominant_form_map[v.lower()] = v.upper()
 
         # 2. Collect changes
         whitespace_changes: List[CellChange] = []

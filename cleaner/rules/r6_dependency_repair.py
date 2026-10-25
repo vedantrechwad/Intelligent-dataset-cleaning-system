@@ -9,9 +9,20 @@ also fill blanks in B from the group majority.
 Tier: REVIEW.
 """
 
+import re
 from typing import List, Set, Dict, Any, Optional, Tuple
 import pandas as pd
 from cleaner.rules.base import Proposal, CellChange
+
+
+def is_continuous_numeric(series: pd.Series) -> bool:
+    """Detect if a series represents continuous numeric measurements (floats/decimals)."""
+    non_blank = series[series != ""]
+    if len(non_blank) < 5:
+        return False
+    sample = non_blank.iloc[:250]
+    float_count = sum(1 for v in sample if bool(re.match(r"^[-+]?\d+\.\d+$", str(v).strip())))
+    return (float_count / len(sample)) >= 0.15
 
 
 def propose_r6_dependency_repair(
@@ -25,6 +36,7 @@ def propose_r6_dependency_repair(
 ) -> List[Proposal]:
     """
     Propose R6 functional dependency repairs.
+    Excludes continuous numeric columns from determinant keys to prevent spurious repairs.
     """
     if touched_cells is None:
         touched_cells = set()
@@ -46,8 +58,12 @@ def propose_r6_dependency_repair(
         if len(non_blank_a) < 5:
             continue
 
-        # Skip near-unique key
-        if non_blank_a.nunique() / len(non_blank_a) > 0.90:
+        # Skip continuous numeric measurements as determinant keys (e.g. prices, distances, latitudes)
+        if is_continuous_numeric(a_series):
+            continue
+
+        # Skip near-unique keys or high-entropy columns
+        if non_blank_a.nunique() / len(non_blank_a) > 0.40:
             continue
 
         vc_a = non_blank_a.value_counts()
@@ -137,25 +153,25 @@ def propose_r6_dependency_repair(
         fill_mask = has_target & (cur_b_series == "")
 
         for idx in df[viol_mask].index:
-            idx = int(idx)
-            if (idx, col_b) not in local_touched:
-                maj_val = target_series.iat[idx]
-                cur_b = cur_b_series.iat[idx]
+            row_key = int(idx) if (isinstance(idx, (int, float)) or (isinstance(idx, str) and idx.isdigit())) else idx
+            if (row_key, col_b) not in local_touched:
+                maj_val = str(target_series.loc[idx])
+                cur_b = str(cur_b_series.loc[idx])
                 changes.append(
-                    CellChange(row=idx, column=col_b, old_value=cur_b, new_value=maj_val)
+                    CellChange(row=row_key, column=col_b, old_value=cur_b, new_value=maj_val)
                 )
                 n_repairs += 1
-                local_touched.add((idx, col_b))
+                local_touched.add((row_key, col_b))
 
         for idx in df[fill_mask].index:
-            idx = int(idx)
-            if (idx, col_b) not in local_touched:
-                maj_val = target_series.iat[idx]
+            row_key = int(idx) if (isinstance(idx, (int, float)) or (isinstance(idx, str) and idx.isdigit())) else idx
+            if (row_key, col_b) not in local_touched:
+                maj_val = str(target_series.loc[idx])
                 changes.append(
-                    CellChange(row=idx, column=col_b, old_value="", new_value=maj_val)
+                    CellChange(row=row_key, column=col_b, old_value="", new_value=maj_val)
                 )
                 n_fills += 1
-                local_touched.add((idx, col_b))
+                local_touched.add((row_key, col_b))
 
         if changes:
             proposals.append(Proposal(
