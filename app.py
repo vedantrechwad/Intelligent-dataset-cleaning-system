@@ -8,16 +8,13 @@ import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
 from collections import defaultdict
-
-from src.utils.helpers import load_config, NpEncoder, logger
+from src.utils.helpers import load_config, NpEncoder
 from src.ingestion.file_loader import load_dataset
 from src.ingestion.schema_detector import detect_dataset_schema
 from src.profiling.profiler import profile_dataset
-from src.profiling.quality_metrics import compute_quality_score, compute_defect_resolution_rate
+from src.profiling.quality_metrics import compute_quality_score
 from src.detection.anomaly_detector import detect_all_issues
-from src.intelligence.ollama_client import OllamaClient, RECOMMENDED_MODELS
-from src.intelligence.reasoning_engine import ReasoningEngine
-from src.intelligence.domain_inferencer import infer_dynamic_domain_rules
+from src.intelligence.ollama_client import OllamaClient
 from src.intelligence.semantic_standardizer import generate_semantic_vocabulary_proposal
 from src.intelligence.contextual_assistant import explain_and_suggest_fix
 from src.intelligence.nl_rule_generator import generate_rule_from_natural_language
@@ -25,13 +22,10 @@ from src.intelligence.metric_explainer import explain_metric_shift
 from src.validation.validator import validate_cleaned_dataset
 from src.validation.before_after import compute_before_after_comparison
 from src.evaluation.downstream_evaluation import evaluate_downstream_ml, infer_target_column
-from src.reporting.audit_logger import AuditLogger
-from src.reporting.report_generator import generate_html_report
 from cleaner.profile import profile_table as cleaner_profile_table
 from cleaner.engine import CleaningEngine
 from cleaner.exporter import generate_cleaning_script
 from cleaner.diff_viewer import compute_diff_summary, format_diff_table, build_side_by_side_diff
-from cleaner.rules.base import Proposal, CellChange
 
 # -------------------------------------------------------------
 # Streamlit App Configuration
@@ -581,7 +575,10 @@ with tabs[1]:
 
                 cleaned_df = cleaned_df.replace("", np.nan)
                 for col in cleaned_df.columns:
-                    cleaned_df[col] = pd.to_numeric(cleaned_df[col], errors="ignore")
+                    try:
+                        cleaned_df[col] = pd.to_numeric(cleaned_df[col])
+                    except (ValueError, TypeError):
+                        pass
                     orig_df = st.session_state.working_df
                     if orig_df is not None and col in orig_df.columns:
                         try:
@@ -707,13 +704,15 @@ with tabs[1]:
                             num_s = pd.to_numeric(series, errors="coerce")
                             if num_s.notna().any():
                                 val = num_s.median() if "Median" in fill_mode else num_s.mean()
-                                fill_val = str(round(val, 2))
+                                fill_val = str(round(float(val), 2))
                         elif fill_mode == "Forward Fill":
                             filled_s = series.replace("", np.nan).ffill().fillna("")
                         elif fill_mode == "Backward Fill":
                             filled_s = series.replace("", np.nan).bfill().fillna("")
+                        else:
+                            filled_s = None
 
-                        if fill_mode in ["Forward Fill", "Backward Fill"]:
+                        if fill_mode in ["Forward Fill", "Backward Fill"] and filled_s is not None:
                             for r_idx in series[blank_mask].index:
                                 nv = str(filled_s.at[r_idx])
                                 st.session_state.manual_overrides.append({"row": r_idx, "column": target_fb_col, "new_value": nv})
@@ -737,10 +736,11 @@ with tabs[1]:
                 for col in active_review_df.columns:
                     s = active_review_df[col].astype(str)
                     for r_idx, v in s.head(500).items():
-                        if re.search(r"[0-9]", v) and any(w in col.lower() for w in ["name", "first", "last", "patient", "customer"]):
-                            anomalous_cells.append({"row": r_idx, "column": col, "original_value": v, "description": f"Digit characters in text field ('{v}')"})
-                        elif re.search(r"\b18\d{2}\b", v) and any(w in col.lower() for w in ["birth", "dob", "year", "date"]):
-                            anomalous_cells.append({"row": r_idx, "column": col, "original_value": v, "description": f"Century anomaly in date field ('{v}')"})
+                        v_str = str(v)
+                        if re.search(r"[0-9]", v_str) and any(w in col.lower() for w in ["name", "first", "last", "patient", "customer"]):
+                            anomalous_cells.append({"row": r_idx, "column": col, "original_value": v_str, "description": f"Digit characters in text field ('{v_str}')"})
+                        elif re.search(r"\b18\d{2}\b", v_str) and any(w in col.lower() for w in ["birth", "dob", "year", "date"]):
+                            anomalous_cells.append({"row": r_idx, "column": col, "original_value": v_str, "description": f"Century anomaly in date field ('{v_str}')"})
 
                 if anomalous_cells:
                     labels = [f"Row {c['row']} | Col: '{c['column']}' | Val: '{c['original_value']}'" for c in anomalous_cells[:40]]
@@ -901,8 +901,9 @@ with tabs[2]:
         dim_deltas = comparison["dimension_deltas"]
 
         # Cache applied rule names & dataset context for explainers
-        applied_rules_list = [p.name for p in (st.session_state.get("cleaner_proposals") or []) if st.session_state.rule_approvals.get(p.id, False)]
-        dataset_info = {"name": getattr(st.session_state, "dataset_name", "Active Dataset"), "rows": len(st.session_state.working_df)}
+        applied_rules_list = [getattr(p, "description", getattr(p, "kind", p.id)) for p in (st.session_state.get("cleaner_proposals") or []) if st.session_state.rule_approvals.get(p.id, False)]
+        dataset_name = st.session_state.dataset_meta.get("filename", "Active Dataset") if st.session_state.get("dataset_meta") else "Active Dataset"
+        dataset_info = {"name": dataset_name, "rows": len(st.session_state.working_df) if st.session_state.working_df is not None else 0}
 
         # -------------------------------------------------------------
         # PILLAR 1: DATA QUALITY DIMENSIONS (GOV.UK / DAMA Framework)
@@ -1032,8 +1033,8 @@ with tabs[2]:
             s_clean = pd.to_numeric(st.session_state.cleaned_df[dist_col], errors="coerce").dropna()
 
             if not s_raw.empty and not s_clean.empty:
-                r_mean, c_mean = s_raw.mean(), s_clean.mean()
-                r_std, c_std = s_raw.std(), s_clean.std()
+                r_mean, c_mean = float(s_raw.mean()), float(s_clean.mean())
+                r_std, c_std = float(s_raw.std()), float(s_clean.std())
                 with dist_col_c2:
                     st.write("")
                     st.caption(f"Mean: {r_mean:.2f} &rarr; {c_mean:.2f} | Std: {r_std:.2f} &rarr; {c_std:.2f}")
@@ -1174,7 +1175,8 @@ with tabs[2]:
         with exp_c2:
             cleaner_proposals = st.session_state.get("cleaner_proposals", [])
             approved = [p for p in cleaner_proposals if st.session_state.rule_approvals.get(p.id, False)]
-            py_code = generate_cleaning_script(approved, input_path="input_data.csv", output_path="cleaned_data.csv")
+            source_file = st.session_state.dataset_meta.get("filename", "input_data.csv") if st.session_state.get("dataset_meta") else "input_data.csv"
+            py_code = generate_cleaning_script(approved, original_filename=source_file)
             st.download_button(
                 "Download Python Script",
                 data=py_code,

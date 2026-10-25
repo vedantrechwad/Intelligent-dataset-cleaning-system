@@ -13,11 +13,14 @@ from cleaner.rules.base import Proposal, RULE_ORDER_MAP
 
 def generate_cleaning_script(
     approved_proposals: List[Proposal],
-    original_filename: str = "dataset.csv"
+    original_filename: str = "dataset.csv",
+    **kwargs
 ) -> str:
     """
     Generate self-contained Python script code reproducing approved cleaning rules.
     """
+    if "input_path" in kwargs and original_filename == "dataset.csv":
+        original_filename = kwargs["input_path"]
     sorted_proposals = sorted(approved_proposals, key=lambda p: p.order_rank)
 
     lines = [
