@@ -2,18 +2,26 @@ from typing import Dict, Any, List
 import pandas as pd
 
 def compute_before_after_comparison(
-    before_profile: Dict[str, Any],
-    after_profile: Dict[str, Any],
-    before_issues: List[Dict[str, Any]],
-    after_issues: List[Dict[str, Any]],
-    before_score: Dict[str, Any],
-    after_score: Dict[str, Any],
+    before_profile: Dict[str, Any] = None,
+    after_profile: Dict[str, Any] = None,
+    before_issues: List[Dict[str, Any]] = None,
+    after_issues: List[Dict[str, Any]] = None,
+    before_score: Dict[str, Any] = None,
+    after_score: Dict[str, Any] = None,
     diff_records: List[Dict[str, Any]] = None
 ) -> Dict[str, Any]:
     """
     Computes rigorous before-and-after comparison metrics.
     Quantifies resolved vs unresolved issues without false claims.
     """
+    before_profile = before_profile or {}
+    after_profile = after_profile or {}
+    before_issues = before_issues or []
+    after_issues = after_issues or []
+    before_score = before_score or {}
+    after_score = after_score or {}
+    diff_records = diff_records or []
+
     # Summary of issues by type before
     b_type_counts = {}
     for i in before_issues:

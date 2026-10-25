@@ -884,6 +884,12 @@ with tabs[1]:
                 st.session_state.cleaner_cleaned_df = cleaned_df
                 st.session_state.cleaner_diff_records = diff_records
                 st.session_state.cleaned_df = cleaned_df
+
+                af_prof, af_issues, af_score = validate_cleaned_dataset(cleaned_df)
+                st.session_state.after_profile = af_prof
+                st.session_state.after_issues = af_issues
+                st.session_state.after_quality_score = af_score
+
                 st.success("Re-applied all changes and updated diff audit.")
                 st.rerun()
 
@@ -894,6 +900,13 @@ with tabs[2]:
     if st.session_state.cleaned_df is None:
         st.info("Please apply cleaning rules in Tab 2 first to verify quality impact and export results.")
     else:
+        # Guarantee validation results exist if cleaned_df is populated
+        if st.session_state.after_issues is None or st.session_state.after_profile is None or st.session_state.after_quality_score is None:
+            af_prof, af_issues, af_score = validate_cleaned_dataset(st.session_state.cleaned_df)
+            st.session_state.after_profile = af_prof
+            st.session_state.after_issues = af_issues
+            st.session_state.after_quality_score = af_score
+
         st.markdown("#### Verification & Impact Scorecard")
         st.caption("Empirical proof of cleaning effectiveness: Downstream Machine Learning gains, Defect Resolution, and Quality Dimensions.")
 
