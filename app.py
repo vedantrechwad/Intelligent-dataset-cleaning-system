@@ -95,6 +95,14 @@ st.markdown("""
         margin-top: 4px;
     }
 
+    /* Streamlit Metric Delta Styling */
+    [data-testid="stMetricDelta"] {
+        font-weight: 500;
+    }
+    [data-testid="stMetricDelta"] svg {
+        fill: currentColor;
+    }
+
     /* Minimalist Badges */
     .badge {
         display: inline-block;
@@ -359,11 +367,30 @@ with tabs[0]:
         if st.session_state.dataset_summary_text:
             st.info(f"**Inferred Dataset Purpose**: {st.session_state.dataset_summary_text}")
 
-        # Count Tangible Defects by Category
-        n_missing = sum(p.n_cells for p in proposals if p.kind == "R1_missing_tokens")
-        n_format = sum(p.n_cells for p in proposals if p.kind in ["R2_numeric", "R3_whitespace_case", "R4_dates"])
-        n_category = sum(p.n_cells for p in proposals if p.kind in ["R6_dependency_repair", "R7_category_variants", "R9_semantic_vocabulary"])
-        n_duplicates = sum(len(p.dropped_rows) for p in proposals if p.kind == "R8_exact_duplicates")
+        # Tally issues by column and defect category from detected anomalies
+        col_issue_counts = defaultdict(lambda: {"Missing": 0, "Format": 0, "Category": 0, "Outlier": 0})
+        for issue in raw_issues:
+            col_name = issue.get("column", "Unknown")
+            itype = issue.get("issue_type", "")
+            if itype == "missing_value":
+                col_issue_counts[col_name]["Missing"] += 1
+            elif itype in ["invalid_date", "invalid_range", "invalid_type", "domain_violation", "invalid_format"]:
+                col_issue_counts[col_name]["Format"] += 1
+            elif itype in ["outlier", "extreme_outlier"]:
+                col_issue_counts[col_name]["Outlier"] += 1
+            else:
+                col_issue_counts[col_name]["Category"] += 1
+
+        n_missing = sum(c["Missing"] for c in col_issue_counts.values())
+        if n_missing == 0 and st.session_state.raw_profile:
+            n_missing = st.session_state.raw_profile.get("missing_cells", 0)
+
+        n_format = sum(c["Format"] for c in col_issue_counts.values())
+        n_category = sum(c["Category"] for c in col_issue_counts.values())
+        n_outliers = sum(c["Outlier"] for c in col_issue_counts.values())
+        n_duplicates = sum(1 for issue in raw_issues if issue.get("issue_type") in ["exact_duplicate", "duplicate_row"])
+        if n_duplicates == 0 and st.session_state.raw_profile:
+            n_duplicates = st.session_state.raw_profile.get("duplicate_rows", 0)
 
         # Metric Strip
         m_c1, m_c2, m_c3, m_c4, m_c5 = st.columns(5)
@@ -394,7 +421,7 @@ with tabs[0]:
         with m_c4:
             st.markdown(f"""
             <div class="metric-card">
-                <div class="metric-value">{n_format + n_category:,}</div>
+                <div class="metric-value">{n_format + n_category + n_outliers:,}</div>
                 <div class="metric-label">Format & Text Issues</div>
                 <div class="metric-subtext">Symbols, casing, typos</div>
             </div>
@@ -417,19 +444,6 @@ with tabs[0]:
         st.caption("Breakdown of detected anomalies across dataset columns.")
 
         col_defect_data = []
-        # Tally issues by column
-        col_issue_counts = defaultdict(lambda: {"Missing": 0, "Format": 0, "Category": 0, "Outlier": 0})
-        for issue in raw_issues:
-            col_name = issue.get("column", "Unknown")
-            itype = issue.get("issue_type", "")
-            if itype == "missing_value":
-                col_issue_counts[col_name]["Missing"] += 1
-            elif itype in ["invalid_date", "invalid_range", "invalid_type", "invalid_format"]:
-                col_issue_counts[col_name]["Format"] += 1
-            elif itype in ["outlier", "extreme_outlier"]:
-                col_issue_counts[col_name]["Outlier"] += 1
-            else:
-                col_issue_counts[col_name]["Category"] += 1
 
         for c in raw_df.columns:
             counts = col_issue_counts[c]
@@ -946,19 +960,66 @@ with tabs[2]:
                     ollama_client=ollama_client if is_ollama_online else None
                 )
                 delta_num = round(a_val - b_val, 2)
-                b_color = "#10b981" if delta_num > 0 else ("#f59e0b" if delta_num < 0 else "#64748b")
+                b_color = "#10b981" if delta_num > 0 else "#64748b"
                 b_txt = f"+{delta_num}" if delta_num > 0 else f"{delta_num}"
                 st.markdown(f"<span style='background-color:{b_color}22; color:{b_color}; padding:2px 8px; border-radius:4px; font-weight:600; font-size:12px;'>Shift: {b_txt} pts</span> | Raw: **{b_val:.1f}** &rarr; Clean: **{a_val:.1f}**", unsafe_allow_html=True)
                 st.markdown(f"**{expl['headline']}**")
                 st.info(expl["explanation"])
                 st.caption(f"Reasoning engine: {expl['source'].upper()}")
 
+        # Quality Score Delta: Green if improved, Neutral Gray if unchanged or reduced (never red)
+        if q_delta > 0:
+            q_delta_label = f"+{q_delta:.1f} pts"
+            q_delta_color = "normal"  # Green
+        elif q_delta == 0:
+            q_delta_label = "0.0 pts (Unchanged)"
+            q_delta_color = "off"     # Gray
+        else:
+            q_delta_label = f"{q_delta:.1f} pts"
+            q_delta_color = "off"     # Gray (never alarming red)
+
+        # Missing Cells Delta: Green if reduced, Gray if unchanged or increased
+        miss_delta = m['missing_cells']['delta']
+        if miss_delta < 0:
+            miss_delta_label = f"{miss_delta:,}"
+            miss_delta_color = "inverse"  # Green
+        elif miss_delta == 0:
+            miss_delta_label = "0 (Unchanged)"
+            miss_delta_color = "off"      # Gray
+        else:
+            miss_delta_label = f"+{miss_delta:,}"
+            miss_delta_color = "off"      # Gray
+
+        # Duplicate Rows Delta: Green if reduced, Gray if unchanged/clean
+        dup_delta = m['duplicate_rows']['delta']
+        if dup_delta < 0:
+            dup_delta_label = f"{dup_delta:,}"
+            dup_delta_color = "inverse"  # Green
+        elif dup_delta == 0:
+            dup_delta_label = "0 (Clean)"
+            dup_delta_color = "off"      # Gray
+        else:
+            dup_delta_label = f"+{dup_delta:,}"
+            dup_delta_color = "off"      # Gray
+
+        # Active Anomalies Delta: Green if reduced, Gray if unchanged or increased
+        anom_delta = m['total_issues']['delta']
+        if anom_delta < 0:
+            anom_delta_label = f"{anom_delta:,}"
+            anom_delta_color = "inverse"  # Green
+        elif anom_delta == 0:
+            anom_delta_label = "0 (Unchanged)"
+            anom_delta_color = "off"      # Gray
+        else:
+            anom_delta_label = f"+{anom_delta:,}"
+            anom_delta_color = "off"      # Gray
+
         qc1, qc2, qc3, qc4, qc5 = st.columns(5)
-        qc1.metric("Quality Score", f"{q_after:.1f}/100", delta=f"{'+' if q_delta >= 0 else ''}{q_delta:.1f} pts")
-        qc2.metric("Defect Resolution Rate", f"{drr_pct:.1f}%", delta=f"{repaired_cnt:,} cells repaired")
-        qc3.metric("Missing Cells", f"{m['missing_cells']['after']:,}", delta=f"{m['missing_cells']['delta']:,}", delta_color="inverse")
-        qc4.metric("Duplicate Rows", f"{m['duplicate_rows']['after']:,}", delta=f"{m['duplicate_rows']['delta']:,}", delta_color="inverse")
-        qc5.metric("Active Anomalies", f"{m['total_issues']['after']:,}", delta=f"{m['total_issues']['delta']:,}", delta_color="inverse")
+        qc1.metric("Quality Score", f"{q_after:.1f}/100", delta=q_delta_label, delta_color=q_delta_color)
+        qc2.metric("Defect Resolution Rate", f"{drr_pct:.1f}%", delta=f"{repaired_cnt:,} cells repaired", delta_color="normal" if drr_pct > 0 else "off")
+        qc3.metric("Missing Cells", f"{m['missing_cells']['after']:,}", delta=miss_delta_label, delta_color=miss_delta_color)
+        qc4.metric("Duplicate Rows", f"{m['duplicate_rows']['after']:,}", delta=dup_delta_label, delta_color=dup_delta_color)
+        qc5.metric("Active Anomalies", f"{m['total_issues']['after']:,}", delta=anom_delta_label, delta_color=anom_delta_color)
 
         dim_plot_data = []
         for d_name, vals in dim_deltas.items():
@@ -1130,23 +1191,27 @@ with tabs[2]:
                     acc_raw = m_dirty.get("accuracy", 0.0) * 100
                     acc_clean = m_clean.get("accuracy", 0.0) * 100
                     acc_delta = deltas.get("delta_accuracy", 0.0) * 100
-                    res_c1.metric("Classification Accuracy", f"{acc_clean:.1f}%", delta=f"{'+' if acc_delta >= 0 else ''}{acc_delta:.1f}%")
+                    acc_color = "normal" if acc_delta > 0 else "off"
+                    res_c1.metric("Classification Accuracy", f"{acc_clean:.1f}%", delta=f"{'+' if acc_delta > 0 else ''}{acc_delta:.1f}%", delta_color=acc_color)
 
                     f1_raw = m_dirty.get("f1_score", 0.0) * 100
                     f1_clean = m_clean.get("f1_score", 0.0) * 100
                     f1_delta = deltas.get("delta_f1", 0.0) * 100
-                    res_c2.metric("F1 Score", f"{f1_clean:.1f}%", delta=f"{'+' if f1_delta >= 0 else ''}{f1_delta:.1f}%")
+                    f1_color = "normal" if f1_delta > 0 else "off"
+                    res_c2.metric("F1 Score", f"{f1_clean:.1f}%", delta=f"{'+' if f1_delta > 0 else ''}{f1_delta:.1f}%", delta_color=f1_color)
 
                     prec_clean = m_clean.get("precision", 0.0) * 100
                     res_c3.metric("Precision", f"{prec_clean:.1f}%")
                 else:
                     r2_clean = m_clean.get("r2_score", 0.0)
                     r2_delta = deltas.get("delta_r2", 0.0)
-                    res_c1.metric("R-Squared (Variance Explained)", f"{r2_clean:.3f}", delta=f"{'+' if r2_delta >= 0 else ''}{r2_delta:.3f}")
+                    r2_color = "normal" if r2_delta > 0 else "off"
+                    res_c1.metric("R-Squared (Variance Explained)", f"{r2_clean:.3f}", delta=f"{'+' if r2_delta > 0 else ''}{r2_delta:.3f}", delta_color=r2_color)
 
                     rmse_clean = m_clean.get("rmse", 0.0)
                     rmse_red = deltas.get("delta_rmse_reduction", 0.0)
-                    res_c2.metric("RMSE Prediction Error", f"{rmse_clean:.2f}", delta=f"-{rmse_red:.2f}" if rmse_red > 0 else f"{rmse_red:.2f}", delta_color="inverse")
+                    rmse_color = "inverse" if rmse_red > 0 else "off"
+                    res_c2.metric("RMSE Prediction Error", f"{rmse_clean:.2f}", delta=f"-{rmse_red:.2f}" if rmse_red > 0 else f"{rmse_red:.2f}", delta_color=rmse_color)
 
                     mae_clean = m_clean.get("mae", 0.0)
                     res_c3.metric("MAE Error", f"{mae_clean:.2f}")
