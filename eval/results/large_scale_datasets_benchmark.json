@@ -1,0 +1,292 @@
+[
+  {
+    "id": "online_retail_540k",
+    "name": "Online Retail Transactions (Databricks / UCI)",
+    "status": "success",
+    "duration_sec": 32.49,
+    "total_dataset_rows": 541909,
+    "total_dataset_cols": 8,
+    "rows_evaluated": 25000,
+    "defects_repaired": 5741,
+    "untouched_percentage": 97.3055,
+    "harm_risk_bound": 0.0,
+    "health_score": {
+      "before": 78.66,
+      "after": 78.86,
+      "lift_points": 0.2
+    },
+    "dimensions": {
+      "completeness_before": 95.47,
+      "completeness_after": 95.44,
+      "consistency_before": 0.0,
+      "consistency_after": 0.0,
+      "uniqueness_before": 98.59,
+      "uniqueness_after": 100.0
+    },
+    "ml_utility": {
+      "status": "success",
+      "task_type": "Regression",
+      "target_column": "UnitPrice",
+      "n_samples_evaluated": 24648,
+      "model_name": "Random Forest Regressor (40 trees, depth=12)",
+      "dirty_metrics": {
+        "r2_score": 0.075,
+        "mae": 8.6593,
+        "rmse": 215.2575
+      },
+      "corrupted_metrics": {
+        "r2_score": 0.075,
+        "mae": 8.6593,
+        "rmse": 215.2575
+      },
+      "cleaned_metrics": {
+        "r2_score": 0.122,
+        "mae": 8.6035,
+        "rmse": 209.7143
+      },
+      "deltas": {
+        "delta_r2": 0.047,
+        "delta_rmse_reduction": 5.5432
+      },
+      "metrics_delta": {
+        "delta_r2": 0.047,
+        "delta_rmse_reduction": 5.5432
+      },
+      "improved": true
+    }
+  },
+  {
+    "id": "uber_trips_nyc_560k",
+    "name": "NYC Uber Raw Trips (FiveThirtyEight / TLC)",
+    "status": "success",
+    "duration_sec": 38.58,
+    "total_dataset_rows": 564516,
+    "total_dataset_cols": 4,
+    "rows_evaluated": 25000,
+    "defects_repaired": 904,
+    "untouched_percentage": 100.0,
+    "harm_risk_bound": 0.0,
+    "health_score": {
+      "before": 79.46,
+      "after": 80.0,
+      "lift_points": 0.54
+    },
+    "dimensions": {
+      "completeness_before": 100.0,
+      "completeness_after": 100.0,
+      "consistency_before": 0.0,
+      "consistency_after": 0.0,
+      "uniqueness_before": 96.38,
+      "uniqueness_after": 100.0
+    },
+    "ml_utility": {
+      "status": "success",
+      "task_type": "Classification",
+      "target_column": "Base",
+      "n_samples_evaluated": 24096,
+      "model_name": "Random Forest Classifier (40 trees, depth=12)",
+      "dirty_metrics": {
+        "accuracy": 1.0,
+        "f1_score": 1.0,
+        "precision": 1.0,
+        "recall": 1.0
+      },
+      "corrupted_metrics": {
+        "accuracy": 1.0,
+        "f1_score": 1.0,
+        "precision": 1.0,
+        "recall": 1.0
+      },
+      "cleaned_metrics": {
+        "accuracy": 1.0,
+        "f1_score": 1.0,
+        "precision": 1.0,
+        "recall": 1.0
+      },
+      "deltas": {
+        "delta_accuracy": 0.0,
+        "delta_f1": 0.0,
+        "pct_gain_f1": 0.0
+      },
+      "metrics_delta": {
+        "delta_accuracy": 0.0,
+        "delta_f1": 0.0,
+        "f1_lift_percent": 0.0
+      },
+      "improved": true
+    }
+  },
+  {
+    "id": "pnw_flights_160k",
+    "name": "PNW Commercial Flights (BTS / ismayc)",
+    "status": "success",
+    "duration_sec": 45.76,
+    "total_dataset_rows": 162049,
+    "total_dataset_cols": 16,
+    "rows_evaluated": 25000,
+    "defects_repaired": 0,
+    "untouched_percentage": 100.0,
+    "harm_risk_bound": 0.0,
+    "health_score": {
+      "before": 54.88,
+      "after": 54.88,
+      "lift_points": 0.0
+    },
+    "dimensions": {
+      "completeness_before": 99.53,
+      "completeness_after": 99.53,
+      "consistency_before": 0.0,
+      "consistency_after": 0.0,
+      "uniqueness_before": 100.0,
+      "uniqueness_after": 100.0
+    },
+    "ml_utility": {
+      "status": "success",
+      "task_type": "Regression",
+      "target_column": "arr_delay",
+      "n_samples_evaluated": 25000,
+      "model_name": "Random Forest Regressor (40 trees, depth=12)",
+      "dirty_metrics": {
+        "r2_score": 0.9009,
+        "mae": 6.9985,
+        "rmse": 9.9266
+      },
+      "corrupted_metrics": {
+        "r2_score": 0.9009,
+        "mae": 6.9985,
+        "rmse": 9.9266
+      },
+      "cleaned_metrics": {
+        "r2_score": 0.9009,
+        "mae": 6.9985,
+        "rmse": 9.9266
+      },
+      "deltas": {
+        "delta_r2": 0.0,
+        "delta_rmse_reduction": 0.0
+      },
+      "metrics_delta": {
+        "delta_r2": 0.0,
+        "delta_rmse_reduction": 0.0
+      },
+      "improved": true
+    }
+  },
+  {
+    "id": "sf_payroll_74k",
+    "name": "SF Municipal Payroll Benchmark (Raha / Baran)",
+    "status": "success",
+    "duration_sec": 268.4,
+    "total_dataset_rows": 74325,
+    "total_dataset_cols": 13,
+    "rows_evaluated": 25000,
+    "defects_repaired": 0,
+    "untouched_percentage": 100.0,
+    "harm_risk_bound": 0.0,
+    "health_score": {
+      "before": 55.58,
+      "after": 55.58,
+      "lift_points": 0.0
+    },
+    "dimensions": {
+      "completeness_before": 76.92,
+      "completeness_after": 76.92,
+      "consistency_before": 0.0,
+      "consistency_after": 0.0,
+      "uniqueness_before": 100.0,
+      "uniqueness_after": 100.0
+    },
+    "ml_utility": {
+      "status": "success",
+      "task_type": "Regression",
+      "target_column": "BasePay (real)",
+      "n_samples_evaluated": 25000,
+      "model_name": "Random Forest Regressor (40 trees, depth=12)",
+      "dirty_metrics": {
+        "r2_score": 0.9932,
+        "mae": 737.7136,
+        "rmse": 2440.2241
+      },
+      "corrupted_metrics": {
+        "r2_score": 0.9932,
+        "mae": 737.7136,
+        "rmse": 2440.2241
+      },
+      "cleaned_metrics": {
+        "r2_score": 0.9932,
+        "mae": 737.7136,
+        "rmse": 2440.2241
+      },
+      "deltas": {
+        "delta_r2": 0.0,
+        "delta_rmse_reduction": 0.0
+      },
+      "metrics_delta": {
+        "delta_r2": 0.0,
+        "delta_rmse_reduction": 0.0
+      },
+      "improved": true
+    }
+  },
+  {
+    "id": "chicago_salaries_32k",
+    "name": "City of Chicago Municipal Salaries (Data Portal)",
+    "status": "success",
+    "duration_sec": 50.78,
+    "total_dataset_rows": 32192,
+    "total_dataset_cols": 8,
+    "rows_evaluated": 25000,
+    "defects_repaired": 17,
+    "untouched_percentage": 99.995,
+    "harm_risk_bound": 0.0,
+    "health_score": {
+      "before": 49.63,
+      "after": 49.64,
+      "lift_points": 0.01
+    },
+    "dimensions": {
+      "completeness_before": 78.55,
+      "completeness_after": 78.55,
+      "consistency_before": 0.0,
+      "consistency_after": 0.0,
+      "uniqueness_before": 99.97,
+      "uniqueness_after": 100.0
+    },
+    "ml_utility": {
+      "status": "success",
+      "task_type": "Classification",
+      "target_column": "Department",
+      "n_samples_evaluated": 24993,
+      "model_name": "Random Forest Classifier (40 trees, depth=12)",
+      "dirty_metrics": {
+        "accuracy": 0.5783,
+        "f1_score": 0.5178,
+        "precision": 0.5675,
+        "recall": 0.5783
+      },
+      "corrupted_metrics": {
+        "accuracy": 0.5783,
+        "f1_score": 0.5178,
+        "precision": 0.5675,
+        "recall": 0.5783
+      },
+      "cleaned_metrics": {
+        "accuracy": 0.5795,
+        "f1_score": 0.5195,
+        "precision": 0.576,
+        "recall": 0.5795
+      },
+      "deltas": {
+        "delta_accuracy": 0.0012,
+        "delta_f1": 0.0016,
+        "pct_gain_f1": 0.32
+      },
+      "metrics_delta": {
+        "delta_accuracy": 0.0012,
+        "delta_f1": 0.0016,
+        "f1_lift_percent": 0.32
+      },
+      "improved": true
+    }
+  }
+]

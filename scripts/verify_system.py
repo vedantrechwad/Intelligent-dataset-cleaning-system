@@ -171,8 +171,12 @@ def main():
     print("\n[Step 9] Downstream ML Evaluation (Random Forest Classifier on Churn)...")
     ml_res = evaluate_downstream_ml(corrupted_df, bench_cleaned, target_column="Churn", random_seed=42)
     if "corrupted_metrics" in ml_res:
-        print(f"  [OK] Corrupted Test Accuracy: {ml_res['corrupted_metrics']['accuracy']*100:.2f}% | Cleaned Test Accuracy: {ml_res['cleaned_metrics']['accuracy']*100:.2f}%")
-        print(f"  [OK] Corrupted Test F1: {ml_res['corrupted_metrics']['f1_weighted']:.4f} | Cleaned Test F1: {ml_res['cleaned_metrics']['f1_weighted']:.4f}")
+        c_acc = ml_res['corrupted_metrics'].get('accuracy', 0.0) * 100
+        cl_acc = ml_res['cleaned_metrics'].get('accuracy', 0.0) * 100
+        c_f1 = ml_res['corrupted_metrics'].get('f1_score', ml_res['corrupted_metrics'].get('f1_weighted', 0.0))
+        cl_f1 = ml_res['cleaned_metrics'].get('f1_score', ml_res['cleaned_metrics'].get('f1_weighted', 0.0))
+        print(f"  [OK] Corrupted Test Accuracy: {c_acc:.2f}% | Cleaned Test Accuracy: {cl_acc:.2f}%")
+        print(f"  [OK] Corrupted Test F1: {c_f1:.4f} | Cleaned Test F1: {cl_f1:.4f}")
 
     print("\n" + "=" * 70)
     print("ALL END-TO-END FUNCTIONAL VERIFICATIONS PASSED WITH 100% SUCCESS!")

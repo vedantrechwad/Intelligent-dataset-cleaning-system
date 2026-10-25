@@ -5,15 +5,22 @@ from src.utils.helpers import NpEncoder
 
 def generate_html_report(
     dataset_name: str,
-    before_profile: Dict[str, Any],
-    after_profile: Dict[str, Any],
-    before_score: Dict[str, Any],
-    after_score: Dict[str, Any],
-    audit_log: Dict[str, Any]
+    before_profile: Dict[str, Any] = None,
+    after_profile: Dict[str, Any] = None,
+    before_score: Dict[str, Any] = None,
+    after_score: Dict[str, Any] = None,
+    audit_log: Dict[str, Any] = None,
+    **kwargs
 ) -> str:
     """
     Generates a standalone, beautiful HTML audit and data quality report.
     """
+    before_profile = before_profile or kwargs.get("raw_profile") or {}
+    after_profile = after_profile or {}
+    before_score = before_score or {}
+    after_score = after_score or {}
+    audit_log = audit_log or kwargs.get("audit_report") or {}
+
     b_score = before_score.get("overall_score", 0.0)
     a_score = after_score.get("overall_score", 0.0)
     delta_score = round(a_score - b_score, 2)

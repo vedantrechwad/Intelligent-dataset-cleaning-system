@@ -1,0 +1,312 @@
+[
+  {
+    "id": "online_retail_541k",
+    "name": "Online Retail Transactions (Databricks / UCI)",
+    "status": "success",
+    "total_rows": 541909,
+    "total_cols": 8,
+    "duration_seconds": 85.66,
+    "duration_minutes": 1.43,
+    "defects_detected_initially": 206194,
+    "defects_repaired": 125128,
+    "untouched_percentage": 97.23523691247054,
+    "harm_risk_bound": 0.0,
+    "defect_resolution_rate": {
+      "initial_defects": 206194,
+      "repaired_defects": 125128,
+      "remaining_defects": 81066,
+      "resolution_rate_pct": 60.7
+    },
+    "health_score": {
+      "before": 95.4,
+      "after": 97.41,
+      "lift_points": 2.01
+    },
+    "dimensions": {
+      "completeness_before": 96.85,
+      "completeness_after": 96.85,
+      "validity_before": 100.0,
+      "validity_after": 100.0,
+      "consistency_before": 81.68,
+      "consistency_after": 90.98,
+      "uniqueness_before": 99.03,
+      "uniqueness_after": 100.0,
+      "anomaly_before": 100.0,
+      "anomaly_after": 100.0
+    },
+    "ml_utility": {
+      "status": "success",
+      "task_type": "Regression",
+      "target_column": "UnitPrice",
+      "n_samples_evaluated": 25000,
+      "model_name": "Random Forest Regressor (40 trees, depth=12)",
+      "dirty_metrics": {
+        "r2_score": 0.1139,
+        "mae": 8.2209,
+        "rmse": 210.6882
+      },
+      "corrupted_metrics": {
+        "r2_score": 0.1139,
+        "mae": 8.2209,
+        "rmse": 210.6882
+      },
+      "cleaned_metrics": {
+        "r2_score": 0.0761,
+        "mae": 8.6166,
+        "rmse": 215.1295
+      },
+      "deltas": {
+        "delta_r2": -0.0378,
+        "delta_rmse_reduction": -4.4414
+      },
+      "metrics_delta": {
+        "delta_r2": -0.0378,
+        "delta_rmse_reduction": -4.4414
+      },
+      "improved": false
+    }
+  },
+  {
+    "id": "adult_census_32k",
+    "name": "Adult Census Income (UCI Machine Learning Repository)",
+    "status": "success",
+    "total_rows": 32560,
+    "total_cols": 15,
+    "duration_seconds": 30.45,
+    "duration_minutes": 0.51,
+    "defects_detected_initially": 487674,
+    "defects_repaired": 455864,
+    "untouched_percentage": 6.666666666666667,
+    "harm_risk_bound": 0.0,
+    "defect_resolution_rate": {
+      "initial_defects": 487674,
+      "repaired_defects": 455864,
+      "remaining_defects": 31810,
+      "resolution_rate_pct": 93.5
+    },
+    "health_score": {
+      "before": 83.53,
+      "after": 90.95,
+      "lift_points": 7.42
+    },
+    "dimensions": {
+      "completeness_before": 99.13,
+      "completeness_after": 99.13,
+      "validity_before": 100.0,
+      "validity_after": 100.0,
+      "consistency_before": 18.78,
+      "consistency_after": 55.82,
+      "uniqueness_before": 99.93,
+      "uniqueness_after": 100.0,
+      "anomaly_before": 100.0,
+      "anomaly_after": 100.0
+    },
+    "ml_utility": {}
+  },
+  {
+    "id": "dirty_cafe_sales_10k",
+    "name": "Dirty Cafe Sales Transactions (Kaggle / shaadyalii)",
+    "status": "success",
+    "total_rows": 10000,
+    "total_cols": 8,
+    "duration_seconds": 2.65,
+    "duration_minutes": 0.04,
+    "defects_detected_initially": 31230,
+    "defects_repaired": 3256,
+    "untouched_percentage": 95.93,
+    "harm_risk_bound": 0.0,
+    "defect_resolution_rate": {
+      "initial_defects": 31230,
+      "repaired_defects": 3256,
+      "remaining_defects": 27974,
+      "resolution_rate_pct": 10.4
+    },
+    "health_score": {
+      "before": 84.37,
+      "after": 85.04,
+      "lift_points": 0.67
+    },
+    "dimensions": {
+      "completeness_before": 87.4,
+      "completeness_after": 87.4,
+      "validity_before": 98.15,
+      "validity_after": 100.0,
+      "consistency_before": 39.9,
+      "consistency_after": 40.94,
+      "uniqueness_before": 100.0,
+      "uniqueness_after": 100.0,
+      "anomaly_before": 100.0,
+      "anomaly_after": 100.0
+    },
+    "ml_utility": {
+      "status": "success",
+      "task_type": "Regression",
+      "target_column": "Total Spent",
+      "n_samples_evaluated": 10000,
+      "model_name": "Random Forest Regressor (40 trees, depth=12)",
+      "dirty_metrics": {
+        "r2_score": 0.816,
+        "mae": 1.0568,
+        "rmse": 2.6674
+      },
+      "corrupted_metrics": {
+        "r2_score": 0.816,
+        "mae": 1.0568,
+        "rmse": 2.6674
+      },
+      "cleaned_metrics": {
+        "r2_score": 0.8081,
+        "mae": 1.1183,
+        "rmse": 2.7237
+      },
+      "deltas": {
+        "delta_r2": -0.0079,
+        "delta_rmse_reduction": -0.0563
+      },
+      "metrics_delta": {
+        "delta_r2": -0.0079,
+        "delta_rmse_reduction": -0.0563
+      },
+      "improved": false
+    }
+  },
+  {
+    "id": "baran_movies_7k",
+    "name": "Baran Movies Benchmark (BigDaMa / Raha & Baran)",
+    "status": "success",
+    "total_rows": 7390,
+    "total_cols": 17,
+    "duration_seconds": 18.18,
+    "duration_minutes": 0.3,
+    "defects_detected_initially": 19852,
+    "defects_repaired": 5614,
+    "untouched_percentage": 95.53132213643238,
+    "harm_risk_bound": 0.0,
+    "defect_resolution_rate": {
+      "initial_defects": 19852,
+      "repaired_defects": 5614,
+      "remaining_defects": 14238,
+      "resolution_rate_pct": 28.3
+    },
+    "health_score": {
+      "before": 88.23,
+      "after": 88.22,
+      "lift_points": -0.01
+    },
+    "dimensions": {
+      "completeness_before": 97.78,
+      "completeness_after": 97.78,
+      "validity_before": 77.58,
+      "validity_after": 77.58,
+      "consistency_before": 71.94,
+      "consistency_after": 71.88,
+      "uniqueness_before": 100.0,
+      "uniqueness_after": 100.0,
+      "anomaly_before": 100.0,
+      "anomaly_after": 100.0
+    },
+    "ml_utility": {
+      "status": "success",
+      "task_type": "Regression",
+      "target_column": "rating_value",
+      "n_samples_evaluated": 7390,
+      "model_name": "Random Forest Regressor (40 trees, depth=12)",
+      "dirty_metrics": {
+        "r2_score": 0.0033,
+        "mae": 1.351,
+        "rmse": 1.7765
+      },
+      "corrupted_metrics": {
+        "r2_score": 0.0033,
+        "mae": 1.351,
+        "rmse": 1.7765
+      },
+      "cleaned_metrics": {
+        "r2_score": 0.5956,
+        "mae": 0.7474,
+        "rmse": 1.1315
+      },
+      "deltas": {
+        "delta_r2": 0.5924,
+        "delta_rmse_reduction": 0.645
+      },
+      "metrics_delta": {
+        "delta_r2": 0.5924,
+        "delta_rmse_reduction": 0.645
+      },
+      "improved": true
+    }
+  },
+  {
+    "id": "baran_beers_2k",
+    "name": "Baran Craft Beers Benchmark (BigDaMa / Raha & Baran)",
+    "status": "success",
+    "total_rows": 2410,
+    "total_cols": 11,
+    "duration_seconds": 4.38,
+    "duration_minutes": 0.07,
+    "defects_detected_initially": 5519,
+    "defects_repaired": 3404,
+    "untouched_percentage": 87.15956242927197,
+    "harm_risk_bound": 0.0,
+    "defect_resolution_rate": {
+      "initial_defects": 5519,
+      "repaired_defects": 3404,
+      "remaining_defects": 2115,
+      "resolution_rate_pct": 61.7
+    },
+    "health_score": {
+      "before": 89.89,
+      "after": 89.45,
+      "lift_points": -0.44
+    },
+    "dimensions": {
+      "completeness_before": 95.48,
+      "completeness_after": 95.95,
+      "validity_before": 100.0,
+      "validity_after": 100.0,
+      "consistency_before": 55.1,
+      "consistency_after": 52.3,
+      "uniqueness_before": 100.0,
+      "uniqueness_after": 100.0,
+      "anomaly_before": 100.0,
+      "anomaly_after": 100.0
+    },
+    "ml_utility": {
+      "status": "success",
+      "task_type": "Classification",
+      "target_column": "style",
+      "n_samples_evaluated": 2410,
+      "model_name": "Random Forest Classifier (40 trees, depth=12)",
+      "dirty_metrics": {
+        "accuracy": 0.2047,
+        "f1_score": 0.1217,
+        "precision": 0.165,
+        "recall": 0.2047
+      },
+      "corrupted_metrics": {
+        "accuracy": 0.2047,
+        "f1_score": 0.1217,
+        "precision": 0.165,
+        "recall": 0.2047
+      },
+      "cleaned_metrics": {
+        "accuracy": 0.2697,
+        "f1_score": 0.1831,
+        "precision": 0.2296,
+        "recall": 0.2697
+      },
+      "deltas": {
+        "delta_accuracy": 0.065,
+        "delta_f1": 0.0614,
+        "pct_gain_f1": 50.45
+      },
+      "metrics_delta": {
+        "delta_accuracy": 0.065,
+        "delta_f1": 0.0614,
+        "f1_lift_percent": 50.45
+      },
+      "improved": true
+    }
+  }
+]

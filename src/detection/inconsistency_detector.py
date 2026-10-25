@@ -46,47 +46,58 @@ def detect_categorical_inconsistencies(
                 # Prefer Title Case or most frequent
                 canonical_counts[key] = (cleaned_norm.title() if cleaned_norm.islower() else cleaned_norm, count)
 
-        for row_idx, val in series.items():
-            if pd.isna(val) or val is None:
-                continue
-
-            raw_str = str(val)
+        # Pre-compute which unique values have whitespace or casing issues
+        bad_val_map = {}
+        for raw_val in exact_counts.keys():
+            raw_str = str(raw_val)
             normalized_ws = " ".join(raw_str.strip().split())
-
-            # Whitespace issue
-            if raw_str != normalized_ws:
-                inconsistency_issues.append({
-                    "row": int(row_idx),
-                    "column": col,
-                    "original_value": raw_str,
-                    "issue_type": "whitespace_inconsistency",
-                    "detection_method": ["whitespace_analyzer"],
-                    "detection_confidence": 1.0,
-                    "correction_confidence": 1.0,
-                    "suggested_action": "normalize_whitespace",
-                    "suggested_value": normalized_ws,
-                    "reason": f"Value '{raw_str}' contains irregular leading/trailing or multiple whitespaces",
-                    "is_human_review_required": False
-                })
-                raw_str = normalized_ws
-
-            # Casing issue
+            has_ws = (raw_str != normalized_ws)
+            
             key = normalized_ws.lower()
             canonical, dom_count = canonical_counts.get(key, (normalized_ws, 1))
-            if raw_str != canonical and dom_count > 1:
-                inconsistency_issues.append({
-                    "row": int(row_idx),
-                    "column": col,
-                    "original_value": raw_str,
-                    "issue_type": "casing_inconsistency",
-                    "detection_method": ["casing_analyzer"],
-                    "detection_confidence": 1.0,
-                    "correction_confidence": 0.98,
-                    "suggested_action": "normalize_casing",
-                    "suggested_value": canonical,
-                    "reason": f"Value '{raw_str}' has inconsistent casing compared to canonical '{canonical}'",
-                    "is_human_review_required": False
-                })
+            has_case = (normalized_ws != canonical and dom_count > 1) if has_ws else (raw_str != canonical and dom_count > 1)
+            
+            if has_ws or has_case:
+                bad_val_map[raw_val] = (has_ws, normalized_ws, has_case, canonical)
+
+        # Only iterate over rows if there are detected unique inconsistencies
+        if bad_val_map:
+            bad_keys = set(bad_val_map.keys())
+            for row_idx, val in series.items():
+                if val in bad_keys:
+                    has_ws, normalized_ws, has_case, canonical = bad_val_map[val]
+                    raw_str = str(val)
+
+                    if has_ws:
+                        inconsistency_issues.append({
+                            "row": int(row_idx),
+                            "column": col,
+                            "original_value": raw_str,
+                            "issue_type": "whitespace_inconsistency",
+                            "detection_method": ["whitespace_analyzer"],
+                            "detection_confidence": 1.0,
+                            "correction_confidence": 1.0,
+                            "suggested_action": "normalize_whitespace",
+                            "suggested_value": normalized_ws,
+                            "reason": f"Value '{raw_str}' contains irregular leading/trailing or multiple whitespaces",
+                            "is_human_review_required": False
+                        })
+                        raw_str = normalized_ws
+
+                    if has_case:
+                        inconsistency_issues.append({
+                            "row": int(row_idx),
+                            "column": col,
+                            "original_value": raw_str,
+                            "issue_type": "casing_inconsistency",
+                            "detection_method": ["casing_analyzer"],
+                            "detection_confidence": 1.0,
+                            "correction_confidence": 0.98,
+                            "suggested_action": "normalize_casing",
+                            "suggested_value": canonical,
+                            "reason": f"Value '{raw_str}' has inconsistent casing compared to canonical '{canonical}'",
+                            "is_human_review_required": False
+                        })
 
         # 2. Spelling Typos & Fuzzy Variations across distinct categories
         unique_categories = list(set(canonical_counts.keys()))

@@ -1,0 +1,607 @@
+[
+  {
+    "id": "unclean_data",
+    "name": "Dirty Customer Records (JCharis)",
+    "status": "success",
+    "duration_sec": 0.32,
+    "shape": {
+      "rows": 14,
+      "cols": 16
+    },
+    "defects_repaired": 0,
+    "untouched_percentage": 100.0,
+    "harm_risk_bound": 0.0,
+    "health_score": {
+      "before": 85.16,
+      "after": 85.16,
+      "lift_points": 0.0
+    },
+    "dimensions": {
+      "completeness_before": 90.62,
+      "completeness_after": 90.62,
+      "consistency_before": 37.5,
+      "consistency_after": 37.5,
+      "uniqueness_before": 100.0,
+      "uniqueness_after": 100.0
+    },
+    "ml_utility": {
+      "status": "success",
+      "task_type": "Classification",
+      "target_column": "title_year.1",
+      "n_samples_evaluated": 14,
+      "model_name": "Random Forest Classifier (40 trees, depth=12)",
+      "dirty_metrics": {
+        "accuracy": 0.2,
+        "f1_score": 0.1333,
+        "precision": 0.1,
+        "recall": 0.2
+      },
+      "corrupted_metrics": {
+        "accuracy": 0.2,
+        "f1_score": 0.1333,
+        "precision": 0.1,
+        "recall": 0.2
+      },
+      "cleaned_metrics": {
+        "accuracy": 0.2,
+        "f1_score": 0.1333,
+        "precision": 0.1,
+        "recall": 0.2
+      },
+      "deltas": {
+        "delta_accuracy": 0.0,
+        "delta_f1": 0.0,
+        "pct_gain_f1": 0.0
+      },
+      "metrics_delta": {
+        "delta_accuracy": 0.0,
+        "delta_f1": 0.0,
+        "f1_lift_percent": 0.0
+      },
+      "improved": true
+    }
+  },
+  {
+    "id": "cars93_miss",
+    "name": "Cars93 Messy Specs (Selva86)",
+    "status": "success",
+    "duration_sec": 2.36,
+    "shape": {
+      "rows": 93,
+      "cols": 27
+    },
+    "defects_repaired": 170,
+    "untouched_percentage": 93.22978892871366,
+    "harm_risk_bound": 0.0,
+    "health_score": {
+      "before": 98.07,
+      "after": 98.07,
+      "lift_points": 0.0
+    },
+    "dimensions": {
+      "completeness_before": 93.23,
+      "completeness_after": 93.23,
+      "consistency_before": 98.81,
+      "consistency_after": 98.81,
+      "uniqueness_before": 100.0,
+      "uniqueness_after": 100.0
+    },
+    "ml_utility": {
+      "status": "success",
+      "task_type": "Regression",
+      "target_column": "Price",
+      "n_samples_evaluated": 93,
+      "model_name": "Random Forest Regressor (40 trees, depth=12)",
+      "dirty_metrics": {
+        "r2_score": 0.8382,
+        "mae": 2.0583,
+        "rmse": 3.6779
+      },
+      "corrupted_metrics": {
+        "r2_score": 0.8382,
+        "mae": 2.0583,
+        "rmse": 3.6779
+      },
+      "cleaned_metrics": {
+        "r2_score": 0.8378,
+        "mae": 2.1232,
+        "rmse": 3.6823
+      },
+      "deltas": {
+        "delta_r2": -0.0004,
+        "delta_rmse_reduction": -0.0044
+      },
+      "metrics_delta": {
+        "delta_r2": -0.0004,
+        "delta_rmse_reduction": -0.0044
+      },
+      "improved": false
+    }
+  },
+  {
+    "id": "uncleaned_ds_jobs",
+    "name": "Uncleaned Data Science Jobs (Eyowhite)",
+    "status": "success",
+    "duration_sec": 27.89,
+    "shape": {
+      "rows": 672,
+      "cols": 15
+    },
+    "defects_repaired": 0,
+    "untouched_percentage": 100.0,
+    "harm_risk_bound": 0.0,
+    "health_score": {
+      "before": 80.0,
+      "after": 80.0,
+      "lift_points": 0.0
+    },
+    "dimensions": {
+      "completeness_before": 100.0,
+      "completeness_after": 100.0,
+      "consistency_before": 0.0,
+      "consistency_after": 0.0,
+      "uniqueness_before": 100.0,
+      "uniqueness_after": 100.0
+    },
+    "ml_utility": {
+      "status": "success",
+      "task_type": "Regression",
+      "target_column": "Rating",
+      "n_samples_evaluated": 672,
+      "model_name": "Random Forest Regressor (40 trees, depth=12)",
+      "dirty_metrics": {
+        "r2_score": 0.5872,
+        "mae": 0.5257,
+        "rmse": 0.8399
+      },
+      "corrupted_metrics": {
+        "r2_score": 0.5872,
+        "mae": 0.5257,
+        "rmse": 0.8399
+      },
+      "cleaned_metrics": {
+        "r2_score": 0.5872,
+        "mae": 0.5257,
+        "rmse": 0.8399
+      },
+      "deltas": {
+        "delta_r2": 0.0,
+        "delta_rmse_reduction": 0.0
+      },
+      "metrics_delta": {
+        "delta_r2": 0.0,
+        "delta_rmse_reduction": 0.0
+      },
+      "improved": true
+    }
+  },
+  {
+    "id": "dirty_hospital",
+    "name": "Dirty Hospital Care Records (Raha)",
+    "status": "success",
+    "duration_sec": 6.04,
+    "shape": {
+      "rows": 1000,
+      "cols": 20
+    },
+    "defects_repaired": 427,
+    "untouched_percentage": 97.86500000000001,
+    "harm_risk_bound": 0.0,
+    "health_score": {
+      "before": 80.0,
+      "after": 80.0,
+      "lift_points": 0.0
+    },
+    "dimensions": {
+      "completeness_before": 100.0,
+      "completeness_after": 100.0,
+      "consistency_before": 0.0,
+      "consistency_after": 0.0,
+      "uniqueness_before": 100.0,
+      "uniqueness_after": 100.0
+    },
+    "ml_utility": {
+      "status": "success",
+      "task_type": "Classification",
+      "target_column": "type",
+      "n_samples_evaluated": 1000,
+      "model_name": "Random Forest Classifier (40 trees, depth=12)",
+      "dirty_metrics": {
+        "accuracy": 0.98,
+        "f1_score": 0.9701,
+        "precision": 0.9604,
+        "recall": 0.98
+      },
+      "corrupted_metrics": {
+        "accuracy": 0.98,
+        "f1_score": 0.9701,
+        "precision": 0.9604,
+        "recall": 0.98
+      },
+      "cleaned_metrics": {
+        "accuracy": 0.98,
+        "f1_score": 0.9701,
+        "precision": 0.9604,
+        "recall": 0.98
+      },
+      "deltas": {
+        "delta_accuracy": 0.0,
+        "delta_f1": 0.0,
+        "pct_gain_f1": 0.0
+      },
+      "metrics_delta": {
+        "delta_accuracy": 0.0,
+        "delta_f1": 0.0,
+        "f1_lift_percent": 0.0
+      },
+      "improved": true
+    }
+  },
+  {
+    "id": "dirty_flights",
+    "name": "Dirty Flights Schedule (Raha)",
+    "status": "success",
+    "duration_sec": 3.67,
+    "shape": {
+      "rows": 2376,
+      "cols": 7
+    },
+    "defects_repaired": 0,
+    "untouched_percentage": 100.0,
+    "harm_risk_bound": 0.0,
+    "health_score": {
+      "before": 69.51,
+      "after": 69.51,
+      "lift_points": 0.0
+    },
+    "dimensions": {
+      "completeness_before": 86.1,
+      "completeness_after": 86.1,
+      "consistency_before": 0.0,
+      "consistency_after": 0.0,
+      "uniqueness_before": 100.0,
+      "uniqueness_after": 100.0
+    },
+    "ml_utility": {
+      "status": "success",
+      "task_type": "Classification",
+      "target_column": "flight",
+      "n_samples_evaluated": 2376,
+      "model_name": "Random Forest Classifier (40 trees, depth=12)",
+      "dirty_metrics": {
+        "accuracy": 0.4362,
+        "f1_score": 0.4644,
+        "precision": 0.5583,
+        "recall": 0.4362
+      },
+      "corrupted_metrics": {
+        "accuracy": 0.4362,
+        "f1_score": 0.4644,
+        "precision": 0.5583,
+        "recall": 0.4362
+      },
+      "cleaned_metrics": {
+        "accuracy": 0.4362,
+        "f1_score": 0.4644,
+        "precision": 0.5583,
+        "recall": 0.4362
+      },
+      "deltas": {
+        "delta_accuracy": 0.0,
+        "delta_f1": 0.0,
+        "pct_gain_f1": 0.0
+      },
+      "metrics_delta": {
+        "delta_accuracy": 0.0,
+        "delta_f1": 0.0,
+        "f1_lift_percent": 0.0
+      },
+      "improved": true
+    }
+  },
+  {
+    "id": "dirty_rayyan",
+    "name": "Dirty Rayyan Citations (Raha)",
+    "status": "success",
+    "duration_sec": 3.6,
+    "shape": {
+      "rows": 1000,
+      "cols": 11
+    },
+    "defects_repaired": 5,
+    "untouched_percentage": 99.95454545454545,
+    "harm_risk_bound": 0.0,
+    "health_score": {
+      "before": 76.18,
+      "after": 76.17,
+      "lift_points": -0.01
+    },
+    "dimensions": {
+      "completeness_before": 84.71,
+      "completeness_after": 84.69,
+      "consistency_before": 0.0,
+      "consistency_after": 0.0,
+      "uniqueness_before": 100.0,
+      "uniqueness_after": 100.0
+    },
+    "ml_utility": {
+      "status": "success",
+      "task_type": "Classification",
+      "target_column": "article_pagination",
+      "n_samples_evaluated": 1000,
+      "model_name": "Random Forest Classifier (40 trees, depth=12)",
+      "dirty_metrics": {
+        "accuracy": 0.0867,
+        "f1_score": 0.026,
+        "precision": 0.0153,
+        "recall": 0.0867
+      },
+      "corrupted_metrics": {
+        "accuracy": 0.0867,
+        "f1_score": 0.026,
+        "precision": 0.0153,
+        "recall": 0.0867
+      },
+      "cleaned_metrics": {
+        "accuracy": 0.0867,
+        "f1_score": 0.0267,
+        "precision": 0.0158,
+        "recall": 0.0867
+      },
+      "deltas": {
+        "delta_accuracy": 0.0,
+        "delta_f1": 0.0007,
+        "pct_gain_f1": 2.56
+      },
+      "metrics_delta": {
+        "delta_accuracy": 0.0,
+        "delta_f1": 0.0007,
+        "f1_lift_percent": 2.56
+      },
+      "improved": true
+    }
+  },
+  {
+    "id": "fifa21_sample",
+    "name": "FIFA 21 Raw Player Data (Sample)",
+    "status": "success",
+    "duration_sec": 154.04,
+    "shape": {
+      "rows": 10000,
+      "cols": 77
+    },
+    "defects_repaired": 45213,
+    "untouched_percentage": 94.12831168831168,
+    "harm_risk_bound": 0.0,
+    "health_score": {
+      "before": 76.64,
+      "after": 79.69,
+      "lift_points": 3.05
+    },
+    "dimensions": {
+      "completeness_before": 98.78,
+      "completeness_after": 98.78,
+      "consistency_before": 0.0,
+      "consistency_after": 0.0,
+      "uniqueness_before": 99.99,
+      "uniqueness_after": 100.0
+    },
+    "ml_utility": {
+      "status": "success",
+      "task_type": "Classification",
+      "target_column": "IR",
+      "n_samples_evaluated": 9999,
+      "model_name": "Random Forest Classifier (40 trees, depth=12)",
+      "dirty_metrics": {
+        "accuracy": 0.8853,
+        "f1_score": 0.8649,
+        "precision": 0.8558,
+        "recall": 0.8853
+      },
+      "corrupted_metrics": {
+        "accuracy": 0.8853,
+        "f1_score": 0.8649,
+        "precision": 0.8558,
+        "recall": 0.8853
+      },
+      "cleaned_metrics": {
+        "accuracy": 0.8857,
+        "f1_score": 0.8665,
+        "precision": 0.8577,
+        "recall": 0.8857
+      },
+      "deltas": {
+        "delta_accuracy": 0.0003,
+        "delta_f1": 0.0016,
+        "pct_gain_f1": 0.19
+      },
+      "metrics_delta": {
+        "delta_accuracy": 0.0003,
+        "delta_f1": 0.0016,
+        "f1_lift_percent": 0.19
+      },
+      "improved": true
+    }
+  },
+  {
+    "id": "dirty_tax_sample",
+    "name": "Dirty Tax Records (Sample)",
+    "status": "success",
+    "duration_sec": 45.41,
+    "shape": {
+      "rows": 10000,
+      "cols": 15
+    },
+    "defects_repaired": 63,
+    "untouched_percentage": 99.958,
+    "harm_risk_bound": 0.0,
+    "health_score": {
+      "before": 80.0,
+      "after": 80.0,
+      "lift_points": 0.0
+    },
+    "dimensions": {
+      "completeness_before": 99.99,
+      "completeness_after": 99.99,
+      "consistency_before": 0.0,
+      "consistency_after": 0.0,
+      "uniqueness_before": 100.0,
+      "uniqueness_after": 100.0
+    },
+    "ml_utility": {
+      "status": "success",
+      "task_type": "Classification",
+      "target_column": "state",
+      "n_samples_evaluated": 10000,
+      "model_name": "Random Forest Classifier (40 trees, depth=12)",
+      "dirty_metrics": {
+        "accuracy": 0.944,
+        "f1_score": 0.9394,
+        "precision": 0.9466,
+        "recall": 0.944
+      },
+      "corrupted_metrics": {
+        "accuracy": 0.944,
+        "f1_score": 0.9394,
+        "precision": 0.9466,
+        "recall": 0.944
+      },
+      "cleaned_metrics": {
+        "accuracy": 0.9373,
+        "f1_score": 0.9315,
+        "precision": 0.9449,
+        "recall": 0.9373
+      },
+      "deltas": {
+        "delta_accuracy": -0.0067,
+        "delta_f1": -0.0079,
+        "pct_gain_f1": -0.85
+      },
+      "metrics_delta": {
+        "delta_accuracy": -0.0067,
+        "delta_f1": -0.0079,
+        "f1_lift_percent": -0.85
+      },
+      "improved": false
+    }
+  },
+  {
+    "id": "planets_messy",
+    "name": "Messy Exoplanets (Seaborn)",
+    "status": "success",
+    "duration_sec": 1.1,
+    "shape": {
+      "rows": 1035,
+      "cols": 6
+    },
+    "defects_repaired": 4,
+    "untouched_percentage": 100.0,
+    "harm_risk_bound": 0.0,
+    "health_score": {
+      "before": 76.75,
+      "after": 76.84,
+      "lift_points": 0.09
+    },
+    "dimensions": {
+      "completeness_before": 87.25,
+      "completeness_after": 87.37,
+      "consistency_before": 0.0,
+      "consistency_after": 0.0,
+      "uniqueness_before": 99.61,
+      "uniqueness_after": 100.0
+    },
+    "ml_utility": {
+      "status": "success",
+      "task_type": "Classification",
+      "target_column": "method",
+      "n_samples_evaluated": 1031,
+      "model_name": "Random Forest Classifier (40 trees, depth=12)",
+      "dirty_metrics": {
+        "accuracy": 0.9323,
+        "f1_score": 0.925,
+        "precision": 0.9221,
+        "recall": 0.9323
+      },
+      "corrupted_metrics": {
+        "accuracy": 0.9323,
+        "f1_score": 0.925,
+        "precision": 0.9221,
+        "recall": 0.9323
+      },
+      "cleaned_metrics": {
+        "accuracy": 0.9355,
+        "f1_score": 0.9308,
+        "precision": 0.9316,
+        "recall": 0.9355
+      },
+      "deltas": {
+        "delta_accuracy": 0.0032,
+        "delta_f1": 0.0058,
+        "pct_gain_f1": 0.63
+      },
+      "metrics_delta": {
+        "delta_accuracy": 0.0032,
+        "delta_f1": 0.0058,
+        "f1_lift_percent": 0.63
+      },
+      "improved": true
+    }
+  },
+  {
+    "id": "cucum_dirty",
+    "name": "Dirty Data Challenge (KAR-NG)",
+    "status": "success",
+    "duration_sec": 0.2,
+    "shape": {
+      "rows": 18,
+      "cols": 4
+    },
+    "defects_repaired": 3,
+    "untouched_percentage": 97.22222222222221,
+    "harm_risk_bound": 0.0,
+    "health_score": {
+      "before": 76.39,
+      "after": 77.79,
+      "lift_points": 1.4
+    },
+    "dimensions": {
+      "completeness_before": 88.89,
+      "completeness_after": 91.18,
+      "consistency_before": 0.0,
+      "consistency_after": 0.0,
+      "uniqueness_before": 94.44,
+      "uniqueness_after": 100.0
+    },
+    "ml_utility": {
+      "status": "success",
+      "task_type": "Regression",
+      "target_column": "yield.g",
+      "n_samples_evaluated": 17,
+      "model_name": "Random Forest Regressor (40 trees, depth=12)",
+      "dirty_metrics": {
+        "r2_score": -1.949,
+        "mae": 21.4242,
+        "rmse": 24.0881
+      },
+      "corrupted_metrics": {
+        "r2_score": -1.949,
+        "mae": 21.4242,
+        "rmse": 24.0881
+      },
+      "cleaned_metrics": {
+        "r2_score": -2.3329,
+        "mae": 22.5463,
+        "rmse": 25.608
+      },
+      "deltas": {
+        "delta_r2": -0.3839,
+        "delta_rmse_reduction": -1.5199
+      },
+      "metrics_delta": {
+        "delta_r2": -0.3839,
+        "delta_rmse_reduction": -1.5199
+      },
+      "improved": false
+    }
+  }
+]

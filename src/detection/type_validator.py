@@ -39,19 +39,19 @@ def detect_type_inconsistencies(df: pd.DataFrame, schema: Dict[str, Dict[str, An
         numeric_count = pd.to_numeric(valid_series, errors="coerce").notna().sum()
         is_predominantly_numeric = (numeric_count / len(valid_series)) >= 0.70
 
-        for row_idx, val in series.items():
-            if pd.isna(val) or val is None:
-                continue
+        # Pre-compute issue actions on unique values to avoid redundant O(N) regex evaluation
+        unique_vals = series.dropna().unique()
+        val_issue_map = {}
 
+        for val in unique_vals:
             str_val = str(val).strip()
+            if not str_val:
+                continue
             lower_val = str_val.lower()
 
             # 1. Null-token normalization
             if lower_val in NULL_TOKENS:
-                type_issues.append({
-                    "row": int(row_idx),
-                    "column": col,
-                    "original_value": str_val,
+                val_issue_map[val] = {
                     "issue_type": "type_inconsistency",
                     "detection_method": ["type_validator_null_token"],
                     "detection_confidence": 0.99,
@@ -60,16 +60,13 @@ def detect_type_inconsistencies(df: pd.DataFrame, schema: Dict[str, Dict[str, An
                     "suggested_value": None,
                     "reason": f"Value '{str_val}' is a known null-token and safely converts to NaN",
                     "is_human_review_required": False
-                })
+                }
                 continue
 
             # 2. Boolean normalization
             if is_predominantly_bool and not pd.api.types.is_bool_dtype(series):
                 if lower_val in BOOLEAN_MAPPING:
-                    type_issues.append({
-                        "row": int(row_idx),
-                        "column": col,
-                        "original_value": str_val,
+                    val_issue_map[val] = {
                         "issue_type": "type_inconsistency",
                         "detection_method": ["type_validator_boolean"],
                         "detection_confidence": 0.99,
@@ -78,40 +75,33 @@ def detect_type_inconsistencies(df: pd.DataFrame, schema: Dict[str, Dict[str, An
                         "suggested_value": BOOLEAN_MAPPING[lower_val],
                         "reason": f"Value '{str_val}' safely normalizes to boolean {BOOLEAN_MAPPING[lower_val]}",
                         "is_human_review_required": False
-                    })
+                    }
                     continue
 
-            # 3. Numeric Formatting Normalization
+            # 3. Numeric Formatting Normalization (Only flag if formatting differs or value is non-numeric)
             if is_predominantly_numeric and not pd.api.types.is_numeric_dtype(series):
-                # Clean currency and commas
                 clean_str = re.sub(r'[$,€£]', '', str_val)
-                # If there are multiple commas, remove them (e.g., 1,000,000)
                 if clean_str.count(',') >= 1 and clean_str.count('.') <= 1:
                     clean_str = clean_str.replace(',', '')
-                
+
                 try:
                     num = float(clean_str)
                     clean_val = int(num) if num.is_integer() else num
-                    type_issues.append({
-                        "row": int(row_idx),
-                        "column": col,
-                        "original_value": str_val,
-                        "issue_type": "type_inconsistency",
-                        "detection_method": ["type_validator_safe_numeric"],
-                        "detection_confidence": 1.0,
-                        "correction_confidence": 0.99,
-                        "suggested_action": "convert_type",
-                        "suggested_value": clean_val,
-                        "reason": f"Value '{str_val}' safely converts to numeric {clean_val}",
-                        "is_human_review_required": False
-                    })
+                    if clean_str != str_val:
+                        val_issue_map[val] = {
+                            "issue_type": "type_inconsistency",
+                            "detection_method": ["type_validator_safe_numeric"],
+                            "detection_confidence": 1.0,
+                            "correction_confidence": 0.99,
+                            "suggested_action": "convert_type",
+                            "suggested_value": clean_val,
+                            "reason": f"Value '{str_val}' safely converts to numeric {clean_val}",
+                            "is_human_review_required": False
+                        }
                 except ValueError:
                     if lower_val in WORD_TO_NUM:
                         suggested = WORD_TO_NUM[lower_val]
-                        type_issues.append({
-                            "row": int(row_idx),
-                            "column": col,
-                            "original_value": str_val,
+                        val_issue_map[val] = {
                             "issue_type": "type_inconsistency",
                             "detection_method": ["type_validator_word_number"],
                             "detection_confidence": 0.95,
@@ -120,12 +110,9 @@ def detect_type_inconsistencies(df: pd.DataFrame, schema: Dict[str, Dict[str, An
                             "suggested_value": suggested,
                             "reason": f"Text word '{str_val}' represents numeric value {suggested}. Review recommended.",
                             "is_human_review_required": True
-                        })
+                        }
                     else:
-                        type_issues.append({
-                            "row": int(row_idx),
-                            "column": col,
-                            "original_value": str_val,
+                        val_issue_map[val] = {
                             "issue_type": "type_inconsistency",
                             "detection_method": ["type_validator_ambiguous"],
                             "detection_confidence": 1.0,
@@ -134,6 +121,17 @@ def detect_type_inconsistencies(df: pd.DataFrame, schema: Dict[str, Dict[str, An
                             "suggested_value": None,
                             "reason": f"Non-numeric value '{str_val}' found in numeric column '{col}'",
                             "is_human_review_required": True
-                        })
+                        }
+
+        # If any unique values have issues, locate rows
+        if val_issue_map:
+            bad_keys = set(val_issue_map.keys())
+            for row_idx, val in series.items():
+                if val in bad_keys:
+                    issue_meta = val_issue_map[val].copy()
+                    issue_meta["row"] = int(row_idx)
+                    issue_meta["column"] = col
+                    issue_meta["original_value"] = str(val).strip()
+                    type_issues.append(issue_meta)
 
     return type_issues

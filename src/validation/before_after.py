@@ -66,6 +66,12 @@ def compute_before_after_comparison(
             "before": before_score.get("overall_score", 0.0),
             "after": after_score.get("overall_score", 0.0),
             "delta": round(after_score.get("overall_score", 0.0) - before_score.get("overall_score", 0.0), 2)
+        },
+        "defect_resolution_rate": {
+            "initial_defects": len(before_issues),
+            "remaining_defects": len(after_issues),
+            "resolved_defects": max(0, len(before_issues) - len(after_issues)),
+            "rate_pct": round((max(0, len(before_issues) - len(after_issues)) / max(1, len(before_issues))) * 100.0, 1) if len(before_issues) > 0 else 100.0
         }
     }
 
