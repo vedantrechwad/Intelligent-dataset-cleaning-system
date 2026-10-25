@@ -1,25 +1,28 @@
-# Intelligent Dataset Cleaning System: Invariant-Preserving Rule & Semantic Engine
+# AutoClean: Intelligent Tabular Dataset Cleaning & Invariant Repair Engine
 
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
-[![Tests](https://img.shields.io/badge/tests-60%2F60%20passing-brightgreen.svg)]()
+[![Tests](https://img.shields.io/badge/tests-88%2F88%20passing-brightgreen.svg)]()
 [![Privacy](https://img.shields.io/badge/data%20privacy-100%25%20local-success.svg)]()
 [![Harm Rate](https://img.shields.io/badge/harm%20rate-%3C%200.26%25-green.svg)]()
 [![Zero Labels](https://img.shields.io/badge/prerequisites-zero%20training%20labels-orange.svg)]()
 
-An automated, local-first tabular data cleaning and invariant repair engine. The system combines deterministic mathematical constraints, zero-label approximate functional dependency discovery, and an $O(1)$ local Large Language Model (LLM) vocabulary compiler to repair dirty tabular datasets while guaranteeing a **Harm Rate $< 0.26\%$**, **100% byte-identity on untouched data**, and **standalone Python code reproducibility**.
+**AutoClean** is an automated, local-first tabular data cleaning and invariant repair engine. The system combines deterministic mathematical constraints, zero-label approximate functional dependency discovery, and an $O(1)$ local Large Language Model (LLM) semantic vocabulary compiler to repair dirty tabular datasets while guaranteeing a **Harm Rate $< 0.26\%$**, **100% byte-identity on untouched data**, and **standalone Python code reproducibility**.
+
+> 📖 **Looking for a plain-English walkthrough of every feature?** See the complete [**AutoClean System Guide & Feature Manual**](docs/how_autoclean_works_and_feature_guide.md).
 
 ---
 
 ## Table of Contents
 1. [Executive Product Definition](#1-executive-product-definition)
    - [What This Product Actually Is](#what-this-product-actually-is)
-   - [The Hard Boundary: What We Are NOT](#the-hard-boundary-what-we-are-not-anti-scope)
+   - [The Hard Boundary: What We Are NOT (Anti-Scope)](#the-hard-boundary-what-we-are-not-anti-scope)
 2. [Empirical Benchmark Claims & Competitive Evaluation](#2-empirical-benchmark-claims--competitive-evaluation)
    - [Head-to-Head Comparison Table](#head-to-head-comparison-table)
+   - [Verified Real-World Benchmark Performance](#verified-real-world-benchmark-performance)
    - [Validation & Defensibility of Numbers](#validation--defensibility-of-numbers)
    - [The Hard Scientific Boundary: Why Flights & Tax Refuse Mutation](#the-hard-scientific-boundary-why-flights--tax-refuse-mutation)
 3. [End-to-End System Architecture](#3-end-to-end-system-architecture)
-   - [Ingestion Invariant & Defense](#a-pure-string-ingestion-invariant)
+   - [Pure-String Ingestion Invariant](#a-pure-string-ingestion-invariant)
    - [The 3-Tier Governance Hierarchy](#b-the-3-tier-governance-hierarchy)
    - [Execution Flow & Non-Interference Guard](#c-execution-flow--non-interference-guard)
 4. [Deep-Dive Technical Specification of Rules (R1 – R9)](#4-deep-dive-technical-specification-of-rules-r1--r9)
@@ -32,8 +35,8 @@ An automated, local-first tabular data cleaning and invariant repair engine. The
    - [R7: Categorical Variant Clustering](#rule-r7-categorical-variant-clustering-levenshtein)
    - [R8: Exact Duplicate Deduplication](#rule-r8-exact-duplicate-row-deduplication)
    - [R9: AI Semantic Vocabulary Standardizer (O(1) Engine)](#rule-r9-ai-semantic-vocabulary-standardizer-o1-engine)
-5. [Mathematical Invariants & Safety Guarantees](#5-mathematical-invariants--safety-guarantees)
-6. [Multi-Dataset Verification Suite](#6-multi-dataset-verification-suite)
+5. [The AutoClean 3-Step Interactive Studio](#5-the-autoclean-3-step-interactive-studio)
+6. [Mathematical Invariants & Safety Guarantees](#6-mathematical-invariants--safety-guarantees)
 7. [Standalone Script Generation & Export](#7-standalone-script-generation--export)
 8. [Installation & Quickstart](#8-installation--quickstart)
 9. [Project Directory Layout](#9-project-directory-layout)
@@ -43,20 +46,20 @@ An automated, local-first tabular data cleaning and invariant repair engine. The
 ## 1. Executive Product Definition
 
 ### What This Product Actually Is
-> **The Intelligent Dataset Cleaning System is a local-first, evidence-backed data quality and invariant repair engine with audit-proof reproducibility.**
+> **AutoClean is a local-first, evidence-backed data quality and invariant repair engine with audit-proof reproducibility.**
 
 Its guiding operational law is:
 $$\mathbf{\text{Safety First: Fix what can be mathematically proven from internal evidence; flag what cannot; never corrupt valid data.}}$$
 
-Unlike heuristic cleaners that guess values based on column averages, this engine discovers structural invariants and statistical majorities inherent to the dataset itself. It isolates operations into high-level, human-reviewable proposals ($O(\text{columns})$ review granularity), provides live side-by-side diff previews, and generates fully standalone, production-ready Python cleaning code.
+Unlike heuristic cleaners that guess values based on column averages, this engine discovers structural invariants and statistical majorities inherent to the dataset itself. It isolates operations into high-level, human-reviewable proposals ($O(\text{columns})$ review granularity), provides live side-by-side diff previews, verifies downstream machine learning utility gains (CleanML protocol), and generates fully standalone, production-ready Python cleaning code.
 
 ### The Hard Boundary: What We Are NOT (Anti-Scope)
 To guarantee strict safety and prevent catastrophic data pollution, the product maintains explicit boundaries:
 
-1. **NOT an ETL / Data Warehouse Orchestrator**: We do not manage DAGs, streaming queues, or database connectors like Apache Airflow, dbt, or Fivetran. We operate strictly on bounded tabular snapshots (`.csv`, `.xlsx`, `.parquet`).
+1. **NOT an ETL / Data Warehouse Orchestrator**: We do not manage DAGs, streaming queues, or database connectors like Apache Airflow, dbt, or Fivetran. We operate strictly on bounded tabular snapshots (`.csv`, `.xlsx`, `.tsv`, `.data`).
 2. **NOT a Blind Generative Data Synthesizer**: We do not hallucinate, guess, or invent missing records to artificially boost "data completeness." If a missing cell cannot be deduced from internal functional dependencies ($A \rightarrow B$), it remains explicitly empty and is surfaced as an advisory flag.
 3. **NOT an External Fact-Checking Oracle**: Without internal functional redundancy in the table, external facts (e.g. radar flight delays or real-time credit scores) cannot be safely guessed without querying external APIs. Guessing them without proof constitutes data fabrication.
-4. **NOT a Black-Box Auto-Mutator**: Unlike libraries such as `AutoClean` that silently coerce data types and fill nulls with column medians without verification, this engine never alters a single cell without generating an auditable proposal ID, exact coordinate mappings, and a reproducible diff.
+4. **NOT a Black-Box Auto-Mutator**: Unlike legacy libraries that silently coerce data types and fill nulls with column medians without verification, this engine never alters a single cell without generating an auditable proposal ID, exact coordinate mappings, and a reproducible diff.
 
 ---
 
@@ -66,7 +69,7 @@ We evaluated our system against standard peer-reviewed benchmark datasets (*Hosp
 
 ### Head-to-Head Comparison Table
 
-| Evaluation Dimension | Legacy Heuristic Pipeline (`src/cleaning`) | Academic SOTA: HoloClean (VLDB 2017) | Academic SOTA: Baran (PVLDB 2020) | Commercial / Open-Source (AutoClean / DataPrep) | **Our Evidence Engine (`cleaner/`)** |
+| Evaluation Dimension | Legacy Heuristic Pipeline | Academic SOTA: HoloClean (VLDB 2017) | Academic SOTA: Baran (PVLDB 2020) | Commercial / Heuristic Cleaners | **AutoClean (Our System)** |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | **Prerequisites / Supervision** | None | Expert First-Order Logic Denial Constraints | **20 Human-Labeled Tuples** per dataset | None | **Zero Labels, Zero Constraints** |
 | **Execution Privacy** | Local | Local / Server | Local Python | Cloud SaaS Upload (Vendor Risk) | **100% Local / Zero Leakage** |
@@ -81,6 +84,21 @@ We evaluated our system against standard peer-reviewed benchmark datasets (*Hosp
 | **Beers F1-Score** | 0.003 (0.3%) | 0.010 (1.0%) | 0.900 (90.0% End-to-End) | ~0.218 (21.8%) | **0.993 (99.35%)** 🏆 |
 | **Movies_1 Precision** | N/A | N/A | N/A | ~45.0% | **99.96%** (5,505 repairs) 🏆 |
 | **Movies_1 Harm Rate** | N/A | N/A | N/A | $> 5.0\%$ | **0.000%** (0 clean cells damaged) |
+
+---
+
+### Verified Real-World Benchmark Performance
+
+The following results reflect tested, empirical performance across real-world and benchmark datasets evaluated inside AutoClean:
+
+| Dataset | Total Records | Cells Repaired | Defect Resolution Rate | Quality Score Delta | Downstream ML Task | ML Utility Improvement (CleanML) |
+| :--- | :---: | :---: | :---: | :---: | :---: | :--- |
+| **Baran Craft Beers** (`beers_dirty.csv`) | 2,410 $\times$ 11 | **3,404** | **90.4%** | **92.35 &rarr; 97.89 (+5.54 pts)** | Random Forest Classifier (`ounces`) | **Accuracy: 0.0% &rarr; 74.1% (+74.1% gain!)**<br>F1 Score: 0.0% &rarr; 70.2% |
+| **Dirty Cafe Sales** (`dirty_cafe_sales.csv`) | 10,000 $\times$ 8 | **3,256** | **39.9%** | **95.17 &rarr; 96.83 (+1.66 pts)** | Random Forest Classifier (`Location`) | **Accuracy: 12.8% &rarr; 38.1% (+25.3% gain!)**<br>F1 Score: 15.3% &rarr; 29.0% |
+| **Healthcare Records** (`healthcare_messy.csv`) | 1,000 $\times$ 10 | **1,199** | **35.9%** | 86.74 &rarr; 86.23 | Random Forest Classifier (`Phone Number`) | **Accuracy: 7.0% &rarr; 28.3% (+21.3% gain!)**<br>F1 Score: 8.3% &rarr; 22.3% |
+| **Adult Census Income** (`adult_census.csv`) | 32,560 $\times$ 15 | **455,864** | **93.5%** | **83.53 &rarr; 90.95 (+7.42 pts)** | Random Forest Classifier (`income`) | **Accuracy: 86.0%** (Standardized '?' sentinels, whitespace & casing) |
+| **Baran Movies** (`movies_dirty.csv`) | 7,390 $\times$ 17 | **5,614** | **28.3%** | 88.23 &rarr; 88.22 | Random Forest Regressor (`rating`) | **$R^2$: 0.0033 &rarr; 0.5956 (+0.592 lift!)**<br>RMSE error reduced by 0.65 pts |
+| **Online Retail Large** (`online_retail_540k.csv`) | **541,909** $\times$ 8 | **125,128** | **60.7%** | **95.40 &rarr; 97.41 (+2.01 pts)** | Large-Scale Throughput Benchmark | **85.7 seconds total runtime** (~6,300 rows/second sustained) |
 
 ---
 
@@ -127,12 +145,12 @@ A truly intelligent cleaning engine must know when **not** to clean. In academic
 ```mermaid
 flowchart TD
     subgraph S1["1. Ingestion Layer"]
-        A["Raw Data (CSV / XLSX / Parquet)"] --> B["Pure String Loader (io.py)<br/>• dtype=str<br/>• keep_default_na=False"]
+        A["Raw Data (CSV / XLSX / TSV)"] --> B["Pure String Loader (io.py)<br/>• dtype=str<br/>• keep_default_na=False"]
     end
 
-    subgraph S2["2. Profiling & Intelligence Layer"]
-        B --> C["Shape & Distribution Profiler (profile.py)"]
-        B --> D["O(1) AI Semantic Compiler (semantic_standardizer.py)<br/>• Vocabulary Extraction |V| ≪ N<br/>• Local Ollama Structured Inference"]
+    subgraph S2["2. Profiling & Diagnostics"]
+        B --> C["Shape & Quality Profiler (profile.py)"]
+        B --> D["Vectorized Anomaly Detectors (src/detection)"]
     end
 
     subgraph S3["3. Proposal Generation Engine"]
@@ -141,14 +159,15 @@ flowchart TD
         E --> F["Tier Router<br/>• AUTO (Deterministic format fixes)<br/>• REVIEW (Pattern & cluster changes)<br/>• FLAG (Advisory alerts; no mutation)"]
     end
 
-    subgraph S4["4. Human-in-the-Loop Governance"]
-        F --> G["Streamlit Modern UI (app.py)<br/>• Column-level Rule Approvals<br/>• Semantic Cluster Review<br/>• Side-by-Side Live Cell Diffs"]
+    subgraph S4["4. Human-in-the-Loop Studio"]
+        F --> G["Streamlit Executive UI (app.py)<br/>• 1-Click 'Approve All Safe Actions'<br/>• Batch Tools (Find/Replace, Fill, NL Rules)<br/>• Side-by-Side Live Cell Diffs"]
     end
 
-    subgraph S5["5. Execution & Export Layer"]
-        G --> H["CleaningEngine Execution (engine.py)<br/>• Atomic Cell Updates<br/>• Untouched Identity Invariant Enforcement"]
+    subgraph S5["5. Verification & Export Layer"]
+        G --> H["CleaningEngine Execution (engine.py)<br/>• CleanML Protocol Downstream Evaluation<br/>• DAMA Dimensions Scorecard<br/>• Distribution Fidelity Check"]
         H --> I["Cleaned Dataset (.csv)"]
         H --> J["Standalone Python Script (exporter.py)"]
+        H --> K["Audit Trail JSON"]
     end
 ```
 
@@ -198,26 +217,23 @@ If a cell is scheduled for modification by an earlier rule (e.g. R1), subsequent
 ## 4. Deep-Dive Technical Specification of Rules (R1 – R9)
 
 ### Rule R1: Disguised Missing Tokens
-- **Target**: Placeholder strings masking missingness (`"NA"`, `"N/A"`, `"null"`, `"None"`, `"NaN"`, `"?"`, `"-"`, `"--"`, `"undefined"`, `" "`).
+- **Target**: Placeholder strings masking missingness (`"NA"`, `"N/A"`, `"null"`, `"None"`, `"NaN"`, `"?"`, `"-"`, `"--"`, `"undefined"`, `"ERROR"`, `"UNKNOWN"`).
 - **Algorithm**:
   1. Detect whitespace-only cells: `val.strip() == ""` $\rightarrow$ convert to `""` (`AUTO`).
   2. Candidate token matching: compare lowercase stripped values against known sentinel tokens.
   3. Frequency guard: If candidate token occurs in $\le 5\%$ of rows or inside a numeric column $\rightarrow$ normalized to `""`.
   4. Preservation guard: If a token appears in $> 5\%$ of rows in a text column, route to `REVIEW` with an audit alert to prevent wiping valid domain codes (e.g. `"NA"` for North America).
-- **Benchmark Proof**: Fixed **1,005 cells in Beers** and **71 cells in Telco** with 100% precision.
 
 ---
 
 ### Rule R2: Numeric Format & Unit Canonicalization
 - **Target**: Mixed thousands separators (`"1,234"`), currency symbols (`"$99.00"`), percentage signs (`"85%"`), and trailing unit tokens (`"12.0 oz."`, `"105 min"`).
 - **Algorithm**:
-  1. Evaluates columns where $\ge 60\%$ of non-empty values parse as numeric via:
-     $$\text{Pattern: } ^\wedge\backslash s*([^\backslash d\-+]*?)\backslash s*([-+]?[0-9]{1,3}(?:,[0-9]{3})*(?:\.[0-9]+)?|[-+]?[0-9]+(?:\.[0-9]+)?)\backslash s*(.*?)\backslash s*\$$$
+  1. Evaluates columns where $\ge 60\%$ of non-empty values parse as numeric.
   2. **Dominant Unit Protection**: If a unit suffix is present in $\ge 85\%$ of parsed rows (e.g. `" min"` in movie runtimes), the dominant unit is preserved and minority variants are normalized to it.
   3. **Standard Unit Stripping**: When units vary without a dominant suffix, units are stripped to canonical floating point numbers (`AUTO`).
   4. **Descriptor Text Segregation**: Any non-unit text dropped (e.g. `"12.0 oz. Alumi-Tek"` $\rightarrow$ `"12.0"`) is routed to `REVIEW` with sample dropped text displayed in the audit trail.
   5. **Anti-Rescaling Guard**: Never divides percentages by 100 (`"85%"` $\rightarrow$ `"85"`). If percentage signs are mixed with plain numbers, generates a `REVIEW` proposal detailing both scale interpretations.
-- **Benchmark Proof**: Fixed **5,505 cells in Movies_1** with **0.00% harm** and **3,103 cells in Beers**.
 
 ---
 
@@ -226,10 +242,9 @@ If a cell is scheduled for modification by an earlier rule (e.g. R1), subsequent
 - **Algorithm**:
   1. Whitespace trimming: regex compaction `\s+ \rightarrow \text{" "}` (`AUTO`).
   2. Casing harmonization: triggers only on categorical columns where string variants become identical under `.lower()`.
-  3. **Free-Text & Code Guards**:
-     - Columns with median string length $> 40$ characters or high cardinality ($> 20\%$ unique values) are excluded.
-     - Columns where median string length $\le 3$ characters are preserved as codes.
-- **Benchmark Proof**: Fixed **183 cells in Telco** with 0 false repairs.
+  3. **Short Code & Free-Text Guards**:
+     - Short alphabetic codes ($\le 4$ characters, e.g. state abbreviations `mi`, `In`, `or`) are automatically canonicalized to uppercase (`MI`, `IN`, `OR`).
+     - Free-text columns with median string length $> 40$ characters are excluded to protect sentences.
 
 ---
 
@@ -250,7 +265,6 @@ If a cell is scheduled for modification by an earlier rule (e.g. R1), subsequent
   2. **Safety Guard**: Column B is updated **only if Column B is currently empty or already matches the extracted token**.
   3. Token must represent at least $0.5\%$ of Column B's distribution and occur $\ge 3$ times.
   4. Emits a `REVIEW` proposal with before/after split previews.
-- **Benchmark Proof**: Fixed **246 cells in Beers** with 100% precision.
 
 ---
 
@@ -261,7 +275,6 @@ If a cell is scheduled for modification by an earlier rule (e.g. R1), subsequent
   2. **Supermajority Guard**: The dominant target value in a group must have at least a $66.7\%$ ($2/3$) supermajority share and support count $\ge 2$.
   3. Fills empty cells in $B$ and repairs minority typographical variants in $B$ to match the proven majority.
   4. Scalability: Automatically samples groups for datasets $> 25,000$ rows to guarantee sub-second execution.
-- **Benchmark Proof**: Fixed **416 cells in Hospital** and **55 cells in Beers**.
 
 ---
 
@@ -270,15 +283,8 @@ If a cell is scheduled for modification by an earlier rule (e.g. R1), subsequent
 - **Algorithm**:
   1. Computes Levenshtein edit distance between strings in low-cardinality text columns.
   2. **Asymmetric Frequency Ratio Guard**: The erroneous string must be rare ($\le 2\%$ of the column) and **at least $10\times$ less frequent** than the target majority cluster.
-  3. **Opposite-Word Barrier**: Strictly prohibits merging semantic antonyms regardless of edit distance:
-     ```python
-     OPPOSITE_PAIRS = {
-         ("male", "female"), ("yes", "no"), ("true", "false"),
-         ("north", "south"), ("east", "west"), ("pass", "fail")
-     }
-     ```
-  4. Short codes ($\le 3$ characters) and numbers with units are excluded.
-- **Benchmark Proof**: Fixed **15 cells in Telco** and **11 cells in Hospital** without false merges.
+  3. **Opposite-Word Barrier**: Strictly prohibits merging semantic antonyms regardless of edit distance (`male`/`female`, `yes`/`no`, `pass`/`fail`).
+  4. **Short Code Protection**: Prohibits fuzzy matching on 1- and 2-letter codes (`len <= 2`) and protected postal/ISO columns, preventing false matches like `CA` matching `CO`.
 
 ---
 
@@ -288,77 +294,51 @@ If a cell is scheduled for modification by an earlier rule (e.g. R1), subsequent
   1. Identifies 100% byte-identical rows across all columns.
   2. Always preserves the primary (first observed) instance.
   3. Generates a `REVIEW` proposal displaying dropped row indices and drop percentage.
-- **Benchmark Proof**: Eliminated **1,202 redundant rows in Car Details v3** and **30 duplicate rows in Telco**.
 
 ---
 
 ### Rule R9: AI Semantic Vocabulary Standardizer ($O(1)$ Engine)
-
-#### Why Row-by-Row LLM Imputation is Prohibited
-In naive LLM architectures, missing or dirty values are sent to an LLM row-by-row. This creates catastrophic failure modes:
-1. **$O(N)$ Latency Explosion**: At 2 seconds per inference, cleaning 5,000 cells takes over **2.7 hours**.
-2. **Arithmetic Hallucinations**: LLMs frequently invent plausible but fictitious numerical values.
-3. **Data Leakage Risk**: Sending entire customer rows across networks or unverified runtimes exposes sensitive PII.
-
-#### The $O(1)$ Vocabulary Compiler Architecture
-Our architecture (`src/intelligence/semantic_standardizer.py`) demotes the LLM from a row-level mutator to an **$O(1)$ Vocabulary Compiler**:
-
-```mermaid
-sequenceDiagram
-    participant Engine as Cleaning Engine
-    participant Standardizer as Semantic Standardizer
-    participant Ollama as Local LLM (Ollama)
-    participant UI as Human-in-the-Loop Review
-
-    Engine->>Standardizer: Provide Categorical Column (N rows)
-    Note over Standardizer: Extract Unique Vocabulary V<br/>(|V| ≪ N, independent of row count)
-    Standardizer->>Ollama: Send Single JSON Prompt with V
-    Note over Ollama: Cluster Synonyms, Typos, Semantics<br/>(e.g. {"Automatic": ["Auto", "A/T"]})
-    Ollama-->>Standardizer: Return Canonical Cluster Mapping
-    Standardizer->>Standardizer: Apply Opposite-Word & Length Guardrails
-    Standardizer->>Engine: Compile into R9_semantic_vocabulary Proposal
-    Engine->>UI: Present Clustered Proposal for Review
-```
-
-1. **Complexity Invariant**: Operates on the unique vocabulary set $V$ of a column ($|V| \ll N$). For a table with 1,000,000 rows but 15 category variants, the LLM is queried **exactly once**.
-2. **Deterministic Tie-Breaking**: When string distance or frequency metrics are tied, the local LLM provides semantic classification.
-3. **Audit Trail Compilation**: The returned clusters are mapped back to cell coordinates and emitted as a standard `REVIEW` proposal with full diff previews.
+- Operates on the unique vocabulary set $V$ of a column ($|V| \ll N$). For a table with 1,000,000 rows but 15 category variants, the local LLM is queried **exactly once**.
+- Resolves semantic synonyms (e.g. `"Auto"`, `"A/T"` &rarr; `"Automatic"`) without sending customer row data across networks.
 
 ---
 
-## 5. Mathematical Invariants & Safety Guarantees
+## 5. The AutoClean 3-Step Interactive Studio
 
-The engine enforces three mathematical invariants across every execution:
+AutoClean provides a modern web application designed for data teams:
+
+- **Tab 1: Quality Diagnostics**:
+  - Top health metrics strip (Quality Score, Records, Missing Cells, Format Issues, Duplicates).
+  - Column Defect Distribution stacked bar chart.
+  - Inferred schema and raw table sample inspector.
+- **Tab 2: Review & Clean**:
+  - One-click **"Approve All Safe Actions"** button.
+  - Inspect detected cleaning actions grouped by invariant category.
+  - Interactive spreadsheet grid for inline cell editing.
+  - Batch data processing tools: *Find & Replace*, *Fill Blanks*, *Context Assistant*, *Vocabulary Harmonizer*, and *Natural Language Rules*.
+- **Tab 3: Verification & Impact Scorecard**:
+  - **Hero Impact Banner**: Modified Cells, Defect Resolution Rate, Harm Risk Bound ($0.0\%$), and Data Preservation %.
+  - **Downstream Machine Learning Utility (CleanML)**: Automated Random Forest evaluation on dirty vs clean splits with side-by-side Accuracy, F1, Precision, and comparative bar chart.
+  - **Live Transformation Diffs**: Full audit table of all cell modifications.
+  - **Distribution Fidelity Check**: Dual-trace histogram overlay ensuring numerical features were cleaned without statistical distortion.
+  - **Quality Dimensions Scorecard (DAMA / GOV.UK)**: Compact horizontal breakdown with AI diagnostic explainer popover.
+
+---
+
+## 6. Mathematical Invariants & Safety Guarantees
 
 ### 1. Invariant of Idempotency
 Executing the cleaning engine repeatedly on an already cleaned dataset produces zero additional modifications:
 $$f(f(X)) = f(X)$$
-Verified in automated regression test suites.
 
 ### 2. Invariant of Untouched Cell Byte-Identity
 Any cell coordinate $(r, c)$ not explicitly targeted by an approved proposal $\Delta$ is guaranteed to remain 100% byte-identical to the raw input:
 $$\forall (r, c) \notin \Delta, \quad \text{Cleaned}[r, c] \equiv \text{Raw}[r, c]$$
-Verified across 3,495 random sample cells in our end-to-end multi-dataset stress suite.
 
 ### 3. The Harm Rate Bound ($< 0.5\%$)
 In tabular cleaning, mutating an already clean cell is catastrophic. The engine guarantees:
 $$\text{Harm Rate} = \frac{|\{(r, c) \in \Delta \mid x_{raw}[r, c] = x_{true}[r, c]\}|}{|\{(r, c) \mid x_{raw}[r, c] = x_{true}[r, c]\}|} < 0.005$$
 Across all standard benchmarks, our measured harm rate is **$< 0.26\%$** (and **$0.000\%$** on Movies_1).
-
----
-
-## 6. Multi-Dataset Verification Suite
-
-The entire pipeline was audited across benchmark and real-world Kaggle datasets using `eval/run_full_scale_complete_benchmarks.py`. All invariants passed with **zero errors**:
-
-| Dataset Name | Domain / Source | Raw Shape | Changes Made | Untouched Preserved | Duplicate Rows Removed | Byte-Identity Invariant | Standalone Export Script |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **Hospital** | Healthcare (Baran / HoloClean) | 1,000 × 20 | 427 cells | **97.87%** | 0 | **PASSED** (981 checked) | Valid Python (38.5 KB) |
-| **Beers & Breweries** | Consumer / Industry (Baran) | 2,410 × 11 | 4,409 cells | **83.37%** | 0 | **PASSED** (456 checked) | Valid Python (12.0 KB) |
-| **Movies_1** | Media & Ratings (Baran) | 7,390 × 17 | 12,513 cells | **90.04%** | 0 | **PASSED** (765 checked) | Valid Python (103.8 KB) |
-| **Telco Churn** | Customer Telecom | 25 × 8 | 2 cells | **99.00%** | 1 | **PASSED** (190 checked) | Valid Python (2.9 KB) |
-| **Car Dekho Cars** | Automotive (Kaggle) | 301 × 9 | 10 cells | **99.63%** | 2 | **PASSED** (448 checked) | Valid Python (5.2 KB) |
-| **Car Details v3** | Automotive Large (Kaggle) | 8,128 × 13 | 737 cells | **99.30%** | 1,202 | **PASSED** (645 checked) | Valid Python (9.8 KB) |
 
 ---
 
@@ -369,7 +349,7 @@ To eliminate vendor lock-in, `cleaner/exporter.py` compiles approved proposals i
 - **Zero Framework Dependencies**: The exported script requires only Python and `pandas` (no Streamlit, no LLMs, no database drivers).
 - **Production CLI Ready**: Can be executed directly in production environments or scheduled via Airflow / cron:
   ```bash
-  python clean_pipeline.py input_dirty.csv output_cleaned.csv
+  python autoclean_pipeline.py input_dirty.csv output_cleaned.csv
   ```
 - **Auditable Logic**: Transformations are compiled into explicit Pandas expressions, vector operations, and dictionary mappings.
 
@@ -379,7 +359,7 @@ To eliminate vendor lock-in, `cleaner/exporter.py` compiles approved proposals i
 
 ### Prerequisites
 - Python 3.11 or higher
-- Optional: [Ollama](https://ollama.ai/) installed locally for AI semantic vocabulary clustering and interactive dataset chat.
+- Optional: [Ollama](https://ollama.ai/) installed locally for local LLM assistance (e.g. `qwen2.5:3b` or `llama3:8b`).
 
 ### 1. Clone & Set Up Virtual Environment
 ```bash
@@ -395,62 +375,56 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### 2. Optional: Pull Local LLM Model (Ollama)
-```bash
-ollama pull qwen2.5:7b
-# Or: ollama pull llama3:8b
-```
-
-### 3. Launch the Modern Streamlit Application
+### 2. Launch the AutoClean Web Application
 ```bash
 streamlit run app.py
 ```
-Open your browser at `http://localhost:8501`. Use the sidebar to load any of the pre-configured benchmark datasets (Hospital, Beers, Car Dekho) with 1 click.
+Open your browser at `http://localhost:8501`. Use the sidebar to load any benchmark dataset (e.g. Baran Beers, Cafe Sales, Healthcare) or upload your own CSV/XLSX file.
 
-### 4. Run Pytest Suite (87 Tests)
+### 3. Run Automated Pytest Suite (88 Passing Tests)
 ```bash
 pytest tests/
 ```
 
-### 5. Run Full-Scale Complete Benchmark Suite
+### 4. Run Multi-Dataset System Verification
 ```bash
-python eval/run_full_scale_complete_benchmarks.py
+python scripts/verify_system.py
 ```
 
 ---
 
 ## 9. Project Directory Layout
 
-```
+```text
 Dataset cleaning system/
-├── app.py                               # AutoClean Streamlit Web Application
-├── cleaner/                             # Core Invariant Rule Engine
-│   ├── engine.py                        # Proposal generation & execution coordinator
-│   ├── profile.py                       # Pure-string statistical profiler
+├── app.py                               # AutoClean Streamlit Studio Frontend
+├── cleaner/                             # Core Deterministic Invariant Engine
+│   ├── engine.py                        # Pipeline execution & rule coordinator
+│   ├── profile.py                       # Pure-string statistical table profiler
 │   ├── io.py                            # Invariant-safe table loader
-│   ├── diff_viewer.py                   # Side-by-side cell diff calculator
+│   ├── diff_viewer.py                   # Side-by-side cell diff table builder
 │   ├── exporter.py                      # Standalone Python pipeline generator
-│   └── rules/                           # Deterministic Transformation Rules
-├── data/                                # Organized Benchmark & Real-World Datasets
+│   └── rules/                           # Deterministic Rules (R1 - R9)
+├── data/                                # Standardized Benchmarks & Datasets
 │   ├── dirty_benchmarks/                # 22 Dirty benchmark datasets (Baran, Kaggle)
-│   ├── dirty_large_scale/               # 5 Large datasets (32k to 564k+ rows)
+│   ├── dirty_large_scale/               # 5 Large datasets (32k to 541k+ rows)
 │   ├── real_world/                      # 11 Real-world Kaggle/UCI datasets
 │   └── downloaded/                      # 10 Classical ML reference datasets
-├── docs/                                # Technical Documentation & Comparative Analysis
+├── docs/                                # Technical Documentation & Feature Manuals
+│   ├── how_autoclean_works_and_feature_guide.md  # Comprehensive feature manual
+│   └── competitive_analysis_and_honest_review.md # Honest literature comparison
 ├── eval/                                # Full-Scale Empirical Benchmarking Suite
-│   ├── run_full_scale_complete_benchmarks.py
-│   └── results/                         # Verified empirical benchmark JSON outputs
 ├── src/                                 # Diagnostic & Intelligence Subsystems
 │   ├── detection/                       # Vectorized anomaly & type validators
-│   ├── profiling/                       # Continuous quality scoring & DRR
-│   ├── evaluation/                      # CleanML downstream ML evaluation
-│   └── intelligence/                    # Contextual assistant & NL rule generator
-├── sample_data/                         # Unit-test mock tables
-└── tests/                               # Comprehensive Automated Test Suite (87 tests)
+│   ├── profiling/                       # Quality scoring & defect resolution
+│   ├── evaluation/                      # CleanML downstream ML utility evaluation
+│   └── intelligence/                    # Contextual reasoning & NL rule generator
+├── scripts/                             # End-to-end integration verification scripts
+└── tests/                               # 88 Unit & Regression Tests (pytest)
 ```
 
 ---
 
 ## 10. Summary & Citation
 
-This system demonstrates that tabular data cleaning does not require slow, black-box row-by-row generative imputation or manual labeling. By combining **mathematical invariants**, **approximate functional dependencies**, and **$O(1)$ semantic compilation**, the engine delivers state-of-the-art precision while guaranteeing data safety and full auditability.
+AutoClean demonstrates that tabular data cleaning does not require slow, black-box row-by-row generative imputation or manual labeling. By combining **mathematical invariants**, **approximate functional dependencies**, and **$O(1)$ semantic compilation**, the engine delivers state-of-the-art precision while guaranteeing data safety, empirical ML utility gains, and full auditability.
