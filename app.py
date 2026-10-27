@@ -7,6 +7,7 @@ import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
+from typing import Optional, List, Dict, Any, Tuple
 from collections import defaultdict
 from src.utils.helpers import load_config, NpEncoder
 from src.ingestion.file_loader import load_dataset
@@ -183,6 +184,199 @@ for k, v in state_defaults.items():
         st.session_state[k] = v
 
 config = load_config()
+
+def explain_proposal(p) -> tuple[str, str]:
+    """
+    Returns (what_is_changing, why_it_is_changing) with dynamic, context-specific
+    layperson language derived from the rule kind, subtype ID, evidence, and sample changes.
+    """
+    col = p.columns[0] if getattr(p, "columns", None) and len(p.columns) > 0 else "column"
+    k = getattr(p, "kind", "")
+    p_id = getattr(p, "id", "").lower()
+    desc = getattr(p, "description", "")
+    ev = getattr(p, "evidence", "")
+    changes = getattr(p, "changes", []) or []
+    n_cells = getattr(p, "n_cells", len(changes))
+
+    # Helper to sample distinct dropped or changed substrings
+    def get_sample_diff_tokens():
+        tokens = set()
+        for ch in changes[:15]:
+            ov = str(ch.old_value if hasattr(ch, "old_value") else ch.get("old_value", ""))
+            nv = str(ch.new_value if hasattr(ch, "new_value") else ch.get("new_value", ""))
+            diff_text = ov.replace(nv, "").strip(" .,-()[]")
+            if diff_text and len(diff_text) < 30:
+                tokens.add(diff_text)
+        return list(tokens)[:3]
+
+    # Helper to sample old vs new pairs
+    sample_pairs = []
+    for ch in changes[:3]:
+        ov = str(ch.old_value if hasattr(ch, "old_value") else ch.get("old_value", ""))
+        nv = str(ch.new_value if hasattr(ch, "new_value") else ch.get("new_value", ""))
+        sample_pairs.append((ov, nv))
+
+    # R1: Missing Tokens
+    if k == "R1_missing_tokens":
+        if "trim" in p_id or "whitespace-only" in desc.lower():
+            what = f"Convert {n_cells:,} whitespace-only blank cells in '{col}' to clean empty cells"
+            why = f"These cells look empty but contain hidden space characters. Software treats them as non-empty text strings, which breaks missing value filters and null detection."
+        else:
+            token_match = re.search(r"'(.*?)'", desc)
+            token = token_match.group(1) if token_match else "placeholder text"
+            what = f"Replace placeholder token '{token}' with blank in '{col}'"
+            why = f"'{token}' was detected in {n_cells:,} rows as a disguised missing value. Leaving it as text causes analysis and ML models to treat '{token}' as a real category instead of missing data."
+        return what, why
+
+    # R2: Numeric & Currency & Units
+    elif k == "R2_numeric":
+        if "descriptor" in p_id or "descriptor" in desc.lower():
+            ev_match = re.search(r"Sample dropped text:\s*\[(.*?)\]", ev)
+            if ev_match:
+                dropped_samples = ev_match.group(1).replace("'", "")
+            else:
+                diff_toks = get_sample_diff_tokens()
+                dropped_samples = ", ".join([f"'{t}'" for t in diff_toks])
+            dropped_label = f" ({dropped_samples})" if dropped_samples else ""
+            what = f"Remove descriptive/packaging text{dropped_label} from numbers in '{col}'"
+            why = f"{n_cells:,} cells in '{col}' have extra packaging or descriptive notes{dropped_label} attached to numbers. Stripping this non-numeric text isolates the pure measurement so it can be calculated, averaged, and used in ML."
+        elif "scale" in p_id or "scale" in desc.lower():
+            what = f"Standardize percentage / scale representation in '{col}'"
+            why = f"Entries in '{col}' mix decimal fractions with percentage scales. Standardizing to a single uniform scale prevents numbers from being off by a factor of 100 in calculations and models."
+        elif "canonical" in p_id or "currency" in desc.lower() or "unit" in desc.lower():
+            diff_toks = get_sample_diff_tokens()
+            unit_label = f" ({', '.join(diff_toks)})" if diff_toks else ""
+            what = f"Standardize unit and symbol variants{unit_label} in '{col}' to pure numbers"
+            why = f"Values had inconsistent unit spellings or currency symbols{unit_label}. Removing the text characters standardizes the column into pure numbers for calculations while keeping the underlying magnitude intact."
+        else:
+            diff_toks = get_sample_diff_tokens()
+            detail = f" (removing {', '.join(diff_toks)})" if diff_toks else ""
+            what = f"Clean numeric formatting in '{col}'{detail}"
+            why = f"Text symbols, units, or commas prevent '{col}' from functioning as numeric data. Standardizing allows mathematical operations and statistical summaries."
+        return what, why
+
+    # R3: Whitespace & Casing
+    elif k == "R3_whitespace_case":
+        if "case" in p_id or "casing" in desc.lower():
+            what = f"Harmonize inconsistent letter casing in '{col}'"
+            why = f"Categories in '{col}' appear in mixed upper/lower case. Computers treat 'NEW YORK' and 'new york' as different categories; unifying casing merges them accurately."
+        elif "whitespace" in p_id or "trim" in p_id or "spaces" in desc.lower():
+            what = f"Trim extra leading/trailing whitespace in '{col}'"
+            why = f"Accidental spaces before or after text make identical values fail database lookups and grouping (e.g. 'Ale ' != 'Ale'). Trimming guarantees clean matching."
+        else:
+            what = f"Standardize spacing and text casing in '{col}'"
+            why = f"Hidden spaces and irregular capitalization cause computers to treat identical categories as different values."
+        return what, why
+
+    # R4: Dates
+    elif k == "R4_dates":
+        if getattr(p, "tier", "") == "FLAG" or "ambiguous" in p_id or "ambiguous" in desc.lower():
+            sample_val = sample_pairs[0][0] if sample_pairs else "date"
+            what = f"Ambiguous date format noticed in '{col}' (e.g. '{sample_val}')"
+            why = f"Dates where both day and month numbers are 12 or below could be either DD/MM/YYYY or MM/DD/YYYY. AutoClean flags them for your inspection instead of guessing blindly."
+        else:
+            sample_val = sample_pairs[0][0] if sample_pairs else ""
+            fmt_sample = f" (e.g. '{sample_val}')" if sample_val else ""
+            what = f"Convert mixed dates in '{col}'{fmt_sample} to standard YYYY-MM-DD"
+            why = f"Dates were entered in multiple different formats across rows. Converting all entries to standard ISO YYYY-MM-DD enables proper timeline sorting, time-series plotting, and date filtering."
+        return what, why
+
+    # R5: Compound Field Splitting
+    elif k == "R5_compound_split":
+        c_src = p.columns[0] if len(p.columns) > 0 else col
+        c_tgt = p.columns[1] if len(p.columns) > 1 else "separate column"
+        what = f"Extract distinct component from '{c_src}' into '{c_tgt}'"
+        why = f"Multiple distinct entities (such as City and State, or Code and Description) were merged into '{c_src}'. Splitting them gives each piece its own dedicated column for filtering and analysis."
+        return what, why
+
+    # R6: Relational Dependency Repair
+    elif k == "R6_dependency_repair":
+        c_a = p.columns[0] if len(p.columns) > 0 else "source"
+        c_b = p.columns[1] if len(p.columns) > 1 else col
+        what = f"Fix {n_cells:,} conflicting '{c_b}' entries using verified '{c_a}' mapping"
+        why = f"In over 95% of your records, '{c_a}' strictly determines '{c_b}'. Correcting rare contradicting entries makes these two related columns 100% logically consistent."
+        return what, why
+
+    # R7: Spelling & Category Consolidation
+    elif k == "R7_category_variants":
+        sample_typos = []
+        for ch in changes[:2]:
+            ov = str(ch.old_value if hasattr(ch, "old_value") else ch.get("old_value", ""))
+            nv = str(ch.new_value if hasattr(ch, "new_value") else ch.get("new_value", ""))
+            if ov and nv and ov != nv:
+                sample_typos.append(f"'{ov}' &rarr; '{nv}'")
+        typo_desc = f" ({', '.join(sample_typos)})" if sample_typos else ""
+        what = f"Fix spelling typos and category variations in '{col}'{typo_desc}"
+        why = f"Spelling mistakes and typos splinter identical categories into false sub-groups. Consolidating them into the verified dominant spelling ensures accurate chart totals and groupby results."
+        return what, why
+
+    # R8: Exact Duplicates
+    elif k == "R8_exact_duplicates":
+        n_rows = getattr(p, "n_cells", len(getattr(p, "dropped_rows", [])))
+        what = f"Deduplicate {n_rows:,} exact identical rows across all columns"
+        why = f"These records are 100% identical byte-for-byte duplicates of earlier rows across every feature. Removing them prevents artificially inflated totals, skewed metrics, and train/test data leakage."
+        return what, why
+
+    # Validators & Outliers
+    elif k == "validator_flag":
+        what = f"Format advisory: unusual patterns detected in '{col}'"
+        why = f"Certain entries do not match standard syntactic formats (evidence: {ev}). AutoClean flags them for domain review without altering your raw data."
+        return what, why
+
+    elif k == "outlier_iqr":
+        what = f"Statistical advisory: {n_cells:,} extreme numbers in '{col}'"
+        why = f"Values fall beyond 3x the Interquartile Range (IQR). Rather than automatically deleting or clipping genuine high-value transactions or records, AutoClean flags them for your inspection."
+        return what, why
+
+    else:
+        what = desc
+        why = f"Recommended by invariant dataset consistency rules based on internal column evidence."
+        return what, why
+
+
+def evaluate_custom_formula(
+    df: pd.DataFrame,
+    formula_str: str,
+    row_mask: pd.Series
+) -> tuple[Optional[pd.Series], Optional[str]]:
+    """
+    Safely evaluate a formula string over a subset of rows in df.
+    Supports math (+, -, *, /, //, %, **), functions (round, abs, min, max),
+    column identifiers (with spaces or underscores), and string concatenation (+).
+    """
+    try:
+        sub_df = df.loc[row_mask].copy()
+        if sub_df.empty:
+            return None, "No rows matched the specified row selection criteria."
+
+        ns = {}
+        for c in df.columns:
+            clean_c = c.strip()
+            num_s = pd.to_numeric(sub_df[c], errors="coerce")
+            is_num = num_s.notna().sum() >= max(1, len(sub_df) * 0.5)
+            series_val = num_s if is_num else sub_df[c]
+            ns[clean_c] = series_val
+            ns[clean_c.replace(" ", "_")] = series_val
+            ns[clean_c.replace(" ", "")] = series_val
+            ns[f"{clean_c.replace(' ', '_')}_str"] = sub_df[c].astype(str)
+
+        ns["round"] = np.round
+        ns["abs"] = np.abs
+        ns["min"] = np.minimum
+        ns["max"] = np.maximum
+        ns["np"] = np
+
+        res = eval(formula_str, {"__builtins__": {}}, ns)
+
+        if not isinstance(res, (pd.Series, np.ndarray, list)):
+            res = pd.Series(res, index=sub_df.index)
+        elif not isinstance(res, pd.Series):
+            res = pd.Series(res, index=sub_df.index)
+
+        return res, None
+    except Exception as e:
+        return None, str(e)
+
 
 # -------------------------------------------------------------
 # Sidebar Configuration
@@ -567,10 +761,47 @@ with tabs[1]:
                 st.markdown(f"**{cat_name}** ({len(k_props)} items)")
                 for p in k_props:
                     r1, r2 = st.columns([0.88, 0.12])
+                    what, why = explain_proposal(p)
+                    badge_class = "badge-auto" if p.tier == "AUTO" else ("badge-review" if p.tier == "REVIEW" else "badge-flag")
                     with r1:
-                        badge_class = "badge-auto" if p.tier == "AUTO" else ("badge-review" if p.tier == "REVIEW" else "badge-flag")
-                        st.markdown(f"<span class='badge {badge_class}'>{p.tier}</span> &nbsp; **{p.description}**", unsafe_allow_html=True)
-                        st.caption(f"Evidence: {p.evidence} | Impact: {p.n_cells:,} cells")
+                        st.markdown(
+                            f"<div style='margin-bottom:4px;'>"
+                            f"<span class='badge {badge_class}'>{p.tier}</span> &nbsp; "
+                            f"<span style='font-size:14.5px; font-weight:600; color:#f8fafc;'><strong style='color:#38bdf8;'>What:</strong> {what}</span>"
+                            f"</div>",
+                            unsafe_allow_html=True
+                        )
+                        st.markdown(
+                            f"<div style='font-size:12.5px; color:#cbd5e1; margin-top:2px; margin-bottom:5px; line-height:1.45;'>"
+                            f"<strong style='color:#a78bfa;'>Why:</strong> {why}"
+                            f"</div>",
+                            unsafe_allow_html=True
+                        )
+                        st.caption(f"Impact: {p.n_cells:,} cells | Rule ID: {p.id}")
+
+                        # 3-cell preview of Old -> New
+                        sample_changes = p.changes[:3] if getattr(p, "changes", None) else []
+                        if not sample_changes and getattr(p, "dropped_rows", None):
+                            sample_changes = [{"row": r, "column": "All Columns", "old_value": "Duplicate identical record", "new_value": "Dropped"} for r in p.dropped_rows[:3]]
+                        elif not sample_changes and getattr(p, "sample", None):
+                            sample_changes = p.sample[:3]
+
+                        if sample_changes:
+                            st.markdown("<div style='font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.04em; color:#94a3b8; margin-top:4px; margin-bottom:2px;'>Preview (up to 3 cells):</div>", unsafe_allow_html=True)
+                            for sc in sample_changes:
+                                r_num = sc.get("row") if isinstance(sc, dict) else getattr(sc, "row", "?")
+                                old_v = sc.get("old_value") if isinstance(sc, dict) else getattr(sc, "old_value", "")
+                                new_v = sc.get("new_value") if isinstance(sc, dict) else getattr(sc, "new_value", "")
+                                old_disp = f'"{old_v}"' if str(old_v).strip() != "" else "<em>(blank)</em>"
+                                new_disp = f'"{new_v}"' if str(new_v).strip() != "" else "<em>(blank)</em>"
+                                st.markdown(
+                                    f"<div style='font-family:\"JetBrains Mono\", monospace; font-size:11.5px; background-color:rgba(15,23,42,0.65); padding:3px 8px; border-radius:4px; margin-top:2px; border:1px solid #334155;'>"
+                                    f"<span style='color:#64748b;'>Row {r_num}:</span> "
+                                    f"<span style='color:#f87171;'>{old_disp}</span> &rarr; "
+                                    f"<span style='color:#34d399;'>{new_disp}</span>"
+                                    f"</div>",
+                                    unsafe_allow_html=True
+                                )
                     with r2:
                         if p.tier != "FLAG":
                             cur_v = st.session_state.rule_approvals.get(p.id, p.tier != "FLAG")
@@ -648,23 +879,308 @@ with tabs[1]:
                 st.dataframe(format_diff_table(diff_records), use_container_width=True)
 
         # -------------------------------------------------------------
-        # REVIEW CHANGES: Excel-Style Spreadsheet Workspace & Tools
+        # BATCH DATA PROCESSING TOOLS & AI ASSISTANT
         # -------------------------------------------------------------
         st.markdown("---")
-        st.markdown("#### Review Changes")
-        st.caption("Interactive spreadsheet editor with batch tools and local AI assistance for reviewing and editing records.")
+        st.markdown("#### Batch Data Processing & AI Assistant")
+        st.caption("Apply bulk formulas, find & replace, fill missing values, or leverage local AI on chosen rows.")
 
         active_review_df = st.session_state.get("cleaner_cleaned_df") if st.session_state.get("cleaner_cleaned_df") is not None else cleaner_df
 
         # Batch Processing Tools
-        with st.expander("Batch Data Processing Tools & AI Assistant", expanded=False):
-            tool_tab1, tool_tab2, tool_tab3, tool_tab4, tool_tab5 = st.tabs([
+        with st.expander("Batch Data Processing Tools & AI Assistant", expanded=True):
+            tool_tab_formula, tool_tab_append, tool_tab1, tool_tab2, tool_tab3, tool_tab4, tool_tab5 = st.tabs([
+                "Apply Formula / Expression",
+                "Append / Prepend Values",
                 "Find & Replace",
                 "Fill Blanks",
                 "Context Assistant",
                 "Vocabulary Harmonizer",
                 "Natural Language Rules"
             ])
+
+            # Tool 0: Apply Formula / Expression
+            with tool_tab_formula:
+                st.markdown("**Apply Formula or Calculated Expression to Rows**")
+                st.caption("Calculate values using mathematical formulas, string concatenation, or functions across all rows or a chosen subset of rows.")
+
+                f_c1, f_c2 = st.columns([1.5, 2.5])
+                with f_c1:
+                    col_choices = ["+ Add New Column..."] + list(active_review_df.columns)
+                    target_choice = f_c1.selectbox("Target Column", col_choices, key="calc_target_col")
+                    if target_choice == "+ Add New Column...":
+                        new_col_name = st.text_input("New Column Name", placeholder="e.g. Total_Cost, Full_Name", key="calc_new_col_name").strip()
+                        target_col = new_col_name if new_col_name else "New_Column"
+                    else:
+                        target_col = target_choice
+
+                with f_c2:
+                    scope_mode = f_c2.selectbox(
+                        "Apply to Rows",
+                        [
+                            "All Rows",
+                            "Row Index Range (e.g. 0 to 50)",
+                            "Specific Row Numbers (e.g. 3, 14, 25)",
+                            "Where Target Column is Blank",
+                            "Custom Filter Condition (e.g. Quantity > 5)"
+                        ],
+                        key="calc_scope_mode"
+                    )
+
+                # Row scope mask calculation
+                row_mask = pd.Series(True, index=active_review_df.index)
+
+                if scope_mode == "Row Index Range (e.g. 0 to 50)":
+                    max_idx = max(0, len(active_review_df) - 1)
+                    sr_col1, sr_col2 = st.columns(2)
+                    start_r = sr_col1.number_input("Start Row Index", min_value=0, max_value=max_idx, value=0, key="calc_start_r")
+                    end_r = sr_col2.number_input("End Row Index", min_value=0, max_value=max_idx, value=min(20, max_idx), key="calc_end_r")
+                    row_mask = pd.Series((active_review_df.index >= start_r) & (active_review_df.index <= end_r), index=active_review_df.index)
+                    st.caption(f"Selected {row_mask.sum():,} row(s) (indices {start_r} through {end_r}).")
+
+                elif scope_mode == "Specific Row Numbers (e.g. 3, 14, 25)":
+                    spec_rows_str = st.text_input("Row Numbers (comma-separated)", placeholder="e.g. 0, 5, 12, 19", key="calc_spec_rows")
+                    spec_nums = []
+                    for part in str(spec_rows_str).replace(";", ",").split(","):
+                        part = part.strip()
+                        if part.isdigit() or (part.startswith("-") and part[1:].isdigit()):
+                            spec_nums.append(int(part))
+                    row_mask = pd.Series(active_review_df.index.isin(spec_nums), index=active_review_df.index)
+                    st.caption(f"Selected {row_mask.sum():,} row(s) matching specified row numbers.")
+
+                elif scope_mode == "Where Target Column is Blank":
+                    if target_col in active_review_df.columns:
+                        s = active_review_df[target_col]
+                        row_mask = pd.Series(
+                            s.isna() | (s.astype(str).str.strip() == "") | (s.astype(str).str.lower().isin(["nan", "null", "none"])),
+                            index=active_review_df.index
+                        )
+                        st.caption(f"Selected {row_mask.sum():,} blank row(s) in column '{target_col}'.")
+                    else:
+                        row_mask = pd.Series(True, index=active_review_df.index)
+                        st.caption(f"Column '{target_col}' will be created; targeting all {len(active_review_df):,} rows.")
+
+                elif scope_mode == "Custom Filter Condition (e.g. Quantity > 5)":
+                    cond_str = st.text_input("Filter Condition Expression", placeholder="e.g. Quantity > 10  or  Status == 'Pending'", key="calc_cond_str")
+                    if cond_str.strip():
+                        try:
+                            ctx_cond = {'np': np, 'pd': pd, 'df': active_review_df}
+                            for c in active_review_df.columns:
+                                clean_c = c.strip()
+                                num_s = pd.to_numeric(active_review_df[c], errors="coerce")
+                                is_num = num_s.notna().sum() >= max(1, len(active_review_df) * 0.5)
+                                series_val = num_s if is_num else active_review_df[c]
+                                ctx_cond[clean_c] = series_val
+                                ctx_cond[clean_c.replace(" ", "_")] = series_val
+                                ctx_cond[clean_c.replace(" ", "")] = series_val
+                            cond_res = eval(cond_str, {'__builtins__': {}}, ctx_cond)
+                            if isinstance(cond_res, pd.Series):
+                                row_mask = pd.Series(cond_res.fillna(False).astype(bool), index=active_review_df.index)
+                            else:
+                                row_mask = pd.Series(bool(cond_res), index=active_review_df.index)
+                            st.caption(f"Condition matched {row_mask.sum():,} of {len(active_review_df):,} rows.")
+                        except Exception as ce:
+                            st.warning(f"Invalid condition syntax: {ce}")
+                            row_mask = pd.Series(False, index=active_review_df.index)
+
+                formula_input = st.text_input(
+                    "Formula / Expression",
+                    placeholder="e.g. Quantity * Unit_Price  or  np.round(Price * 1.08, 2)  or  First_Name + ' ' + Last_Name",
+                    key="calc_formula_input"
+                )
+                st.markdown(
+                    "<div style='font-size:12px; color:#94a3b8; margin-bottom:8px;'>"
+                    "💡 <strong>Examples:</strong> "
+                    "<code>Quantity * Unit_Price</code> &bull; "
+                    "<code>np.round(Total_Cost * 0.95, 2)</code> &bull; "
+                    "<code>First_Name + ' ' + Last_Name</code> &bull; "
+                    "<code>np.clip(Discount, 0, 100)</code>"
+                    "</div>",
+                    unsafe_allow_html=True
+                )
+
+                btn_col1, btn_col2, _ = st.columns([1.3, 1.3, 3])
+                preview_btn = btn_col1.button("Preview Calculation", key="btn_preview_formula")
+                apply_formula_btn = btn_col2.button("Apply Formula to Rows", type="primary", key="btn_apply_formula")
+
+                if preview_btn or apply_formula_btn:
+                    if not formula_input.strip():
+                        st.warning("Please enter a formula expression.")
+                    elif row_mask.sum() == 0:
+                        st.warning("No rows matched the chosen row selection criteria.")
+                    else:
+                        calc_res, err_msg = evaluate_custom_formula(active_review_df, formula_input.strip(), row_mask)
+                        if err_msg:
+                            st.error(f"Formula evaluation error: {err_msg}")
+                        elif calc_res is not None:
+                            matching_indices = active_review_df[row_mask].index[:5]
+                            prev_rows = []
+                            orig_series = active_review_df[target_col] if target_col in active_review_df.columns else pd.Series(["(new column)"] * len(active_review_df), index=active_review_df.index)
+                            for idx in matching_indices:
+                                ov = orig_series.loc[idx]
+                                nv = calc_res.loc[idx]
+                                if pd.isna(nv):
+                                    nv_str = ""
+                                elif isinstance(nv, float) and nv.is_integer():
+                                    nv_str = str(int(nv))
+                                else:
+                                    nv_str = str(nv)
+                                prev_rows.append({
+                                    "Row Index": idx,
+                                    f"Original '{target_col}'": ov,
+                                    f"Calculated Value": nv_str
+                                })
+
+                            st.markdown("**Preview (first 5 affected rows):**")
+                            st.dataframe(pd.DataFrame(prev_rows), use_container_width=True)
+
+                            if apply_formula_btn:
+                                if target_col not in active_review_df.columns:
+                                    active_review_df[target_col] = ""
+                                    if st.session_state.get("cleaner_cleaned_df") is not None and target_col not in st.session_state.cleaner_cleaned_df.columns:
+                                        st.session_state.cleaner_cleaned_df[target_col] = ""
+
+                                affected_count = 0
+                                for idx in active_review_df[row_mask].index:
+                                    nv = calc_res.loc[idx]
+                                    if pd.isna(nv):
+                                        nv_str = ""
+                                    elif isinstance(nv, float) and nv.is_integer():
+                                        nv_str = str(int(nv))
+                                    else:
+                                        nv_str = str(nv)
+                                    st.session_state.manual_overrides.append({"row": idx, "column": target_col, "new_value": nv_str})
+                                    active_review_df.at[idx, target_col] = nv_str
+                                    affected_count += 1
+
+                                st.success(f"Successfully calculated and applied formula to {affected_count:,} row(s) in column '{target_col}'.")
+                                st.rerun()
+
+            # Tool: Append / Prepend Values
+            with tool_tab_append:
+                st.markdown("**Append or Prepend Text, Units & Prefixes to Column**")
+                st.caption("Attach measurement units (e.g. ' oz', ' kg', ' USD', ' %'), suffixes, or ID prefixes to all rows or selected rows in a column.")
+
+                ap_c1, ap_c2 = st.columns([1.5, 2.5])
+                with ap_c1:
+                    target_ap_col = st.selectbox("Target Column", list(active_review_df.columns), key="app_target_col")
+                    ap_mode = st.radio(
+                        "Action",
+                        ["Append to End (Suffix / Unit)", "Prepend to Beginning (Prefix)"],
+                        key="app_mode"
+                    )
+
+                with ap_c2:
+                    ap_scope = st.selectbox(
+                        "Apply to Rows",
+                        [
+                            "All Rows in Dataset",
+                            "Row Index Range (e.g. 0 to 50)",
+                            "Specific Row Numbers (e.g. 3, 14, 25)",
+                            "Custom Filter Condition (e.g. Quantity > 5)"
+                        ],
+                        key="app_scope"
+                    )
+
+                    col_u1, col_u2 = st.columns([2, 1])
+                    val_to_insert = col_u1.text_input("Value to Insert", placeholder="e.g.  oz,  USD, %, ID-, Dr. ", key="app_val_insert")
+                    add_space = col_u2.checkbox("Add separating space", value=True, key="app_add_space", help="Adds a space between existing value and inserted text (e.g. '12.0' + 'oz' -> '12.0 oz')")
+
+                # Preset buttons for quick selection
+                st.markdown("<div style='font-size:11.5px; color:#94a3b8; margin-top:-4px; margin-bottom:8px;'><strong>Quick Presets:</strong> click to load</div>", unsafe_allow_html=True)
+                preset_cols = st.columns(8)
+                common_presets = ["oz", "ml", "kg", "lbs", "USD", "%", "units", "ID-"]
+                for p_idx, preset in enumerate(common_presets):
+                    if preset_cols[p_idx].button(preset, key=f"btn_preset_{preset}"):
+                        st.session_state.app_val_insert = preset
+                        st.rerun()
+
+                skip_blanks = st.checkbox("Skip empty / blank cells (recommended)", value=True, key="app_skip_blanks", help="Leaves blank cells untouched rather than attaching text to empty cells")
+
+                # Compute row scope mask
+                ap_mask = pd.Series(True, index=active_review_df.index)
+                if ap_scope == "Row Index Range (e.g. 0 to 50)":
+                    max_idx = max(0, len(active_review_df) - 1)
+                    s_r1, s_r2 = st.columns(2)
+                    st_r = s_r1.number_input("Start Row Index", min_value=0, max_value=max_idx, value=0, key="app_st_r")
+                    en_r = s_r2.number_input("End Row Index", min_value=0, max_value=max_idx, value=min(20, max_idx), key="app_en_r")
+                    ap_mask = pd.Series((active_review_df.index >= st_r) & (active_review_df.index <= en_r), index=active_review_df.index)
+                elif ap_scope == "Specific Row Numbers (e.g. 3, 14, 25)":
+                    s_nums_str = st.text_input("Row Numbers (comma-separated)", placeholder="e.g. 0, 5, 12, 19", key="app_spec_nums")
+                    s_nums = []
+                    for part in str(s_nums_str).replace(";", ",").split(","):
+                        part = part.strip()
+                        if part.isdigit() or (part.startswith("-") and part[1:].isdigit()):
+                            s_nums.append(int(part))
+                    ap_mask = pd.Series(active_review_df.index.isin(s_nums), index=active_review_df.index)
+                elif ap_scope == "Custom Filter Condition (e.g. Quantity > 5)":
+                    c_cond = st.text_input("Filter Condition Expression", placeholder="e.g. Price > 20", key="app_cond_str")
+                    if c_cond.strip():
+                        try:
+                            ctx_ap = {'np': np, 'pd': pd, 'df': active_review_df}
+                            for c in active_review_df.columns:
+                                ctx_ap[c] = active_review_df[c]
+                                ctx_ap[c.replace(" ", "_")] = active_review_df[c]
+                            c_res = eval(c_cond, {'__builtins__': {}}, ctx_ap)
+                            if isinstance(c_res, pd.Series):
+                                ap_mask = pd.Series(c_res.fillna(False).astype(bool), index=active_review_df.index)
+                            else:
+                                ap_mask = pd.Series(bool(c_res), index=active_review_df.index)
+                        except Exception as e_ap:
+                            st.warning(f"Invalid condition: {e_ap}")
+                            ap_mask = pd.Series(False, index=active_review_df.index)
+
+                if skip_blanks and target_ap_col in active_review_df.columns:
+                    s_col = active_review_df[target_ap_col]
+                    is_blank = s_col.isna() | (s_col.astype(str).str.strip() == "") | (s_col.astype(str).str.lower().isin(["nan", "null", "none"]))
+                    ap_mask = ap_mask & (~is_blank)
+
+                st.caption(f"Targeting {ap_mask.sum():,} row(s) in column '{target_ap_col}'.")
+
+                btn_ap1, btn_ap2, _ = st.columns([1.3, 1.3, 3])
+                prev_ap_btn = btn_ap1.button("Preview Changes", key="btn_prev_append")
+                apply_ap_btn = btn_ap2.button("Apply to Column", type="primary", key="btn_apply_append")
+
+                if prev_ap_btn or apply_ap_btn:
+                    if not val_to_insert:
+                        st.warning("Please enter a value or unit to append / prepend.")
+                    elif ap_mask.sum() == 0:
+                        st.warning("No rows matched the chosen criteria.")
+                    else:
+                        sep = " " if add_space and not val_to_insert.startswith(" ") and not val_to_insert.endswith(" ") else ""
+                        is_append = "Append" in ap_mode
+                        
+                        target_series = active_review_df[target_ap_col]
+                        matching_indices = active_review_df[ap_mask].index[:5]
+                        prev_table = []
+                        for idx in matching_indices:
+                            cur_val = str(target_series.loc[idx])
+                            if is_append:
+                                new_val = f"{cur_val}{sep}{val_to_insert}"
+                            else:
+                                new_val = f"{val_to_insert}{sep}{cur_val}"
+                            prev_table.append({
+                                "Row Index": idx,
+                                f"Original '{target_ap_col}'": cur_val,
+                                f"Resulting '{target_ap_col}'": new_val
+                            })
+                        
+                        st.markdown("**Preview (first 5 affected rows):**")
+                        st.dataframe(pd.DataFrame(prev_table), use_container_width=True)
+
+                        if apply_ap_btn:
+                            ap_count = 0
+                            for idx in active_review_df[ap_mask].index:
+                                cur_val = str(target_series.loc[idx])
+                                if is_append:
+                                    new_val = f"{cur_val}{sep}{val_to_insert}"
+                                else:
+                                    new_val = f"{val_to_insert}{sep}{cur_val}"
+                                st.session_state.manual_overrides.append({"row": idx, "column": target_ap_col, "new_value": new_val})
+                                active_review_df.at[idx, target_ap_col] = new_val
+                                ap_count += 1
+                            st.success(f"Successfully updated {ap_count:,} row(s) in column '{target_ap_col}'.")
+                            st.rerun()
 
             # Tool 1: Find & Replace
             with tool_tab1:
@@ -823,6 +1339,24 @@ with tabs[1]:
             with tool_tab5:
                 st.markdown("**Natural Language Business Rule Builder**")
                 st.caption("Translate plain English rules (e.g. 'Ensure UnitPrice is greater than 0') into executable Pandas query filters.")
+
+                st.markdown(
+                    """
+                    <div style="background-color:rgba(30, 41, 59, 0.7); border:1px solid #3b82f6; border-radius:8px; padding:12px 16px; margin-bottom:14px;">
+                        <div style="font-weight:600; color:#60a5fa; font-size:13.5px; margin-bottom:4px;">
+                            Recommended Ollama Model for AI Rules:
+                        </div>
+                        <div style="font-size:12.5px; color:#e2e8f0; line-height:1.5;">
+                            • <strong>Top Choice (Fast & Highly Accurate):</strong> <code style="color:#38bdf8;">qwen2.5-coder:7b</code> &mdash; State-of-the-art accuracy for Pandas queries, filters, and Python logic. Runs within ~5 GB VRAM or smooth on 16GB CPU RAM.<br>
+                            • <strong>Quick Install Command:</strong> <code style="background-color:#0f172a; padding:2px 6px; border-radius:4px; color:#a5f3fc;">ollama run qwen2.5-coder:7b</code><br>
+                            • <strong>Lightweight Alternative (Low RAM / 4GB VRAM):</strong> <code style="color:#38bdf8;">qwen2.5:3b</code> or <code style="color:#38bdf8;">llama3.2:3b</code><br>
+                            • <strong>High-Capacity Alternative (16GB+ VRAM):</strong> <code style="color:#38bdf8;">qwen2.5-coder:14b</code> or <code style="color:#38bdf8;">llama3.1:8b</code>
+                        </div>
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
+
                 nl_rule_in = st.text_input("Business Rule", key="nl_rule_txt")
                 if st.button("Compile and Verify Rule", type="primary", key="btn_compile_nl_rule"):
                     if nl_rule_in:
@@ -833,9 +1367,12 @@ with tabs[1]:
                             else:
                                 st.error(nl_res.get("error"))
 
-        # Interactive Spreadsheet Grid
-        st.markdown("**Spreadsheet Editor**")
-        st.caption("Edit values directly in the grid. Changes are tracked in the audit log and preserved on export.")
+        # -------------------------------------------------------------
+        # SPREADSHEET EDITOR (AT THE END OF TAB 2)
+        # -------------------------------------------------------------
+        st.markdown("---")
+        st.markdown("#### Spreadsheet Editor")
+        st.caption("Edit individual cells directly in the interactive grid. Edits are tracked in the audit log and preserved on export.")
 
         filter_anom = st.checkbox(
             "Show only rows with detected issues or modifications",
